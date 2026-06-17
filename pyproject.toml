@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agenty-core"
+version = "0.1.0"
+description = "Shared ComfyUI/HuggingFace/web/file tool layer for agentY (Strands app) and agentY-mcp (MCP server)."
+requires-python = ">=3.10"
+# Runtime deps the shared tools/utils need. The consuming app supplies the rest
+# (Strands/Ollama for agenty; the MCP SDK for agentY-mcp). Pillow/imageio are
+# only needed by the image helpers; kept here so both consumers get them.
+dependencies = [
+    "requests>=2.31.0",
+    "websockets>=12.0",
+    "Pillow>=10.0.0",
+    "ddgs>=9.0.0",
+    "tqdm>=4.66.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agenty_core*"]
