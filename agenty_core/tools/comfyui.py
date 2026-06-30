@@ -118,6 +118,17 @@ def _custom_templates_dir() -> Path:
     return (_project_root() / ct_dir).resolve()
 
 
+def _official_templates_dir() -> Path:
+    """Return the path to the official (Comfy-Org) workflow templates directory.
+
+    Templates live here when present; get_workflow_template falls back to this
+    directory so official templates are loadable, not just listed in the catalog.
+    """
+    cfg = _load_config()
+    od = cfg.get("comfyui_official_templates_dir", "./comfyui_workflow_templates_official/")
+    return (_project_root() / od).resolve()
+
+
 def _workflows_dir() -> Path:
     """Return the directory where generated/patched workflow JSON files are saved."""
     cfg = _load_config()
@@ -164,11 +175,15 @@ def _fetch_template(name: str) -> dict | None:
         return _template_cache[name]
 
     data: dict | None = None
-    ct_dir = _custom_templates_dir()
-    for candidate in [ct_dir / f"{name}.json", ct_dir / name]:
-        if candidate.exists():
-            with open(candidate, encoding="utf-8") as f:
-                data = json.load(f)
+    # Custom templates take precedence; fall back to the official directory so
+    # official templates load too (previously they were "not found").
+    for base in (_custom_templates_dir(), _official_templates_dir()):
+        for candidate in (base / f"{name}.json", base / name):
+            if candidate.exists():
+                with open(candidate, encoding="utf-8") as f:
+                    data = json.load(f)
+                break
+        if data is not None:
             break
 
     if data is not None:
