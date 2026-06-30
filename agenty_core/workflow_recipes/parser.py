@@ -66,7 +66,7 @@ def load_object_info(
     """
     if cache_path and os.path.exists(cache_path):
         try:
-            with open(cache_path, "r", encoding="utf-8") as f:
+            with open(cache_path, "r", encoding="utf-8-sig") as f:
                 data = json.load(f)
             log(f"[object_info] loaded cache: {len(data)} classes from {cache_path}")
             return data
@@ -149,7 +149,7 @@ def _merge_index_file(path: str, source: str, out: Dict[str, Dict], log) -> None
     Unknown shapes are ignored, never fatal.
     """
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8-sig") as f:
             data = json.load(f)
     except (OSError, json.JSONDecodeError) as exc:
         log(f"[index] unreadable {path} ({exc}); ignoring")
@@ -206,7 +206,7 @@ def load_descriptions(
 
     if templates_descriptions_path and os.path.exists(templates_descriptions_path):
         try:
-            with open(templates_descriptions_path, "r", encoding="utf-8") as f:
+            with open(templates_descriptions_path, "r", encoding="utf-8-sig") as f:
                 flat = json.load(f)
         except (OSError, json.JSONDecodeError) as exc:
             log(f"[index] unreadable {templates_descriptions_path} ({exc}); ignoring")
@@ -516,7 +516,7 @@ def parse_file(
     if base in _SKIP_BASENAMES:
         return None
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8-sig") as f:
             data = json.load(f)
     except (OSError, json.JSONDecodeError) as exc:
         log(f"[skip] {base}: unreadable JSON ({exc})")

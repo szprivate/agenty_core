@@ -66,6 +66,16 @@ class TestLoadDescriptions(unittest.TestCase):
             meta = P.load_descriptions({"official": d}, log=lambda *a: None)
         self.assertEqual(meta, {})
 
+    def test_templates_descriptions_with_bom_is_readable(self):
+        # A workflow_templates.json saved with a UTF-8 BOM (common from Windows
+        # editors) must still be parsed - the reads use utf-8-sig.
+        with tempfile.TemporaryDirectory() as d:
+            td = os.path.join(d, "workflow_templates.json")
+            with open(td, "w", encoding="utf-8-sig") as f:   # writes a BOM
+                json.dump({"my_wf": "A local image edit workflow."}, f)
+            meta = P.load_descriptions({}, td, log=lambda *a: None)
+        self.assertEqual(meta["my_wf"]["description"], "A local image edit workflow.")
+
 
 def _graph(name, classes, source="official", category=None, description=None):
     nodes = [{"id": i, "type": c, "widgets_values": []} for i, c in enumerate(classes)]
