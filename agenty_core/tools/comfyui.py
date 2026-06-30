@@ -1119,7 +1119,7 @@ def get_workflow_template(template_name: str) -> str:
 # Tools: Workflow recipes (task -> model -> node clusters knowledge base)
 # ═══════════════════════════════════════════════════════════════════════════════
 # The recipe database is produced by the workflow_recipes generator
-# (``python -m src.tools.workflow_recipes.cli``). It groups the template corpus
+# (``python -m agenty_core.workflow_recipes.cli``). It groups the template corpus
 # into task -> model recipes, each describing the required node clusters,
 # connection patterns, boundary ports, and the concrete member templates that
 # implement it.
@@ -1209,7 +1209,7 @@ def list_workflow_recipes() -> str:
     if not db:
         return json.dumps({
             "error": "recipe database not found",
-            "hint": "generate it with: python -m src.tools.workflow_recipes.cli",
+            "hint": "generate it with: python -m agenty_core.workflow_recipes.cli",
         })
     tasks = []
     for t in db.get("tasks", []):
@@ -1246,7 +1246,7 @@ def get_workflow_recipe(task: str, model: str = "") -> str:
     if not db:
         return json.dumps({
             "error": "recipe database not found",
-            "hint": "generate it with: python -m src.tools.workflow_recipes.cli",
+            "hint": "generate it with: python -m agenty_core.workflow_recipes.cli",
         })
 
     tkey = task.strip().lower()
