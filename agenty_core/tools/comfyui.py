@@ -1,5 +1,5 @@
 """
-ComfyUI tools – server communication, workflow management, and node inspection.
+ComfyUI tools - server communication, workflow management, and node inspection.
 
 Consolidates all ComfyUI-related @tool functions into a single module:
   • Server: models, execution control, queue, history, prompt submission
@@ -1113,6 +1113,175 @@ def get_workflow_template(template_name: str) -> str:
         return result_json
     except Exception as e:
         return json.dumps({"error": str(e)})
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tools: Workflow recipes (task -> model -> node clusters knowledge base)
+# ═══════════════════════════════════════════════════════════════════════════════
+# The recipe database is produced by the workflow_recipes generator
+# (``python -m src.tools.workflow_recipes.cli``). It groups the template corpus
+# into task -> model recipes, each describing the required node clusters,
+# connection patterns, boundary ports, and the concrete member templates that
+# implement it.
+_RECIPE_DB_RELPATHS = (
+    Path("config") / "workflow_recipes.json",
+)
+
+# Brainbriefing task-type shorthands -> canonical taxonomy task names.
+_RECIPE_TASK_ALIASES = {
+    "image_generation": "text to image", "txt2img": "text to image",
+    "image_edit": "image edit", "img2img": "image edit",
+    "controlnet": "image edit with controlnet",
+    "inpaint": "inpaint outpaint", "outpaint": "inpaint outpaint",
+    "video_i2v": "image to video", "i2v": "image to video",
+    "video_t2v": "text to video", "t2v": "text to video",
+    "video_flf": "first last frame to video", "flf": "first last frame to video",
+    "video_v2v": "video to video", "v2v": "video to video",
+    "upscale": "upscale", "audio": "audio", "3d": "3d",
+}
+
+
+def _load_recipe_db():
+    """Return (db_dict, path_str) for the recipe database, or (None, None)."""
+    root = _project_root()
+    for rel in _RECIPE_DB_RELPATHS:
+        p = root / rel
+        if p.exists():
+            try:
+                return json.loads(p.read_text(encoding="utf-8")), str(p)
+            except Exception:
+                continue
+    return None, None
+
+
+def _recipe_tokens(text: str) -> list:
+    return "".join(c if c.isalnum() else " " for c in (text or "").lower()).split()
+
+
+def _recipe_leaf_view(task: dict, model: dict) -> dict:
+    """The build-oriented view of a (task, model) recipe leaf for the Brain."""
+    required = [
+        {"node_class": e["node_class"], "min_instances": e.get("min_instances", 1),
+         "role": e.get("role")}
+        for e in model.get("required_node_roles", []) if not e.get("utility")
+    ]
+    ui = model.get("user_intent", {})
+    return {
+        "id": model["id"],
+        "task": task["task"],
+        "model": model["model"],
+        # Where it runs: "local" (local models), "api" (remote partner-node
+        # generation - needs API credentials/credits, no local models), or
+        # "hybrid" (local generation plus a remote helper node).
+        "execution": model.get("execution", "local"),
+        "uses_api_nodes": model.get("uses_api_nodes", False),
+        "api_node_classes": model.get("api_node_classes", []),
+        "when_to_use": ui.get("when_to_use"),
+        "example_requests": ui.get("example_requests", []),
+        "description": model.get("description"),
+        "boundary_ports": model.get("boundary_ports", {}),
+        "node_clusters": model.get("node_clusters", []),
+        "connection_patterns": [
+            p for p in model.get("connection_patterns", []) if p.get("invariant")
+        ],
+        "required_nodes": required,
+        "member_workflows": model.get("member_files", []),
+        "unresolved_nodes": model.get("unresolved_nodes", []),
+        "custom_nodes": model.get("custom_nodes", []),
+        "how_to_build": (
+            "Load the closest 'member_workflows' template via get_workflow_template() "
+            "as a scaffold, then ensure every entry in 'required_nodes' is present "
+            "(respecting min_instances) and every 'connection_patterns' edge is wired."
+        ),
+    }
+
+
+@tool
+def list_workflow_recipes() -> str:
+    """List the available workflow recipes as a task -> model index.
+
+    Cheapest way to discover what task+model recipes exist before fetching one
+    with get_workflow_recipe(). Each entry has the recipe id, model family,
+    member count, and a when_to_use line. Returns an error with a hint if the
+    recipe database has not been generated yet.
+    """
+    db, path = _load_recipe_db()
+    if not db:
+        return json.dumps({
+            "error": "recipe database not found",
+            "hint": "generate it with: python -m src.tools.workflow_recipes.cli",
+        })
+    tasks = []
+    for t in db.get("tasks", []):
+        tasks.append({
+            "task": t["task"],
+            "models": [
+                {"id": m["id"], "model": m["model"],
+                 "member_count": m["member_count"],
+                 "when_to_use": m.get("user_intent", {}).get("when_to_use")}
+                for m in t.get("models", [])
+            ],
+        })
+    return json.dumps({"source": path, "tasks": tasks})
+
+
+@tool
+def get_workflow_recipe(task: str, model: str = "") -> str:
+    """Return the build recipe for a task (and optionally a model family).
+
+    Use this when building a new workflow from scratch (template.name ==
+    "build_new"). The recipe is the standard to build to: it lists the required
+    node clusters, the invariant connection patterns, the boundary ports, and
+    the concrete member templates that implement this task+model (load the
+    closest one via get_workflow_template() as a scaffold).
+
+    Args:
+        task: The task - a canonical name ("Image to Video", "Image Edit with
+            ControlNet") or a brainbriefing shorthand ("video_i2v", "image_edit").
+        model: Optional model family ("WAN 2.2", "LTX-2", "Flux", "Qwen Image").
+            When omitted, the best-matching task is returned along with the list
+            of models available under it so you can pick one.
+    """
+    db, path = _load_recipe_db()
+    if not db:
+        return json.dumps({
+            "error": "recipe database not found",
+            "hint": "generate it with: python -m src.tools.workflow_recipes.cli",
+        })
+
+    tkey = task.strip().lower()
+    task_q = set(_recipe_tokens(_RECIPE_TASK_ALIASES.get(tkey, task)))
+    model_q = set(_recipe_tokens(model))
+
+    best = None
+    best_score = -1.0
+    for t in db.get("tasks", []):
+        tnorm = set(_recipe_tokens(t["task"]) + _recipe_tokens(t["id"]))
+        tscore = len(task_q & tnorm)
+        if task_q and tscore == 0:
+            continue
+        for m in t.get("models", []):
+            mnorm = set(_recipe_tokens(m["model"]) + _recipe_tokens(m["id"]))
+            mscore = len(model_q & mnorm) if model_q else 0
+            score = tscore * 10 + mscore * 5 + m.get("member_count", 0) * 0.01
+            if score > best_score:
+                best_score = score
+                best = (t, m)
+
+    if not best:
+        return json.dumps({
+            "error": "no recipe matched",
+            "available_tasks": [t["task"] for t in db.get("tasks", [])],
+        })
+
+    t, m = best
+    result = {"source": path, "recipe": _recipe_leaf_view(t, m)}
+    if not model_q:
+        result["models_in_task"] = [
+            {"id": mm["id"], "model": mm["model"], "member_count": mm["member_count"]}
+            for mm in t.get("models", [])
+        ]
+    return json.dumps(result)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
