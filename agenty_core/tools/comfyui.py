@@ -1271,6 +1271,17 @@ def search_nodes(query: str, limit: int = 10) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @tool
+def _force_build() -> bool:
+    """True when build-from-scratch mode is on (AGENTY_FORCE_BUILD set).
+
+    In this mode template loading is disabled so the agent must assemble the
+    workflow node-by-node from the recipe standard + node schemas, exercising
+    (and exposing weaknesses in) its build capability rather than patching a
+    ready-made template.
+    """
+    return bool(os.environ.get("AGENTY_FORCE_BUILD"))
+
+
 def get_workflow_catalog() -> str:
     """Return the workflow template catalog as a flat {name: description} dictionary.
 
@@ -1280,6 +1291,9 @@ def get_workflow_catalog() -> str:
     Results are cached for up to 1 hour per session (``clear_tool_caches()`` resets
     the cache at the start of every new pipeline session).
     """
+    if _force_build():
+        # Build mode: no templates to match, so the Researcher sets build_new.
+        return json.dumps({})
     global _tool_catalog_result, _tool_catalog_timestamp
     now = time.time()
     with _tool_cache_lock:
@@ -1315,6 +1329,26 @@ def get_workflow_template(template_name: str) -> str:
     Args:
         template_name: Template name (without .json) from get_workflow_catalog().
     """
+    if _force_build():
+        # Build mode: hand back an EMPTY canvas instead of a ready-made scaffold,
+        # so the agent assembles every node itself (from the recipe standard) yet
+        # still has a workflow file to add nodes to.
+        empty_path = _save_workflow({}, name=f"build_{Path(template_name).stem or 'new'}")
+        return json.dumps({
+            "name": template_name,
+            "source": "build-mode",
+            "workflow_path": empty_path,
+            "node_count": 0,
+            "nodes": [],
+            "io": {"inputs": [], "outputs": [], "nodes": []},
+            "build_from_scratch": True,
+            "hint": "This is an EMPTY canvas - there is no scaffold. Assemble the "
+                    "whole workflow yourself: take required_nodes / node_clusters / "
+                    "connection_patterns from get_workflow_recipe, create every node "
+                    "with add_workflow_node, wire and set inputs with update_workflow, "
+                    "confirm input names/slots via get_node_schema, and wire a "
+                    "Save/output node.",
+        })
     with _tool_cache_lock:
         if template_name in _tool_template_results:
             return _tool_template_results[template_name]
