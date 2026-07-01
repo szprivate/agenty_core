@@ -1342,12 +1342,14 @@ def get_workflow_template(template_name: str) -> str:
             "nodes": [],
             "io": {"inputs": [], "outputs": [], "nodes": []},
             "build_from_scratch": True,
-            "hint": "This is an EMPTY canvas - there is no scaffold. Assemble the "
-                    "whole workflow yourself: take required_nodes / node_clusters / "
-                    "connection_patterns from get_workflow_recipe, create every node "
-                    "with add_workflow_node, wire and set inputs with update_workflow, "
-                    "confirm input names/slots via get_node_schema, and wire a "
-                    "Save/output node.",
+            "hint": "This is an EMPTY canvas - there is no scaffold. You MUST first "
+                    "call get_workflow_recipe(task, model) and build the workflow to "
+                    "that recipe: create EVERY entry in required_nodes (respect "
+                    "min_instances), wire them per connection_patterns, and expose "
+                    "boundary_ports. Create nodes with add_workflow_node, wire/set "
+                    "inputs with update_workflow, confirm input names/slots via "
+                    "get_node_schema, and wire a Save/output node. Do not omit or "
+                    "invent nodes beyond what the recipe specifies.",
         })
     with _tool_cache_lock:
         if template_name in _tool_template_results:
