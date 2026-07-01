@@ -9,6 +9,7 @@ Consolidates all ComfyUI-related @tool functions into a single module:
 
 import json
 import os
+import re
 import threading
 import time
 import uuid
@@ -611,6 +612,42 @@ def _parse_inputs_schema(spec: dict) -> dict:
 # Tools: Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Precision / quantisation / format suffix tokens that distinguish variants of
+# the SAME model (not different models). Stripped from a trailing position when
+# fuzzily matching a generic name to an installed file.
+_PRECISION_TOKENS: frozenset[str] = frozenset({
+    "fp8", "fp16", "fp32", "bf16", "fp8mixed", "fp8scaled", "e4m3fn", "e5m2",
+    "scaled", "mixed", "pruned", "ema", "gguf", "safetensors",
+    "q2", "q3", "q4", "q5", "q6", "q8", "k", "s", "m", "l", "ks", "km", "kl",
+})
+
+
+def _reduce_stem(stem: str) -> str:
+    """Drop trailing precision/format tokens so variants of one model collapse
+    to a common key: ``qwen_image_fp8_e4m3fn`` -> ``qwen_image``. Meaningful
+    variant words (``edit``, ``turbo``, ``vae``, version numbers) are kept."""
+    parts = re.split(r"[_\-.]", stem.lower())
+    while len(parts) > 1 and parts[-1] in _PRECISION_TOKENS:
+        parts.pop()
+    return "_".join(parts)
+
+
+def _fuzzy_model_match(query_key: str, basename_index: dict[str, str]) -> str | None:
+    """Resolve a generic filename to an installed one when unambiguous.
+
+    Used only when an exact basename lookup fails. A candidate qualifies when
+    its precision-reduced stem equals the query's reduced stem (so
+    ``qwen_image.safetensors`` finds ``qwen_image_fp8_e4m3fn.safetensors`` but
+    never the VAE or an ``_edit_`` variant). Returns the path only if exactly
+    one distinct file qualifies; otherwise ``None`` (never guesses)."""
+    q = _reduce_stem(query_key.rsplit(".", 1)[0])
+    if not q:
+        return None
+    hits = {path for bn, path in basename_index.items()
+            if _reduce_stem(bn.rsplit(".", 1)[0]) == q}
+    return next(iter(hits)) if len(hits) == 1 else None
+
+
 @tool
 def check_model(model_names: list) -> str:
     """Check whether model files exist in the current ComfyUI installation.
@@ -667,7 +704,10 @@ def check_model(model_names: list) -> str:
         result: dict[str, str] = {}
         for name in model_names:
             key = Path(name).name.lower()
-            result[name] = basename_index.get(key, "False")
+            hit = basename_index.get(key)
+            if hit is None:
+                hit = _fuzzy_model_match(key, basename_index)
+            result[name] = hit if hit else "False"
 
         return json.dumps(result, indent=2)
     except Exception as e:

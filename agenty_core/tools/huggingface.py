@@ -485,6 +485,18 @@ def download_hf_model(
             e.g. 'FLUX1'.  Ignored when *node_class_type* is provided.
         subfolder: Subfolder within the HF repo e.g. 'transformer'.
     """
+    # Reliability/offline mode: when downloads are disabled, fail fast so the
+    # caller treats the model as unavailable (a missing-model blocker) instead
+    # of pulling multi-GB files. Set AGENTY_DISABLE_DOWNLOADS=1 to enable.
+    if os.environ.get("AGENTY_DISABLE_DOWNLOADS"):
+        return json.dumps({
+            "ok": False,
+            "skipped": True,
+            "error": f"Model download is disabled in this environment; "
+                     f"'{filename}' is not installed.",
+            "hint": "Treat this model as unavailable: report it as a missing "
+                    "model and do not retry the download.",
+        })
     try:
         base = _models_base_dir()
 
