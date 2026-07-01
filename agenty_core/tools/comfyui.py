@@ -1345,11 +1345,15 @@ def get_workflow_template(template_name: str) -> str:
             "hint": "This is an EMPTY canvas - there is no scaffold. You MUST first "
                     "call get_workflow_recipe(task, model) and build the workflow to "
                     "that recipe: create EVERY entry in required_nodes (respect "
-                    "min_instances), wire them per connection_patterns, and expose "
-                    "boundary_ports. Create nodes with add_workflow_node, wire/set "
-                    "inputs with update_workflow, confirm input names/slots via "
-                    "get_node_schema, and wire a Save/output node. Do not omit or "
-                    "invent nodes beyond what the recipe specifies.",
+                    "min_instances), wire them per connection_patterns, expose "
+                    "boundary_ports, and set each node's widget params from "
+                    "node_defaults (do NOT guess weight_dtype/model variants). Create "
+                    "nodes with add_workflow_node, wire/set inputs with "
+                    "update_workflow, confirm input names/slots via get_node_schema, "
+                    "and wire a Save/output node. The required_nodes are STANDARD "
+                    "ComfyUI nodes that support this model - never claim a custom "
+                    "node is needed, never call the model unsupported, and never "
+                    "substitute a different model. Build exactly the recipe.",
         })
     with _tool_cache_lock:
         if template_name in _tool_template_results:
@@ -1486,6 +1490,76 @@ def _recipe_tokens(text: str) -> list:
     return "".join(c if c.isalnum() else " " for c in (text or "").lower()).split()
 
 
+# Widget keys that are request-specific and must NOT be copied from the template
+# (the Brain sets them from the brainbriefing / per run).
+_NODE_DEFAULT_SKIP = frozenset({
+    "text", "filename_prefix", "seed", "noise_seed", "prompt", "negative_prompt",
+})
+
+
+def _recipe_node_defaults(member_files: list, model: str = "",
+                          required_classes: set | None = None) -> dict:
+    """Known-good widget params per node class from the recipe's BEST member
+    template (converted + model-resolved). Gives a from-scratch build the correct
+    node configs (weight_dtype, model-file variant, sampler/scheduler, shift, ...)
+    instead of guessing them. Prompt/seed/output keys are omitted - those come
+    from the brainbriefing. Returns {class_type: {input: value}}.
+
+    The member is chosen to match the recipe's model (name-token overlap), then by
+    how many of the recipe's required node classes it contains - so a Qwen recipe
+    does not pick up a generic/Z-Image member's config.
+    """
+    required_classes = required_classes or set()
+    mtoks = {t for t in re.split(r"[^a-z0-9]+", (model or "").lower()) if len(t) > 1}
+
+    def _name_score(name: str) -> int:
+        toks = set(re.split(r"[^a-z0-9]+", str(name).lower()))
+        return len(toks & mtoks)
+
+    ordered = sorted(member_files or [], key=_name_score, reverse=True)
+    best_defaults: dict = {}
+    best_score = (-1, -1)
+    for name in ordered:
+        try:
+            data = _fetch_template(str(name).removesuffix(".json"))
+        except Exception:
+            data = None
+        if data is None:
+            continue
+        try:
+            wf = _convert_graph_to_api(data) if _is_graph_format(data) else data
+            if isinstance(wf, dict):
+                _resolve_model_names(wf)
+        except Exception:
+            continue
+        defaults: dict = {}
+        classes: set = set()
+        for node in (wf.values() if isinstance(wf, dict) else []):
+            if not isinstance(node, dict):
+                continue
+            cls = node.get("class_type")
+            inputs = node.get("inputs", {})
+            if not cls:
+                continue
+            classes.add(cls)
+            if cls in defaults or not isinstance(inputs, dict):
+                continue
+            lit = {k: v for k, v in inputs.items()
+                   if not isinstance(v, list) and not str(k).startswith("__")
+                   and k not in _NODE_DEFAULT_SKIP}
+            if lit:
+                defaults[cls] = lit
+        if not defaults:
+            continue
+        score = (_name_score(name), len(classes & required_classes))
+        if score > best_score:
+            best_score, best_defaults = score, defaults
+        # A model-name match with good required coverage is authoritative.
+        if score[0] > 0 and score[1] >= len(required_classes) > 0:
+            return defaults
+    return best_defaults
+
+
 def _recipe_leaf_view(task: dict, model: dict) -> dict:
     """The build-oriented view of a (task, model) recipe leaf for the Brain."""
     required = [
@@ -1513,13 +1587,22 @@ def _recipe_leaf_view(task: dict, model: dict) -> dict:
             p for p in model.get("connection_patterns", []) if p.get("invariant")
         ],
         "required_nodes": required,
+        "node_defaults": _recipe_node_defaults(
+            model.get("member_files", []), model.get("model", ""),
+            {e["node_class"] for e in required},
+        ),
         "member_workflows": model.get("member_files", []),
         "unresolved_nodes": model.get("unresolved_nodes", []),
         "custom_nodes": model.get("custom_nodes", []),
         "how_to_build": (
-            "Load the closest 'member_workflows' template via get_workflow_template() "
-            "as a scaffold, then ensure every entry in 'required_nodes' is present "
-            "(respecting min_instances) and every 'connection_patterns' edge is wired."
+            "Assemble every entry in 'required_nodes' (respecting min_instances), "
+            "wire them per 'connection_patterns', and expose 'boundary_ports'. Set "
+            "each node's widget params from 'node_defaults' (weight_dtype, model "
+            "file variants, sampler/scheduler, shift, cfg, steps, ...) - these are "
+            "template-verified, so do NOT guess or 'match the filename' for "
+            "weight_dtype. Override only prompt text, seed and output paths from the "
+            "brainbriefing. If a member scaffold is available load it; otherwise "
+            "build on the empty canvas returned by get_workflow_template."
         ),
     }
 
