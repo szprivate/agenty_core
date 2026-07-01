@@ -1496,6 +1496,28 @@ _NODE_DEFAULT_SKIP = frozenset({
     "text", "filename_prefix", "seed", "noise_seed", "prompt", "negative_prompt",
 })
 
+# Only these non-model config keys are reliably extracted and worth carrying as
+# node_defaults. Everything else (sampler_name, scheduler, steps, cfg, width,
+# height, guidance, shift, ...) is either request-specific or prone to
+# widget-position drift, so the Brain derives it via get_node_schema instead.
+_NODE_DEFAULT_CONFIG_KEEP = frozenset({"weight_dtype", "type", "device"})
+
+
+def _keep_node_default(class_type: str, key: str, value, object_info: dict) -> bool:
+    """Keep a param in node_defaults only if it is reliable: a known config key,
+    or a model-file value that is actually a valid installed option for this
+    node input (drops widget-garbled numbers and uninstalled/bogus filenames)."""
+    if key in _NODE_DEFAULT_CONFIG_KEEP:
+        return True
+    if isinstance(value, str) and value.lower().endswith(_MODEL_FILE_EXTS):
+        schema = object_info.get(class_type, {}).get("input", {})
+        specs = {**schema.get("required", {}), **schema.get("optional", {})}
+        spec = specs.get(key)
+        options = (spec[0] if isinstance(spec, (list, tuple)) and spec
+                   and isinstance(spec[0], list) else None)
+        return bool(options and value in options)
+    return False
+
 
 def _recipe_node_defaults(member_files: list, model: str = "",
                           required_classes: set | None = None) -> dict:
@@ -1511,6 +1533,10 @@ def _recipe_node_defaults(member_files: list, model: str = "",
     """
     required_classes = required_classes or set()
     mtoks = {t for t in re.split(r"[^a-z0-9]+", (model or "").lower()) if len(t) > 1}
+    try:
+        object_info = _get_object_info()
+    except Exception:
+        object_info = {}
 
     def _name_score(name: str) -> int:
         toks = set(re.split(r"[^a-z0-9]+", str(name).lower()))
@@ -1546,7 +1572,8 @@ def _recipe_node_defaults(member_files: list, model: str = "",
                 continue
             lit = {k: v for k, v in inputs.items()
                    if not isinstance(v, list) and not str(k).startswith("__")
-                   and k not in _NODE_DEFAULT_SKIP}
+                   and k not in _NODE_DEFAULT_SKIP
+                   and _keep_node_default(cls, k, v, object_info)}
             if lit:
                 defaults[cls] = lit
         if not defaults:
