@@ -546,6 +546,16 @@ def _resolve_model_names(api_workflow: dict) -> None:
                 continue
             target = _base(ival)
             match = next((o for o in options if _base(o) == target), None)
+            if match is None:
+                # Precision-variant fallback: a template may reference a variant
+                # that is not installed (e.g. ltx-2.3-22b-dev-fp8) while the plain
+                # build is (ltx-2.3-22b-dev). Snap when exactly one option shares
+                # the precision-reduced stem.
+                q = _reduce_stem(target.rsplit(".", 1)[0])
+                cands = {o for o in options
+                         if _reduce_stem(_base(o).rsplit(".", 1)[0]) == q}
+                if len(cands) == 1:
+                    match = next(iter(cands))
             if match:
                 inputs[iname] = match
 
@@ -616,9 +626,10 @@ def _parse_inputs_schema(spec: dict) -> dict:
 # the SAME model (not different models). Stripped from a trailing position when
 # fuzzily matching a generic name to an installed file.
 _PRECISION_TOKENS: frozenset[str] = frozenset({
-    "fp8", "fp16", "fp32", "bf16", "fp8mixed", "fp8scaled", "e4m3fn", "e5m2",
-    "scaled", "mixed", "pruned", "ema", "gguf", "safetensors",
-    "q2", "q3", "q4", "q5", "q6", "q8", "k", "s", "m", "l", "ks", "km", "kl",
+    "fp8", "fp16", "fp32", "fp4", "bf16", "nf4", "int4", "int8", "fp8mixed",
+    "fp8scaled", "e4m3fn", "e5m2", "scaled", "mixed", "pruned", "ema", "gguf",
+    "safetensors", "q2", "q3", "q4", "q5", "q6", "q8", "k", "s", "m", "l",
+    "ks", "km", "kl",
 })
 
 
@@ -1701,7 +1712,10 @@ def get_workflow_recipe(task: str, model: str = "") -> str:
         for m in t.get("models", []):
             mnorm = set(_recipe_tokens(m["model"]) + _recipe_tokens(m["id"]))
             mscore = len(model_q & mnorm) if model_q else 0
-            score = tscore * 10 + mscore * 5 + m.get("member_count", 0) * 0.01
+            # Prefer a local recipe over an api/hybrid one when they otherwise
+            # tie (local OSS models build without partner credits/cost).
+            exec_bonus = {"local": 2.0, "hybrid": 1.0}.get(m.get("execution", "local"), 0.0)
+            score = tscore * 10 + mscore * 5 + exec_bonus + m.get("member_count", 0) * 0.01
             if score > best_score:
                 best_score = score
                 best = (t, m)
