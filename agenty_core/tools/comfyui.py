@@ -1355,16 +1355,18 @@ def get_workflow_template(template_name: str) -> str:
             "build_from_scratch": True,
             "hint": "This is an EMPTY canvas - there is no scaffold. You MUST first "
                     "call get_workflow_recipe(task, model) and build the workflow to "
-                    "that recipe: create EVERY entry in required_nodes (respect "
-                    "min_instances), wire them per connection_patterns, expose "
+                    "that recipe: create EVERY node in build_nodes (class + count - "
+                    "it includes model-specific nodes like WanImageToVideo that "
+                    "required_nodes omits; do NOT substitute a generic node such as "
+                    "VAEEncode for it), wire them per connection_patterns, expose "
                     "boundary_ports, and set each node's widget params from "
                     "node_defaults (do NOT guess weight_dtype/model variants). Create "
                     "nodes with add_workflow_node, wire/set inputs with "
                     "update_workflow, confirm input names/slots via get_node_schema, "
-                    "and wire a Save/output node. The required_nodes are STANDARD "
-                    "ComfyUI nodes that support this model - never claim a custom "
-                    "node is needed, never call the model unsupported, and never "
-                    "substitute a different model. Build exactly the recipe.",
+                    "and wire a Save/output node. These are STANDARD ComfyUI nodes "
+                    "that support this model - never claim a custom node is needed, "
+                    "never call the model unsupported, and never substitute a "
+                    "different model. Build exactly the recipe.",
         })
     with _tool_cache_lock:
         if template_name in _tool_template_results:
@@ -1530,18 +1532,20 @@ def _keep_node_default(class_type: str, key: str, value, object_info: dict) -> b
     return False
 
 
-def _recipe_node_defaults(member_files: list, model: str = "",
-                          required_classes: set | None = None) -> dict:
-    """Known-good widget params per node class from the recipe's BEST member
-    template (converted + model-resolved). Gives a from-scratch build the correct
-    node configs (weight_dtype, model-file variant, sampler/scheduler, shift, ...)
-    instead of guessing them. Prompt/seed/output keys are omitted - those come
-    from the brainbriefing. Returns {class_type: {input: value}}.
+def _recipe_build_spec(member_files: list, model: str = "",
+                       required_classes: set | None = None) -> dict:
+    """Build spec from the recipe's BEST-matching member template.
 
-    The member is chosen to match the recipe's model (name-token overlap), then by
-    how many of the recipe's required node classes it contains - so a Qwen recipe
-    does not pick up a generic/Z-Image member's config.
+    Returns ``{"node_defaults": {class: {input: value}}, "build_nodes":
+    [{"node_class": cls, "count": n}]}``. ``node_defaults`` gives correct node
+    configs (weight_dtype, model-file variant, ...) so a from-scratch build does
+    not guess. ``build_nodes`` is the COMPLETE node list of the member - unlike
+    the recipe's invariant ``required_nodes`` (an intersection across members),
+    it keeps model-specific nodes such as ``WanImageToVideo`` that the build
+    otherwise omits. The member is chosen to match the recipe's model
+    (name-token overlap) then required-class coverage.
     """
+    from collections import Counter
     required_classes = required_classes or set()
     mtoks = {t for t in re.split(r"[^a-z0-9]+", (model or "").lower()) if len(t) > 1}
     try:
@@ -1553,8 +1557,11 @@ def _recipe_node_defaults(member_files: list, model: str = "",
         toks = set(re.split(r"[^a-z0-9]+", str(name).lower()))
         return len(toks & mtoks)
 
+    def _as_nodes(counter: Counter) -> list:
+        return [{"node_class": c, "count": n} for c, n in sorted(counter.items())]
+
     ordered = sorted(member_files or [], key=_name_score, reverse=True)
-    best_defaults: dict = {}
+    best = {"node_defaults": {}, "build_nodes": []}
     best_score = (-1, -1)
     for name in ordered:
         try:
@@ -1570,15 +1577,15 @@ def _recipe_node_defaults(member_files: list, model: str = "",
         except Exception:
             continue
         defaults: dict = {}
-        classes: set = set()
+        counts: Counter = Counter()
         for node in (wf.values() if isinstance(wf, dict) else []):
             if not isinstance(node, dict):
                 continue
             cls = node.get("class_type")
             inputs = node.get("inputs", {})
-            if not cls:
+            if not cls or cls in ("Note", "MarkdownNote", "Reroute", "PrimitiveNode"):
                 continue
-            classes.add(cls)
+            counts[cls] += 1
             if cls in defaults or not isinstance(inputs, dict):
                 continue
             lit = {k: v for k, v in inputs.items()
@@ -1587,15 +1594,16 @@ def _recipe_node_defaults(member_files: list, model: str = "",
                    and _keep_node_default(cls, k, v, object_info)}
             if lit:
                 defaults[cls] = lit
-        if not defaults:
+        if not counts:
             continue
-        score = (_name_score(name), len(classes & required_classes))
+        spec = {"node_defaults": defaults, "build_nodes": _as_nodes(counts)}
+        score = (_name_score(name), len(set(counts) & required_classes))
         if score > best_score:
-            best_score, best_defaults = score, defaults
+            best_score, best = score, spec
         # A model-name match with good required coverage is authoritative.
         if score[0] > 0 and score[1] >= len(required_classes) > 0:
-            return defaults
-    return best_defaults
+            return spec
+    return best
 
 
 def _recipe_leaf_view(task: dict, model: dict) -> dict:
@@ -1625,7 +1633,7 @@ def _recipe_leaf_view(task: dict, model: dict) -> dict:
             p for p in model.get("connection_patterns", []) if p.get("invariant")
         ],
         "required_nodes": required,
-        "node_defaults": _recipe_node_defaults(
+        **_recipe_build_spec(
             model.get("member_files", []), model.get("model", ""),
             {e["node_class"] for e in required},
         ),
@@ -1633,14 +1641,17 @@ def _recipe_leaf_view(task: dict, model: dict) -> dict:
         "unresolved_nodes": model.get("unresolved_nodes", []),
         "custom_nodes": model.get("custom_nodes", []),
         "how_to_build": (
-            "Assemble every entry in 'required_nodes' (respecting min_instances), "
-            "wire them per 'connection_patterns', and expose 'boundary_ports'. Set "
-            "each node's widget params from 'node_defaults' (weight_dtype, model "
-            "file variants, sampler/scheduler, shift, cfg, steps, ...) - these are "
+            "Create the COMPLETE node set in 'build_nodes' (class + count - it "
+            "includes model-specific nodes like WanImageToVideo that "
+            "'required_nodes' omits); do not drop any and do not substitute a "
+            "generic node (e.g. do NOT use VAEEncode where 'build_nodes' lists "
+            "WanImageToVideo). Wire them per 'connection_patterns', expose "
+            "'boundary_ports', and set each node's widget params from "
+            "'node_defaults' (weight_dtype, model-file variant, ...) - these are "
             "template-verified, so do NOT guess or 'match the filename' for "
-            "weight_dtype. Override only prompt text, seed and output paths from the "
-            "brainbriefing. If a member scaffold is available load it; otherwise "
-            "build on the empty canvas returned by get_workflow_template."
+            "weight_dtype. Confirm each node's input names/slots with "
+            "get_node_schema. Override only prompt text, seed and output paths "
+            "from the brainbriefing."
         ),
     }
 
