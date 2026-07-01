@@ -251,8 +251,190 @@ def _schema_widget_names(schema: dict, linked_names: set[str]) -> list[str]:
     return names
 
 
+def _flatten_subgraphs(workflow: dict) -> dict:
+    """Inline ComfyUI subgraph nodes into concrete nodes.
+
+    Newer official templates wrap their whole graph in a *subgraph* node whose
+    ``type`` is a UUID declared under ``definitions.subgraphs`` (sometimes nested
+    one inside another). ComfyUI's /prompt API rejects such nodes ("Node not
+    found"), so before converting graph format to API format we expand every
+    subgraph instance: its inner nodes are promoted with fresh ids, inner links
+    are rewired, each boundary input is connected to whatever the instance's
+    input slot was wired to (or dropped, so the inner node keeps its own widget
+    value / stays free for the Brain to wire), and each boundary output is
+    redirected to its real inner producer. Nested subgraphs expand recursively.
+
+    Returns a graph-format workflow (``nodes`` + ``links``) with no subgraph
+    references. If the workflow declares no subgraphs it is returned unchanged.
+    """
+    import itertools
+
+    defs = (workflow.get("definitions") or {}).get("subgraphs") or []
+    registry = {s.get("id"): s for s in defs if isinstance(s, dict) and s.get("id")}
+    if not registry or not any(
+        isinstance(n, dict) and n.get("type") in registry
+        for n in workflow.get("nodes", [])
+    ):
+        return workflow
+
+    uid_counter = itertools.count(1)
+    lid_counter = itertools.count(1)
+    out_nodes: list[dict] = []
+    out_links: list[list] = []
+
+    def add_link(src_uid: str, src_slot, dst_uid: str, dst_slot, typ) -> int:
+        lid = next(lid_counter)
+        out_links.append([lid, src_uid, int(src_slot), dst_uid, int(dst_slot), typ])
+        return lid
+
+    def index_links(links):
+        """(by_link_id, by_target) for a scope's links (dict or array form)."""
+        by_id: dict = {}
+        by_target: dict = {}
+        for lk in links or []:
+            if isinstance(lk, dict):
+                lid, o, os_ = lk.get("id"), lk.get("origin_id"), lk.get("origin_slot")
+                t, ts, ty = lk.get("target_id"), lk.get("target_slot"), lk.get("type")
+            elif isinstance(lk, (list, tuple)) and len(lk) >= 5:
+                lid, o, os_, t, ts = lk[0], lk[1], lk[2], lk[3], lk[4]
+                ty = lk[5] if len(lk) > 5 else None
+            else:
+                continue
+            by_id[lid] = (o, os_, ty)
+            by_target[(t, ts)] = (o, os_, ty)
+        return by_id, by_target
+
+    def process(sg_nodes, sg_links, in_bid, out_bid, resolve_input):
+        """Emit concrete nodes for one scope; return its resolve_output(slot)."""
+        by_id, by_target = index_links(sg_links)
+        inner_by_id = {n["id"]: n for n in sg_nodes if isinstance(n, dict) and "id" in n}
+        uid_map: dict = {}
+        nested_out: dict = {}
+
+        def uid_of(inner_id) -> str:
+            if inner_id not in uid_map:
+                uid_map[inner_id] = str(next(uid_counter))
+            return uid_map[inner_id]
+
+        def get_nested(inst_id):
+            if inst_id in nested_out:
+                return nested_out[inst_id]
+            nsg = registry[inner_by_id[inst_id]["type"]]
+            synth_cache: dict = {}   # boundary slot -> synthesized (uid, slot)
+
+            def nested_resolve_input(j):
+                src = by_target.get((inst_id, j))
+                if src:
+                    return resolve_endpoint(src[0], src[1])
+                if j in synth_cache:
+                    return ("link", synth_cache[j])
+                # Unconnected boundary input: for a real media input (no widget
+                # value backing it) synthesize a Load node so the Brain has a
+                # concrete source to wire — classic templates always shipped one;
+                # subgraph templates expose a bare boundary port instead.
+                conns = inner_by_id[inst_id].get("inputs", [])
+                conn = conns[j] if 0 <= j < len(conns) else {}
+                if str(conn.get("type") or "").upper() == "IMAGE" and "widget" not in conn:
+                    luid = str(next(uid_counter))
+                    out_nodes.append({
+                        "id": luid, "type": "LoadImage", "inputs": [],
+                        "widgets_values": [""], "title": "Load Image",
+                    })
+                    synth_cache[j] = (luid, 0)
+                    return ("link", (luid, 0))
+                return ("drop",)
+
+            rout = process(
+                nsg.get("nodes", []), nsg.get("links", []),
+                (nsg.get("inputNode") or {}).get("id", -10),
+                (nsg.get("outputNode") or {}).get("id", -20),
+                nested_resolve_input,
+            )
+            nested_out[inst_id] = rout
+            return rout
+
+        def resolve_endpoint(origin_id, origin_slot):
+            if in_bid is not None and origin_id == in_bid:
+                return resolve_input(origin_slot)
+            node = inner_by_id.get(origin_id)
+            if node is None:
+                return ("drop",)
+            if node.get("type") in registry:
+                return get_nested(origin_id)(origin_slot)
+            return ("link", (uid_of(origin_id), origin_slot))
+
+        for n in sg_nodes:
+            if not isinstance(n, dict) or "id" not in n:
+                continue
+            if n.get("type") in registry:
+                rout = get_nested(n["id"])   # force-expand even if unconsumed
+                # Top-level terminal IMAGE outputs have no external consumer in a
+                # subgraph-wrapped template; realize them as SaveImage nodes so the
+                # workflow actually writes a result (classic-template invariant).
+                if in_bid is None:
+                    for slot, oconn in enumerate(n.get("outputs", [])):
+                        if not isinstance(oconn, dict) or oconn.get("links"):
+                            continue
+                        if str(oconn.get("type") or "").upper() != "IMAGE":
+                            continue
+                        res = rout(slot)
+                        if res[0] != "link":
+                            continue
+                        suid, sslot = res[1]
+                        svid = str(next(uid_counter))
+                        lid = add_link(suid, sslot, svid, 0, "IMAGE")
+                        out_nodes.append({
+                            "id": svid, "type": "SaveImage",
+                            "inputs": [{"name": "images", "type": "IMAGE", "link": lid}],
+                            "widgets_values": ["ComfyUI"], "title": "Save Image",
+                        })
+                continue
+            uid = uid_of(n["id"])
+            new_inputs: list = []
+            for conn in n.get("inputs", []):
+                if not isinstance(conn, dict):
+                    continue
+                keep = dict(conn)
+                keep["link"] = None
+                link = conn.get("link")
+                if link is not None and link in by_id:
+                    o, os_, ty = by_id[link]
+                    res = resolve_endpoint(o, os_)
+                    if res[0] == "link":
+                        suid, sslot = res[1]
+                        keep["link"] = add_link(
+                            suid, sslot, uid, len(new_inputs), ty or conn.get("type"))
+                new_inputs.append(keep)
+            out_nodes.append({
+                "id": uid,
+                "type": n.get("type", "unknown"),
+                "inputs": new_inputs,
+                "widgets_values": n.get("widgets_values", n.get("widget_values", [])),
+                "title": n.get("title", ""),
+            })
+
+        out_src = {ts: (o, os_) for (t, ts), (o, os_, _ty) in by_target.items()
+                   if out_bid is not None and t == out_bid}
+
+        def resolve_output(slot):
+            src = out_src.get(slot)
+            return resolve_endpoint(src[0], src[1]) if src else ("drop",)
+
+        return resolve_output
+
+    process(workflow.get("nodes", []), workflow.get("links", []),
+            None, None, lambda _slot: ("drop",))
+
+    flat = dict(workflow)
+    flat.pop("definitions", None)
+    flat["nodes"] = out_nodes
+    flat["links"] = out_links
+    return flat
+
+
 def _convert_graph_to_api(workflow: dict) -> dict:
     """Convert a ComfyUI graph-format workflow dict to API format."""
+    workflow = _flatten_subgraphs(workflow)
     # Build link lookup: link_id → [str(src_node_id), src_slot]
     link_table: dict[int, list] = {}
     for link in workflow.get("links", []):
@@ -315,6 +497,56 @@ def _convert_graph_to_api(workflow: dict) -> dict:
         api_workflow[nid] = api_node
 
     return api_workflow
+
+
+_MODEL_FILE_EXTS = (
+    ".safetensors", ".ckpt", ".pt", ".pth", ".bin", ".gguf", ".sft", ".onnx",
+)
+
+
+def _resolve_model_names(api_workflow: dict) -> None:
+    """Snap each node's model-file input to the exact filename ComfyUI expects.
+
+    Template widget values drift from what the live server accepts: a bare
+    ``ae.safetensors`` or a forward-slash ``FLUX1/ae.safetensors`` will not
+    match the object_info combo entry ``FLUX1\\ae.safetensors`` on Windows, and
+    the Brain then wrongly reports the model as missing. This rewrites such a
+    value (in place) to the exact object_info string when the current value is
+    not already valid but a case-insensitive basename match exists. Genuinely
+    absent models are left untouched so they still surface as real blockers.
+    """
+    try:
+        object_info = _get_object_info()
+    except Exception:
+        object_info = {}
+    if not object_info:
+        return
+
+    def _base(s: str) -> str:
+        return Path(str(s).replace("\\", "/")).name.lower()
+
+    for node in api_workflow.values():
+        if not isinstance(node, dict):
+            continue
+        schema = object_info.get(node.get("class_type"), {}).get("input", {})
+        if not schema:
+            continue
+        specs = {**schema.get("required", {}), **schema.get("optional", {})}
+        inputs = node.get("inputs")
+        if not isinstance(inputs, dict):
+            continue
+        for iname, ival in list(inputs.items()):
+            if not isinstance(ival, str) or not ival.lower().endswith(_MODEL_FILE_EXTS):
+                continue
+            spec = specs.get(iname)
+            options = (spec[0] if isinstance(spec, (list, tuple)) and spec
+                       and isinstance(spec[0], list) else None)
+            if not options or ival in options:
+                continue
+            target = _base(ival)
+            match = next((o for o in options if _base(o) == target), None)
+            if match:
+                inputs[iname] = match
 
 
 def _strip_history(data: dict | list) -> dict | list:
@@ -1088,6 +1320,11 @@ def get_workflow_template(template_name: str) -> str:
         if _is_graph_format(workflow):
             workflow = _convert_graph_to_api(workflow)
             converted = True
+
+        # Snap model-file inputs to the exact names the live server accepts so
+        # separator/folder drift is not mistaken for a missing model.
+        if isinstance(workflow, dict):
+            _resolve_model_names(workflow)
 
         workflow_path = _save_workflow(workflow, name=lookup)
 
