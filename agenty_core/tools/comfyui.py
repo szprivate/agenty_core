@@ -2378,6 +2378,33 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         if injected:
             applied.append(f"Node {nid} (ModelSamplingFlux): auto-injected {injected}")
 
+    # ── 6. Test-mode latent clamp (AGENTY_MAX_DIM) ────────────────────────────
+    # Reliability testing on power-limited hardware (an RTX 5090 that hard-crashed
+    # under sustained load): hard-cap every literal width/height so the generation
+    # latent can never exceed sub-HD dimensions, regardless of what the researcher
+    # requested or the template defaults to. Purely a downward clamp; only active
+    # when AGENTY_MAX_DIM is set (the reliability sweep sets it).
+    _max_dim = os.environ.get("AGENTY_MAX_DIM")
+    if _max_dim:
+        try:
+            cap = int(_max_dim)
+        except ValueError:
+            cap = 0
+        if cap > 0:
+            for nid, node in workflow.items():
+                if not isinstance(node, dict):
+                    continue
+                inputs = node.get("inputs", {})
+                if not isinstance(inputs, dict):
+                    continue
+                for dim in ("width", "height"):
+                    v = inputs.get(dim)
+                    if isinstance(v, bool):
+                        continue
+                    if isinstance(v, (int, float)) and v > cap:
+                        inputs[dim] = cap
+                        applied.append(f"Node {nid}: {dim} clamped {int(v)}→{cap} (AGENTY_MAX_DIM)")
+
     # ── Save ──────────────────────────────────────────────────────────────────
     path = _save_workflow(workflow, name=Path(workflow_path).stem)
 
