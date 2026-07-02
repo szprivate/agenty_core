@@ -2269,19 +2269,62 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         applied.append(f"Node {pn_nid}.inputs.{slot} → ({role} prompt, {len(text)} chars)")
         handled_nids.add(pn_nid)
 
-    # ── 2b. Legacy fallback: positive_prompt_node_id + heuristic negative ────
+    # ── 2b. positive_prompt_node_id (explicit), then heuristic ───────────────
     # Only runs for nodes not already handled by prompt_nodes above.
-    pos_nid = str(bb.get("positive_prompt_node_id", ""))
-    if positive_text and pos_nid and pos_nid not in handled_nids:
+    positive_injected = any(
+        pn.get("role", "positive") == "positive" and str(pn.get("node_id", "")) in handled_nids
+        for pn in prompt_nodes
+    )
+    # Treat null / "None" / "" as "not provided" (a common researcher omission)
+    # rather than a literal node id to look up — that spurious lookup used to
+    # fail every one-shot apply and force the LLM into manual update_workflow.
+    pos_nid = str(bb.get("positive_prompt_node_id") or "").strip()
+    if pos_nid.lower() == "none":
+        pos_nid = ""
+    if positive_text and not positive_injected and pos_nid:
         if pos_nid not in workflow:
             problems.append(f"positive_prompt_node_id '{pos_nid}' not found in workflow")
         else:
             node = workflow[pos_nid]
-            if "inputs" not in node:
-                node["inputs"] = {}
-            node["inputs"]["text"] = positive_text
+            node.setdefault("inputs", {})["text"] = positive_text
             applied.append(f"Node {pos_nid}.inputs.text → (positive prompt, {len(positive_text)} chars)")
             handled_nids.add(pos_nid)
+            positive_injected = True
+    # Heuristic: no explicit target — inject into the unambiguous positive
+    # text-conditioning node (a CLIPTextEncode-style node that is not negative).
+    # Prefer one titled "positive"; else the sole candidate. If ambiguous/none,
+    # record a problem so apply returns error and the caller can fall back.
+    if positive_text and not positive_injected:
+        preferred: str | None = None
+        cands: list[str] = []
+        for nid, node in workflow.items():
+            if not isinstance(node, dict) or nid in handled_nids:
+                continue
+            cls = node.get("class_type", "").lower()
+            title = (node.get("_meta") or {}).get("title", "").lower()
+            if "negative" in title:
+                continue
+            is_text_cond = ("cliptextencode" in cls) or (
+                ("text" in cls or "prompt" in cls)
+                and ("encode" in cls or "clip" in cls or "condition" in cls)
+            )
+            if not is_text_cond:
+                continue
+            if "positive" in title:
+                preferred = nid
+            cands.append(nid)
+        target = preferred or (cands[0] if len(cands) == 1 else None)
+        if target:
+            node = workflow[target]
+            node.setdefault("inputs", {})["text"] = positive_text
+            applied.append(f"Node {target}.inputs.text → (positive prompt, heuristic, {len(positive_text)} chars)")
+            handled_nids.add(target)
+            positive_injected = True
+        else:
+            problems.append(
+                "positive prompt: no unambiguous target node found "
+                "(provide prompt_nodes or positive_prompt_node_id)"
+            )
 
     # Negative prompt: find a node with "negative" in its title that has a text input
     if negative_text and not any(
