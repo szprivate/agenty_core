@@ -664,10 +664,24 @@ def download_hf_model(
         logger.info("Downloading %s from %s …", filename, model_id)
         _push_progress(f"⬇️ Starting download: **{filename}** from `{model_id}`")
 
+        # Resume a prior partial (.downloading) via an HTTP Range request, so a
+        # large model interrupted by a kill continues instead of restarting from
+        # zero. HF's S3-backed storage supports ranged GETs (206).
+        tmp_path = dest_path.with_suffix(dest_path.suffix + ".downloading")
+        resume_from = tmp_path.stat().st_size if tmp_path.exists() else 0
+        if resume_from:
+            headers["Range"] = f"bytes={resume_from}-"
+
         resp = requests.get(url, headers=headers, stream=True, timeout=60)
         resp.raise_for_status()
 
-        total_size = int(resp.headers.get("content-length", 0))
+        resumed = resp.status_code == 206
+        if resume_from and not resumed:
+            resume_from = 0  # server ignored the Range header → full restart
+        if resume_from:
+            logger.info("resuming %s from %.1f GB", filename, resume_from / (1024 ** 3))
+        remaining = int(resp.headers.get("content-length", 0))
+        total_size = remaining + resume_from
         chunk_size = 8 * 1024 * 1024  # 8 MB chunks
 
         need_gb = total_size / (1024 ** 3)
@@ -695,16 +709,18 @@ def download_hf_model(
                 })
 
         # Space guard: don't start a download that would fill the destination
-        # drive. Treat "no room" as a missing-model blocker rather than crashing
-        # mid-write or exhausting the disk.
+        # drive. Only the *remaining* bytes are written (a resume reuses the
+        # partial already on disk). Treat "no room" as a missing-model blocker
+        # rather than crashing mid-write or exhausting the disk.
+        remaining_gb = remaining / (1024 ** 3)
         free_gb = _free_gb(dest_dir)
-        if total_size and free_gb < need_gb + _MIN_FREE_BUFFER_GB:
+        if remaining and free_gb < remaining_gb + _MIN_FREE_BUFFER_GB:
             resp.close()
             return json.dumps({
                 "ok": False,
                 "skipped": True,
                 "error": f"Not enough free space on {_drive_of(dest_dir)}: to "
-                         f"download '{filename}': need {need_gb:.1f} GB (+"
+                         f"download '{filename}': need {remaining_gb:.1f} GB (+"
                          f"{_MIN_FREE_BUFFER_GB:.0f} GB buffer), "
                          f"{free_gb:.1f} GB free.",
                 "hint": "Free up space or configure a larger non-C: model drive; "
@@ -740,11 +756,13 @@ def download_hf_model(
 
         _tqdm_writer = _TqdmSignalWriter(sys.stderr)
 
-        # Write to a temp file first, rename on completion
-        tmp_path = dest_path.with_suffix(dest_path.suffix + ".downloading")
+        # Write into the .downloading temp (append when resuming), rename on
+        # completion. The partial is deliberately kept on error so the next
+        # attempt resumes from where it stopped rather than restarting.
         try:
-            with open(tmp_path, "wb") as f, tqdm(
+            with open(tmp_path, "ab" if resume_from else "wb") as f, tqdm(
                 total=total_size if total_size > 0 else None,
+                initial=resume_from,
                 unit="B",
                 unit_scale=True,
                 unit_divisor=1024,
@@ -762,9 +780,6 @@ def download_hf_model(
             # Rename temp → final
             tmp_path.rename(dest_path)
         except Exception:
-            # Clean up partial file on error
-            if tmp_path.exists():
-                tmp_path.unlink()
             raise
 
         size_mb = round(dest_path.stat().st_size / (1024 * 1024), 2)
