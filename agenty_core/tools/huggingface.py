@@ -84,6 +84,63 @@ def _models_base_dir() -> Path:
     return Path("D:/AI/ComfyUI/models")
 
 
+_FOLDER_PATHS_CACHE: dict | None = None
+
+
+def _folder_paths() -> dict:
+    """The running ComfyUI's actual model folder paths per category, from its
+    ``/internal/folder_paths`` endpoint: ``{category: [abs_path, ...]}``.
+
+    Authoritative source — it includes the *additional* model paths configured at
+    server startup (extra_model_paths.yaml, e.g. an L: drive). Cached per session."""
+    global _FOLDER_PATHS_CACHE
+    if _FOLDER_PATHS_CACHE is not None:
+        return _FOLDER_PATHS_CACHE
+    fp: dict = {}
+    try:
+        from agenty_core.utils.comfyui_client import get_client
+        r = get_client().get("/internal/folder_paths")
+        if isinstance(r, dict):
+            fp = {str(k).lower(): [str(p) for p in v]
+                  for k, v in r.items() if isinstance(v, list)}
+    except Exception:
+        fp = {}
+    _FOLDER_PATHS_CACHE = fp
+    return fp
+
+
+def _resolve_download_dir(node_class_type: str, destination_folder: str) -> tuple[Path, str]:
+    """Resolve where to download a model, preferring the *additional* ComfyUI model
+    path (given at server startup) for the model's category so the file lands where
+    ComfyUI actually loads from — not the default ``models/`` dir, which is often on
+    a different drive. Returns (dir, source)."""
+    category = None
+    if node_class_type and node_class_type in NODE_TO_FOLDER:
+        category = NODE_TO_FOLDER[node_class_type].split("models/", 1)[-1].split("/")[0].lower()
+    elif destination_folder:
+        category = destination_folder.replace("\\", "/").strip("/").split("/")[0].lower()
+
+    if category:
+        # Every ComfyUI folder-path whose leaf dir matches the category.
+        cand = [p for paths in _folder_paths().values() for p in paths
+                if p.replace("\\", "/").rstrip("/").rsplit("/", 1)[-1].lower() == category]
+        if cand:
+            extra_base = str(_models_base_dir()).replace("\\", "/").rstrip("/").lower()
+            # 1) a path under the configured extra base (e.g. L:/.../Models)
+            for p in cand:
+                if p.replace("\\", "/").lower().startswith(extra_base):
+                    return Path(p), "comfyui_extra_path"
+            # 2) else a path on a different drive than the (default) first candidate
+            d0 = cand[0].split(":", 1)[0].lower()
+            for p in cand[1:]:
+                if p.split(":", 1)[0].lower() != d0:
+                    return Path(p), "comfyui_extra_path"
+            return Path(cand[0]), "comfyui_folder_path"
+
+    base = _models_base_dir()
+    return (base / category, "models_base_dir") if category else (base, "models_base_dir")
+
+
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
@@ -498,26 +555,13 @@ def download_hf_model(
                     "model and do not retry the download.",
         })
     try:
-        base = _models_base_dir()
-
-        # Resolve destination: prefer node_class_type → get_storage_path,
-        # fall back to explicit destination_folder, else place in models root.
-        if node_class_type:
-            try:
-                comfyui_base = str(base.parent)
-                full_path = get_storage_path(node_class_type, filename, comfyui_base)
-                dest_path = Path(full_path)
-            except ValueError as mapping_err:
-                logger.warning(
-                    "node_class_type %r not in NODE_TO_FOLDER (%s); "
-                    "falling back to destination_folder.",
-                    node_class_type, mapping_err,
-                )
-                dest_path = base / (destination_folder or "") / filename
-        elif destination_folder:
-            dest_path = base / destination_folder / filename
-        else:
-            dest_path = base / filename
+        # Resolve destination: prefer the ComfyUI extra model path (the additional
+        # model path given at server startup — often a different, larger drive)
+        # for the model's category, so the file lands where ComfyUI actually loads
+        # from. Falls back to the models base dir.
+        dl_dir, dl_source = _resolve_download_dir(node_class_type, destination_folder)
+        dest_path = dl_dir / filename
+        logger.info("download target: %s (%s)", dest_path, dl_source)
 
         dest_dir = dest_path.parent
         dest_dir.mkdir(parents=True, exist_ok=True)
