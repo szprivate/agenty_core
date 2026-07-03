@@ -33,9 +33,12 @@ def strip_annotation_nodes(workflow: dict) -> list[str]:
 
 # UI-only passthrough node classes: ComfyUI's /prompt API rejects them as
 # unknown class_type, so they must be bypassed (links rewired through them) —
-# not merely deleted like annotation nodes.
+# not merely deleted like annotation nodes. NOTE: only true single-input
+# passthroughs belong here. PrimitiveNode is deliberately excluded — it is a
+# value *source* (widget → output), not a passthrough, so rewiring "through" it
+# would drop the consumer's input; it needs value-inlining instead.
 REROUTE_NODE_CLASSES = ("Reroute", "Reroute (rgthree)", "ReroutePrimitive",
-                        "PrimitiveNode", "Reroute//nodes")
+                        "Reroute//nodes")
 
 # Model-file extensions — used to tell a model combo (downloadable) apart from an
 # ordinary enum combo (sampler_name, scheduler, …) when a value can't be snapped.

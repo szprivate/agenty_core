@@ -670,10 +670,33 @@ def download_hf_model(
         total_size = int(resp.headers.get("content-length", 0))
         chunk_size = 8 * 1024 * 1024  # 8 MB chunks
 
+        need_gb = total_size / (1024 ** 3)
+
+        # Size guard: an oversized model (e.g. a 43 GB diffusion checkpoint pulled
+        # in as a template's "missing model") can blow a per-recipe timeout and
+        # get the whole sweep killed mid-transfer. AGENTY_MAX_DOWNLOAD_GB caps the
+        # inline download; over it we skip (treat as unavailable) so the caller
+        # falls back instead of blocking. Unset = no cap.
+        _cap = os.environ.get("AGENTY_MAX_DOWNLOAD_GB")
+        if _cap:
+            try:
+                cap_gb = float(_cap)
+            except ValueError:
+                cap_gb = 0.0
+            if cap_gb > 0 and need_gb > cap_gb:
+                resp.close()
+                return json.dumps({
+                    "ok": False,
+                    "skipped": True,
+                    "error": f"'{filename}' is {need_gb:.1f} GB, over the "
+                             f"AGENTY_MAX_DOWNLOAD_GB={cap_gb:.0f} GB inline cap.",
+                    "hint": "Pre-download this large model out-of-band, or raise "
+                            "AGENTY_MAX_DOWNLOAD_GB; treated as unavailable for now.",
+                })
+
         # Space guard: don't start a download that would fill the destination
         # drive. Treat "no room" as a missing-model blocker rather than crashing
         # mid-write or exhausting the disk.
-        need_gb = total_size / (1024 ** 3)
         free_gb = _free_gb(dest_dir)
         if total_size and free_gb < need_gb + _MIN_FREE_BUFFER_GB:
             resp.close()
