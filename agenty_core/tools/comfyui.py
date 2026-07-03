@@ -2488,6 +2488,36 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                         inputs[dim] = cap
                         applied.append(f"Node {nid}: {dim} clamped {int(v)}→{cap} (AGENTY_MAX_DIM)")
 
+    # ── 7. Ensure a terminal output node ──────────────────────────────────────
+    # Some templates end in CreateVideo (a VIDEO producer, not an output node)
+    # with no SaveVideo, which ComfyUI rejects as "prompt has no outputs". If the
+    # graph has no output node at all, synthesize a SaveVideo wired to a terminal
+    # VIDEO producer (format/codec get widget defaults during validation).
+    try:
+        _oi_out = _get_object_info()
+    except Exception:  # noqa: BLE001
+        _oi_out = {}
+    if _oi_out:
+        _has_output = any(
+            isinstance(n, dict) and (_oi_out.get(n.get("class_type", "")) or {}).get("output_node")
+            for n in workflow.values()
+        )
+        if not _has_output and "SaveVideo" in _oi_out:
+            _video_src = next(
+                (nid for nid, n in workflow.items()
+                 if isinstance(n, dict)
+                 and "VIDEO" in ((_oi_out.get(n.get("class_type", "")) or {}).get("output") or [])),
+                None,
+            )
+            if _video_src is not None:
+                _new_id = str(max((int(k) for k in workflow if str(k).isdigit()), default=0) + 1)
+                workflow[_new_id] = {
+                    "class_type": "SaveVideo",
+                    "inputs": {"video": [_video_src, 0], "filename_prefix": "agent/video"},
+                    "_meta": {"title": "Save Video (auto)"},
+                }
+                applied.append(f"Synthesized SaveVideo node {_new_id} for terminal VIDEO output")
+
     # ── Save ──────────────────────────────────────────────────────────────────
     path = _save_workflow(workflow, name=Path(workflow_path).stem)
 
