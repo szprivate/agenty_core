@@ -27,6 +27,7 @@ import io
 import json
 import logging
 import os
+import shutil
 import sys
 from pathlib import Path
 from typing import Optional
@@ -139,6 +140,52 @@ def _resolve_download_dir(node_class_type: str, destination_folder: str) -> tupl
 
     base = _models_base_dir()
     return (base / category, "models_base_dir") if category else (base, "models_base_dir")
+
+
+# Never let a model download fill the C: system drive, and keep a safety margin
+# of free space on whatever drive we do download to.
+_MIN_FREE_BUFFER_GB = 5.0
+
+
+def _drive_of(p) -> str:
+    """Uppercase drive letter of a path (e.g. 'C'), or '' if it has none."""
+    return os.path.splitdrive(str(p))[0].rstrip(":").upper()
+
+
+def _free_gb(p) -> float:
+    """Free space (GiB) on the volume holding *p*, walking up to an existing
+    ancestor since the target dir may not exist yet. inf if it can't be probed."""
+    probe = Path(p)
+    while not probe.exists() and probe.parent != probe:
+        probe = probe.parent
+    try:
+        return shutil.disk_usage(str(probe)).free / (1024 ** 3)
+    except Exception:
+        return float("inf")
+
+
+def _ensure_not_c_drive(dl_dir: Path, dl_source: str) -> tuple[Path, str]:
+    """Never download models onto the C: system drive. If the resolved dir is on
+    C:, redirect to the first configured non-C: model location (preserving the
+    category leaf dir); raise if none is configured."""
+    if _drive_of(dl_dir) != "C":
+        return dl_dir, dl_source
+    leaf = Path(dl_dir).name
+    # Prefer a models *root* (so the category leaf nests cleanly), then any
+    # configured folder path, as long as it is not on C:.
+    bases = [str(_models_base_dir())]
+    bases += [p for paths in _folder_paths().values() for p in paths]
+    for b in bases:
+        if _drive_of(b) and _drive_of(b) != "C":
+            bp = Path(b)
+            target = bp if bp.name.lower() == leaf.lower() else bp / leaf
+            logger.warning("download target was on C: — redirecting to %s", target)
+            return target, "redirected_off_c"
+    raise RuntimeError(
+        "Refusing to download to the C: system drive and no non-C: model "
+        "location is configured. Set COMFYUI_MODELS_DIR / comfyui_models_dir "
+        "to a non-C: drive."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -560,6 +607,7 @@ def download_hf_model(
         # for the model's category, so the file lands where ComfyUI actually loads
         # from. Falls back to the models base dir.
         dl_dir, dl_source = _resolve_download_dir(node_class_type, destination_folder)
+        dl_dir, dl_source = _ensure_not_c_drive(dl_dir, dl_source)  # never fill C:
         dest_path = dl_dir / filename
         logger.info("download target: %s (%s)", dest_path, dl_source)
 
@@ -594,6 +642,24 @@ def download_hf_model(
 
         total_size = int(resp.headers.get("content-length", 0))
         chunk_size = 8 * 1024 * 1024  # 8 MB chunks
+
+        # Space guard: don't start a download that would fill the destination
+        # drive. Treat "no room" as a missing-model blocker rather than crashing
+        # mid-write or exhausting the disk.
+        need_gb = total_size / (1024 ** 3)
+        free_gb = _free_gb(dest_dir)
+        if total_size and free_gb < need_gb + _MIN_FREE_BUFFER_GB:
+            resp.close()
+            return json.dumps({
+                "ok": False,
+                "skipped": True,
+                "error": f"Not enough free space on {_drive_of(dest_dir)}: to "
+                         f"download '{filename}': need {need_gb:.1f} GB (+"
+                         f"{_MIN_FREE_BUFFER_GB:.0f} GB buffer), "
+                         f"{free_gb:.1f} GB free.",
+                "hint": "Free up space or configure a larger non-C: model drive; "
+                        "treat this model as unavailable for now.",
+            })
 
         # --- tqdm setup -------------------------------------------------
         # _TqdmSignalWriter intercepts tqdm's output, strips ANSI / carriage
