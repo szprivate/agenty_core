@@ -2370,10 +2370,21 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
             applied.append(f"Node {target}.inputs.text → (positive prompt, heuristic, {len(positive_text)} chars)")
             handled_nids.add(target)
             positive_injected = True
-        else:
+        elif cands:
+            # Candidates existed but none could be disambiguated — a real
+            # ambiguity the LLM brain should resolve.
             problems.append(
                 "positive prompt: no unambiguous target node found "
                 "(provide prompt_nodes or positive_prompt_node_id)"
+            )
+        else:
+            # No text-conditioning node exists in this graph at all — it's a
+            # prompt-less workflow (background removal, upscale, detection, depth
+            # estimation, …). The researcher's prompt simply does not apply here,
+            # so skip it rather than failing the whole assembly.
+            applied.append(
+                "positive prompt: workflow has no text-conditioning node — "
+                "prompt not applicable (skipped)"
             )
 
     # Negative prompt: find a node with "negative" in its title that has a text input

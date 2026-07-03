@@ -89,6 +89,13 @@ def harden_node_inputs(node: dict, required: dict) -> list[str]:
     node_inputs = node.get("inputs", {})
     missing: list[str] = []
     for req_name, spec in required.items():
+        # Variadic / autogrow inputs (COMFY_AUTOGROW_*) are grown dynamically by
+        # ComfyUI into per-slot keys (a, b, c… / image1, image2…); the umbrella
+        # name (e.g. 'values', 'images') is never a literal input key, so neither
+        # inject a widget default nor report it as a missing connection.
+        if isinstance(spec, list) and spec and isinstance(spec[0], str) \
+                and "AUTOGROW" in spec[0].upper():
+            continue
         if req_name not in node_inputs:
             default = None
             if isinstance(spec, list) and len(spec) >= 2 and isinstance(spec[1], dict) \
