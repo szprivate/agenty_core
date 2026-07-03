@@ -1402,6 +1402,34 @@ def get_workflow_template(template_name: str) -> str:
                         }
                         break
 
+        # Fuzzy fallback: the researcher may name a template that doesn't exist
+        # verbatim (e.g. 'z_image_turbo' vs 'text_to_image_z_image_turbo'). Match
+        # the closest catalog name by token overlap and load that instead.
+        if workflow is None:
+            import re as _re  # noqa: PLC0415
+            _common = {"text", "to", "the", "a", "of", "and", "workflow", "dev", "v"}
+            _qt = set(_re.findall(r"[a-z0-9]+", lookup.lower())) - _common
+            _best, _bscore = None, 0.0
+            if _qt:
+                for _t in _load_index():
+                    _nm = _t.get("name", "")
+                    _nt = set(_re.findall(r"[a-z0-9]+", _nm.lower())) - _common
+                    if not _nt:
+                        continue
+                    _sc = len(_qt & _nt) / len(_qt)
+                    if _sc > _bscore:
+                        _best, _bscore = _nm, _sc
+            if _best and _bscore >= 0.6:
+                data = _fetch_template(_best)
+                if data is not None:
+                    workflow = data
+                    source = "templates"
+                    lookup = _best
+                    for tpl in _load_index():
+                        if tpl.get("name") == _best:
+                            metadata = {"models": tpl.get("models", []), "io": tpl.get("io", {})}
+                            break
+
         if workflow is None:
             return json.dumps({
                 "error": f"Template '{template_name}' not found.",
