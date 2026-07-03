@@ -380,7 +380,9 @@ def _flatten_subgraphs(workflow: dict) -> dict:
                 # subgraph templates expose a bare boundary port instead.
                 conns = inner_by_id[inst_id].get("inputs", [])
                 conn = conns[j] if 0 <= j < len(conns) else {}
-                if str(conn.get("type") or "").upper() == "IMAGE" and "widget" not in conn:
+                # Any image-bearing boundary type counts (e.g. 'IMAGE,MASK' on a
+                # resize/inpaint port) — a synthesized LoadImage satisfies it.
+                if "IMAGE" in str(conn.get("type") or "").upper() and "widget" not in conn:
                     luid = str(next(uid_counter))
                     out_nodes.append({
                         "id": luid, "type": "LoadImage", "inputs": [],
@@ -514,27 +516,51 @@ def _convert_graph_to_api(workflow: dict) -> dict:
                 api_inputs[name] = link_table[link_id]
                 linked_names.add(name)
 
-        # Map widget values → named inputs
+        # Map widget values → named inputs.
+        # Preferred source of truth: the graph node's OWN widget declarations
+        # (inputs[] entries carrying widget.name, in declared order — including
+        # V3 dotted names like 'resize_type.width'). Positional mapping from
+        # object_info cannot know V3 dynamic-combo/nested widget order and used
+        # to shift every value (input←option-key, resize_type←1920, junk
+        # __extra_widget_*). A linked input keeps its link; its widgets_values
+        # slot is still consumed (the widget value is just the UI fallback).
         widgets_values: list = node.get("widgets_values", node.get("widget_values", []))
         if isinstance(widgets_values, list) and widgets_values:
-            schema = object_info.get(class_type, {}).get("input", {}) if object_info else {}
-            if schema:
-                widget_names = _schema_widget_names(schema, linked_names)
+            declared = [c.get("widget", {}).get("name") or c.get("name", "")
+                        for c in node.get("inputs", [])
+                        if isinstance(c, dict) and isinstance(c.get("widget"), dict)]
+            if declared:
                 wv_idx = 0
-                for name in widget_names:
+                for name in declared:
                     if wv_idx >= len(widgets_values):
                         break
                     val = widgets_values[wv_idx]
-                    api_inputs[name] = val
+                    if name not in linked_names:
+                        api_inputs[name] = val
                     wv_idx += 1
                     if (name in _SEED_INPUT_NAMES
                             and wv_idx < len(widgets_values)
                             and widgets_values[wv_idx] in _SEED_CONTROL_VALUES):
                         wv_idx += 1
-                for extra_i, extra_val in enumerate(widgets_values[wv_idx:], start=wv_idx):
-                    api_inputs[f"__extra_widget_{extra_i}"] = extra_val
             else:
-                api_inputs["__widgets_values"] = list(widgets_values)
+                schema = object_info.get(class_type, {}).get("input", {}) if object_info else {}
+                if schema:
+                    widget_names = _schema_widget_names(schema, linked_names)
+                    wv_idx = 0
+                    for name in widget_names:
+                        if wv_idx >= len(widgets_values):
+                            break
+                        val = widgets_values[wv_idx]
+                        api_inputs[name] = val
+                        wv_idx += 1
+                        if (name in _SEED_INPUT_NAMES
+                                and wv_idx < len(widgets_values)
+                                and widgets_values[wv_idx] in _SEED_CONTROL_VALUES):
+                            wv_idx += 1
+                    for extra_i, extra_val in enumerate(widgets_values[wv_idx:], start=wv_idx):
+                        api_inputs[f"__extra_widget_{extra_i}"] = extra_val
+                else:
+                    api_inputs["__widgets_values"] = list(widgets_values)
 
         api_node: dict = {"class_type": class_type, "inputs": api_inputs}
         title = node.get("title", "")
