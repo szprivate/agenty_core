@@ -2376,7 +2376,10 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
             if "positive" in title:
                 preferred = nid
             cands.append(nid)
-        target = preferred or (cands[0] if len(cands) == 1 else None)
+        # Prefer a 'positive'-titled node; else the sole candidate; else the
+        # lowest-id candidate (the positive text node is conventionally first).
+        target = preferred or (cands[0] if len(cands) == 1 else
+                               (min(cands, key=lambda n: (len(str(n)), str(n))) if cands else None))
         if target:
             node = workflow[target]
             node.setdefault("inputs", {})["text"] = positive_text
