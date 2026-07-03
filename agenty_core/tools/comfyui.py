@@ -22,6 +22,7 @@ from agenty_core.utils.comfyui_client import get_client, parse_argv_dir_flag
 # and update_workflow delegate to it (the LLM brain and the deterministic path
 # share the same robustness).
 from agenty_core.tools.assembly_deterministic import (
+    autowire_dangling_inputs as _autowire_dangling_inputs,
     coerce_dim as _coerce_dim,
     ensure_output_node as _ensure_output_node,
     harden_node_inputs as _harden_node_inputs,
@@ -2592,6 +2593,12 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         all_nodes = _get_object_info()
     except Exception:
         all_nodes = {}
+
+    # Wire dangling required connection inputs (e.g. a VAE/mask boundary the
+    # subgraph flattener dropped) to the graph's unique same-type producer,
+    # before hardening would flag them as genuinely missing.
+    for _w in _autowire_dangling_inputs(workflow, all_nodes):
+        applied.append(_w)
 
     node_ids = set(workflow.keys())
 

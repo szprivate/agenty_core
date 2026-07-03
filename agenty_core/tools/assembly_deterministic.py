@@ -235,6 +235,56 @@ def harden_node_inputs(node: dict, required: dict, missing_models: list | None =
     return missing
 
 
+# Widget/value input types — never a graph connection, so never auto-wired.
+_NON_CONNECTION_TYPES = ("INT", "FLOAT", "STRING", "BOOLEAN", "COMBO")
+
+
+def autowire_dangling_inputs(workflow: dict, object_info: dict) -> list[str]:
+    """Wire a node's missing *required connection* input to the graph's unique
+    producer of that type, in place. Returns applied notes.
+
+    Subgraph flattening preserves IMAGE boundaries (it synthesises a LoadImage)
+    but drops other boundary connections — e.g. the VAE feeding an LTX
+    decoder/upsampler, or a mask into InpaintModelConditioning — leaving the
+    consuming node with a dangling required input that 400s at submission. When
+    exactly one node in the graph outputs that type, the wiring is unambiguous;
+    ambiguous types (e.g. two CONDITIONING sources) are left for the LLM brain."""
+    if not object_info:
+        return []
+    # type -> [(node_id, output_slot)]
+    producers: dict[str, list[tuple[str, int]]] = {}
+    for nid, node in workflow.items():
+        if not isinstance(node, dict):
+            continue
+        outs = (object_info.get(node.get("class_type", ""), {}) or {}).get("output") or []
+        for slot, typ in enumerate(outs):
+            if isinstance(typ, str):
+                producers.setdefault(typ, []).append((nid, slot))
+    wired: list[str] = []
+    for nid, node in workflow.items():
+        if not isinstance(node, dict):
+            continue
+        info = object_info.get(node.get("class_type", ""), {}) or {}
+        required = (info.get("input", {}) or {}).get("required", {}) or {}
+        node_inputs = node.get("inputs", {})
+        for rname, rspec in required.items():
+            if rname in node_inputs:
+                continue
+            # A connection input's spec is [<TYPE-string>, ...]; a combo's spec[0]
+            # is a list of options, a widget's is INT/FLOAT/STRING/BOOLEAN.
+            if not (isinstance(rspec, list) and rspec and isinstance(rspec[0], str)):
+                continue
+            typ = rspec[0]
+            if typ in _NON_CONNECTION_TYPES or "AUTOGROW" in typ.upper():
+                continue
+            cands = [p for p in producers.get(typ, []) if p[0] != nid]
+            if len(cands) == 1:
+                src_id, src_slot = cands[0]
+                node.setdefault("inputs", {})[rname] = [src_id, src_slot]
+                wired.append(f"Node {nid}.{rname} ← {src_id}:{src_slot} ({typ})")
+    return wired
+
+
 def ensure_output_node(workflow: dict, object_info: dict) -> str | None:
     """If the graph has no output node but a terminal VIDEO producer (e.g.
     CreateVideo without a SaveVideo), synthesize a SaveVideo wired to it so the
