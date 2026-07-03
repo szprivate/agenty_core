@@ -218,20 +218,44 @@ def harden_node_inputs(node: dict, required: dict, missing_models: list | None =
                 missing.append(req_name)
     for cinp, cspec in required.items():
         cval = node_inputs.get(cinp)
-        if not isinstance(cval, str):
-            continue
+        if cval is None or isinstance(cval, list):
+            continue  # absent, or a node connection
         copts = combo_options(cspec)
-        if not copts or cval in copts:
+        if copts:
+            if cval in copts:
+                continue
+            # A non-string value in a combo slot (e.g. an int written into
+            # scale_method by a shifted widget mapping) can never be valid —
+            # match/snap by string; enum combos fall back to the first option.
+            sval = cval if isinstance(cval, str) else str(cval)
+            if sval in copts:
+                node.setdefault("inputs", {})[cinp] = sval
+                continue
+            is_model = _is_model_combo(sval, copts)
+            snapped = snap_combo(sval, copts, fallback_first=not is_model)
+            if snapped is not None and snapped != cval:
+                node.setdefault("inputs", {})[cinp] = snapped
+            elif snapped is None and is_model and missing_models is not None:
+                # Un-installed model with no same-family substitute — surface it
+                # for download rather than snapping to an unrelated file.
+                if sval not in missing_models:
+                    missing_models.append(sval)
             continue
-        is_model = _is_model_combo(cval, copts)
-        snapped = snap_combo(cval, copts, fallback_first=not is_model)
-        if snapped is not None and snapped != cval:
-            node.setdefault("inputs", {})[cinp] = snapped
-        elif snapped is None and is_model and missing_models is not None:
-            # Un-installed model with no same-family substitute — surface it for
-            # download rather than snapping to an unrelated file.
-            if cval not in missing_models:
-                missing_models.append(cval)
+        # Numeric range clamp: ComfyUI rejects INT/FLOAT widget values outside
+        # the spec's min/max (e.g. bit_depth 24 > max 10).
+        if (isinstance(cval, (int, float)) and not isinstance(cval, bool)
+                and isinstance(cspec, list) and cspec
+                and cspec[0] in ("INT", "FLOAT")
+                and len(cspec) > 1 and isinstance(cspec[1], dict)):
+            lo, hi = cspec[1].get("min"), cspec[1].get("max")
+            clamped = cval
+            if isinstance(lo, (int, float)) and clamped < lo:
+                clamped = lo
+            if isinstance(hi, (int, float)) and clamped > hi:
+                clamped = hi
+            if clamped != cval:
+                node.setdefault("inputs", {})[cinp] = (
+                    int(clamped) if cspec[0] == "INT" else float(clamped))
     return missing
 
 
@@ -390,10 +414,17 @@ def assemble_workflow_deterministic(brainbriefing_json: str) -> str:
     except Exception as e:  # noqa: BLE001
         return json.dumps({"status": "error", "problems": [f"apply_brainbriefing exception: {e}"]})
 
+    problems = list(res.get("problems") or [])
+    # Surface ComfyUI server-side validation errors too — otherwise a decline
+    # can look reason-less (problems=[]) when only the server rejected it.
+    _srv = res.get("server_errors")
+    if _srv and res.get("status") != "ok":
+        problems.append(f"server: {json.dumps(_srv)[:500]}")
+
     return json.dumps({
         "status": "ready" if res.get("status") == "ok" else "error",
         "workflow_path": res.get("workflow_path", path),
-        "problems": res.get("problems", []),
+        "problems": problems,
         "applied": res.get("applied", []),
         "missing_models": res.get("missing_models", []),
     })
