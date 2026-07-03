@@ -2222,9 +2222,19 @@ def update_workflow(
                     "node_errors": result.get("node_errors", {}),
                 }
             elif "prompt_id" in result:
+                # Cancel ONLY our validation prompt. A blanket /interrupt kills
+                # whatever is currently RUNNING (e.g. a real render the executor
+                # queued — observed mid-render kills), and {"clear": True} drops
+                # every pending item. Delete our pending entry by id; interrupt
+                # only if our own prompt already started running.
                 try:
-                    get_client().post("/interrupt", json_data={})
-                    get_client().post("/queue", json_data={"clear": True})
+                    _vpid = result["prompt_id"]
+                    get_client().post("/queue", json_data={"delete": [_vpid]})
+                    _q = get_client().get("/queue")
+                    _running = _q.get("queue_running") or []
+                    if any(isinstance(_it, (list, tuple)) and len(_it) > 1 and _it[1] == _vpid
+                           for _it in _running):
+                        get_client().post("/interrupt", json_data={})
                 except Exception:
                     pass
     except Exception as e:
@@ -2664,9 +2674,19 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                     "node_errors": result.get("node_errors", {}),
                 }
             elif "prompt_id" in result:
+                # Cancel ONLY our validation prompt. A blanket /interrupt kills
+                # whatever is currently RUNNING (e.g. a real render the executor
+                # queued — observed mid-render kills), and {"clear": True} drops
+                # every pending item. Delete our pending entry by id; interrupt
+                # only if our own prompt already started running.
                 try:
-                    get_client().post("/interrupt", json_data={})
-                    get_client().post("/queue", json_data={"clear": True})
+                    _vpid = result["prompt_id"]
+                    get_client().post("/queue", json_data={"delete": [_vpid]})
+                    _q = get_client().get("/queue")
+                    _running = _q.get("queue_running") or []
+                    if any(isinstance(_it, (list, tuple)) and len(_it) > 1 and _it[1] == _vpid
+                           for _it in _running):
+                        get_client().post("/interrupt", json_data={})
                 except Exception:
                     pass
     except Exception as e:
