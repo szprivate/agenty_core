@@ -47,6 +47,7 @@ _object_info_cache: dict | None = None
 
 # In-memory caches for template data (reset on process restart).
 _index_cache: list | None = None
+_official_index_cache: list | None = None
 _template_cache: dict[str, dict] = {}
 
 # ── Session-level tool-response caches ──────────────────────────────────────
@@ -174,6 +175,38 @@ def _load_index() -> list:
             pass
 
     _index_cache = flat
+    return flat
+
+
+def _official_index() -> list:
+    """Flat list of official (Comfy-Org) template descriptors from the official
+    ``index.json``. Used by the fuzzy fallback so a near-miss / hallucinated name
+    can resolve to an official template (which _fetch_template can load by name),
+    not just the custom ones. Cached for the process lifetime."""
+    global _official_index_cache
+    if _official_index_cache is not None:
+        return _official_index_cache
+    flat: list[dict] = []
+    index_path = _official_templates_dir() / "index.json"
+    if index_path.exists():
+        try:
+            with open(index_path, encoding="utf-8") as f:
+                raw = json.load(f)
+
+            def _walk(o):
+                if isinstance(o, dict):
+                    if isinstance(o.get("name"), str):
+                        flat.append(o)
+                    for v in o.values():
+                        _walk(v)
+                elif isinstance(o, list):
+                    for x in o:
+                        _walk(x)
+
+            _walk(raw)
+        except Exception:
+            pass
+    _official_index_cache = flat
     return flat
 
 
@@ -1418,16 +1451,28 @@ def get_workflow_template(template_name: str) -> str:
         # the closest catalog name by token overlap and load that instead.
         if workflow is None:
             import re as _re  # noqa: PLC0415
-            _common = {"text", "to", "the", "a", "of", "and", "workflow", "dev", "v"}
+            # Noise tokens a researcher tends to pad a name with — dropping them
+            # keeps the score focused on the distinctive tokens (model, task).
+            _common = {"text", "to", "the", "a", "of", "and", "workflow", "dev", "v",
+                       "template", "generation", "generate", "using", "model",
+                       "custom", "new", "base", "simple", "basic", "default", "for"}
             _qt = set(_re.findall(r"[a-z0-9]+", lookup.lower())) - _common
             _best, _bscore = None, 0.0
             if _qt:
-                for _t in _load_index():
+                _seen: set = set()
+                # Search custom AND official templates (official are fetchable by
+                # name but absent from the custom index).
+                for _t in _load_index() + _official_index():
                     _nm = _t.get("name", "")
+                    if not _nm or _nm in _seen:
+                        continue
+                    _seen.add(_nm)
                     _nt = set(_re.findall(r"[a-z0-9]+", _nm.lower())) - _common
                     if not _nt:
                         continue
-                    _sc = len(_qt & _nt) / len(_qt)
+                    # Overlap relative to the smaller token set — rewards a name
+                    # that fully contains the query's distinctive tokens.
+                    _sc = len(_qt & _nt) / min(len(_qt), len(_nt))
                     if _sc > _bscore:
                         _best, _bscore = _nm, _sc
             if _best and _bscore >= 0.6:
