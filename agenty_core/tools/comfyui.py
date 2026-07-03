@@ -1895,6 +1895,18 @@ def patch_workflow(workflow_path: str, patches: str) -> str:
     })
 
 
+def _combo_options(spec):
+    """Return the option list for a ComfyUI combo input spec, handling both the
+    ['COMBO', {'options': [...]}] and legacy [[opt1, opt2, ...], {...}] formats."""
+    if not isinstance(spec, list) or not spec:
+        return None
+    if isinstance(spec[0], list):
+        return spec[0]
+    if spec[0] == "COMBO" and len(spec) > 1 and isinstance(spec[1], dict):
+        return spec[1].get("options")
+    return None
+
+
 def _snap_combo(val: str, opts: list):
     """Snap an invalid combo value (e.g. a model file the template references but
     that isn't installed) to the best same-family option, else the first option.
@@ -2118,8 +2130,9 @@ def update_workflow(
                 if isinstance(spec, list) and len(spec) >= 2 and isinstance(spec[1], dict) \
                         and spec[1].get("default") is not None:
                     default = spec[1]["default"]
-                elif isinstance(spec, list) and spec and isinstance(spec[0], list) and spec[0]:
-                    default = spec[0][0]
+                else:
+                    _opts = _combo_options(spec)
+                    default = _opts[0] if _opts else None
                 if default is not None:
                     node.setdefault("inputs", {})[req_name] = default
                 else:
@@ -2131,8 +2144,7 @@ def update_workflow(
             _cval = node_inputs.get(_cinp)
             if not isinstance(_cval, str):
                 continue
-            _copts = _cspec[0] if (isinstance(_cspec, list) and _cspec
-                                   and isinstance(_cspec[0], list)) else None
+            _copts = _combo_options(_cspec)
             if not _copts or _cval in _copts:
                 continue
             _snapped = _snap_combo(_cval, _copts)
@@ -2592,8 +2604,9 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                 if isinstance(spec, list) and len(spec) >= 2 and isinstance(spec[1], dict) \
                         and spec[1].get("default") is not None:
                     default = spec[1]["default"]
-                elif isinstance(spec, list) and spec and isinstance(spec[0], list) and spec[0]:
-                    default = spec[0][0]
+                else:
+                    _opts = _combo_options(spec)
+                    default = _opts[0] if _opts else None
                 if default is not None:
                     node.setdefault("inputs", {})[req_name] = default
                 else:
@@ -2605,8 +2618,7 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
             _cval = node_inputs.get(_cinp)
             if not isinstance(_cval, str):
                 continue
-            _copts = _cspec[0] if (isinstance(_cspec, list) and _cspec
-                                   and isinstance(_cspec[0], list)) else None
+            _copts = _combo_options(_cspec)
             if not _copts or _cval in _copts:
                 continue
             _snapped = _snap_combo(_cval, _copts)
