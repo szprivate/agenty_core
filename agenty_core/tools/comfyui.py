@@ -1895,6 +1895,28 @@ def patch_workflow(workflow_path: str, patches: str) -> str:
     })
 
 
+def _snap_combo(val: str, opts: list):
+    """Snap an invalid combo value (e.g. a model file the template references but
+    that isn't installed) to the best same-family option, else the first option.
+    Returns the chosen option or None."""
+    import re  # noqa: PLC0415
+    base = str(val).replace("\\", "/").rsplit("/", 1)[-1].lower()
+    stem = base.rsplit(".", 1)[0]
+    for o in opts:
+        ob = str(o).replace("\\", "/").rsplit("/", 1)[-1].lower()
+        if ob == base or ob.rsplit(".", 1)[0] == stem:
+            return o
+    vt = set(re.findall(r"[a-z0-9]+", stem))
+    best, best_n = None, 0
+    for o in opts:
+        ot = set(re.findall(r"[a-z0-9]+",
+                            str(o).replace("\\", "/").rsplit("/", 1)[-1].rsplit(".", 1)[0].lower()))
+        n = len(vt & ot)
+        if n > best_n:
+            best, best_n = o, n
+    return best if best_n >= 1 else (opts[0] if opts else None)
+
+
 @tool
 def update_workflow(
     workflow_path: str,
@@ -2102,6 +2124,20 @@ def update_workflow(
                     node.setdefault("inputs", {})[req_name] = default
                 else:
                     local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
+        # Snap a present combo value that isn't a valid option (a model/file the
+        # template referenced but that isn't installed) to a same-family match,
+        # else the first option — so the workflow validates with a substitute.
+        for _cinp, _cspec in required.items():
+            _cval = node_inputs.get(_cinp)
+            if not isinstance(_cval, str):
+                continue
+            _copts = _cspec[0] if (isinstance(_cspec, list) and _cspec
+                                   and isinstance(_cspec[0], list)) else None
+            if not _copts or _cval in _copts:
+                continue
+            _snapped = _snap_combo(_cval, _copts)
+            if _snapped and _snapped != _cval:
+                node.setdefault("inputs", {})[_cinp] = _snapped
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
@@ -2559,6 +2595,20 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                     node.setdefault("inputs", {})[req_name] = default
                 else:
                     local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
+        # Snap a present combo value that isn't a valid option (a model/file the
+        # template referenced but that isn't installed) to a same-family match,
+        # else the first option — so the workflow validates with a substitute.
+        for _cinp, _cspec in required.items():
+            _cval = node_inputs.get(_cinp)
+            if not isinstance(_cval, str):
+                continue
+            _copts = _cspec[0] if (isinstance(_cspec, list) and _cspec
+                                   and isinstance(_cspec[0], list)) else None
+            if not _copts or _cval in _copts:
+                continue
+            _snapped = _snap_combo(_cval, _copts)
+            if _snapped and _snapped != _cval:
+                node.setdefault("inputs", {})[_cinp] = _snapped
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
