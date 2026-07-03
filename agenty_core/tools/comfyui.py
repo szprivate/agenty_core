@@ -2088,7 +2088,20 @@ def update_workflow(
         node_inputs = node.get("inputs", {})
         for req_name in required:
             if req_name not in node_inputs:
-                local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
+                # Auto-inject a widget/combo default so an unset widget still
+                # assembles (ComfyUI needs the value present in API format).
+                # Connection inputs (bare type, no default) stay a real error.
+                spec = required[req_name]
+                default = None
+                if isinstance(spec, list) and len(spec) >= 2 and isinstance(spec[1], dict) \
+                        and spec[1].get("default") is not None:
+                    default = spec[1]["default"]
+                elif isinstance(spec, list) and spec and isinstance(spec[0], list) and spec[0]:
+                    default = spec[0][0]
+                if default is not None:
+                    node.setdefault("inputs", {})[req_name] = default
+                else:
+                    local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
@@ -2217,19 +2230,31 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     applied: list[str] = []
     problems: list[str] = []
 
+    # ── Strip pure-annotation nodes ───────────────────────────────────────────
+    # Note / MarkdownNote carry no executable inputs or outputs; ComfyUI
+    # validation rejects them as unknown class_type. Remove them so a
+    # documentation-annotated template still assembles cleanly with no LLM fix-up.
+    for _nid in [n for n, nd in list(workflow.items())
+                 if isinstance(nd, dict) and nd.get("class_type") in ("Note", "MarkdownNote")]:
+        del workflow[_nid]
+        applied.append(f"Removed annotation node {_nid}")
+
     # ── 1. Input nodes: replace filenames ─────────────────────────────────────
     for inp in bb.get("input_nodes", []):
         nid = str(inp.get("node_id", ""))
         filename = inp.get("filename") or inp.get("path", "")
         slot = inp.get("slot", "image")
+        # A briefing may over-specify or mis-reference input nodes; skip broken
+        # entries (leaving the template's own default) rather than failing — the
+        # ComfyUI server validation is the real backstop.
         if not nid:
-            problems.append("input_nodes entry missing node_id")
+            applied.append("input_nodes: skipped entry with no node_id")
             continue
         if nid not in workflow:
-            problems.append(f"input_nodes: node '{nid}' not found in workflow")
+            applied.append(f"input_nodes: skipped '{nid}' (not in workflow)")
             continue
         if not filename:
-            problems.append(f"input_nodes: node '{nid}' has no filename/path")
+            applied.append(f"input_nodes: skipped '{nid}' (no filename)")
             continue
         node = workflow[nid]
         if "inputs" not in node:
@@ -2283,7 +2308,9 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         pos_nid = ""
     if positive_text and not positive_injected and pos_nid:
         if pos_nid not in workflow:
-            problems.append(f"positive_prompt_node_id '{pos_nid}' not found in workflow")
+            # Malformed / stale id (e.g. ':0') — fall through to the heuristic
+            # below rather than failing.
+            applied.append(f"positive_prompt_node_id '{pos_nid}' not in workflow — using heuristic")
         else:
             node = workflow[pos_nid]
             node.setdefault("inputs", {})["text"] = positive_text
@@ -2357,11 +2384,13 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     for out in bb.get("output_nodes", []):
         nid = str(out.get("node_id", ""))
         output_path = out.get("output_path", "")
+        # Skip broken output-node references (the template keeps its own output
+        # node + default prefix); server validation is the backstop.
         if not nid:
-            problems.append("output_nodes entry missing node_id")
+            applied.append("output_nodes: skipped entry with no node_id")
             continue
         if nid not in workflow:
-            problems.append(f"output_nodes: node '{nid}' not found in workflow")
+            applied.append(f"output_nodes: skipped '{nid}' (not in workflow)")
             continue
         node = workflow[nid]
         if "inputs" not in node:
@@ -2375,8 +2404,19 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         applied.append(f"Node {nid}.inputs.filename_prefix → {prefix!r}")
 
     # ── 4. Resolution ─────────────────────────────────────────────────────────
-    res_w = bb.get("resolution_width")
-    res_h = bb.get("resolution_height")
+    def _as_dim(v):
+        # Coerce a briefing resolution field to a positive int, or None. Guards
+        # against non-numeric values (dict/list/junk) the researcher may emit.
+        if isinstance(v, bool) or isinstance(v, (dict, list)):
+            return None
+        if isinstance(v, (int, float)):
+            return int(v) if v > 0 else None
+        if isinstance(v, str) and v.strip().lstrip("-").isdigit():
+            n = int(v.strip())
+            return n if n > 0 else None
+        return None
+    res_w = _as_dim(bb.get("resolution_width"))
+    res_h = _as_dim(bb.get("resolution_height"))
     if res_w or res_h:
         for nid, node in workflow.items():
             if not isinstance(node, dict):
@@ -2475,7 +2515,20 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         node_inputs = node.get("inputs", {})
         for req_name in required:
             if req_name not in node_inputs:
-                local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
+                # Auto-inject a widget/combo default so an unset widget still
+                # assembles (ComfyUI needs the value present in API format).
+                # Connection inputs (bare type, no default) stay a real error.
+                spec = required[req_name]
+                default = None
+                if isinstance(spec, list) and len(spec) >= 2 and isinstance(spec[1], dict) \
+                        and spec[1].get("default") is not None:
+                    default = spec[1]["default"]
+                elif isinstance(spec, list) and spec and isinstance(spec[0], list) and spec[0]:
+                    default = spec[0][0]
+                if default is not None:
+                    node.setdefault("inputs", {})[req_name] = default
+                else:
+                    local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
