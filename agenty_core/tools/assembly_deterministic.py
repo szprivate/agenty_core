@@ -31,6 +31,95 @@ def strip_annotation_nodes(workflow: dict) -> list[str]:
     return removed
 
 
+# UI-only passthrough node classes: ComfyUI's /prompt API rejects them as
+# unknown class_type, so they must be bypassed (links rewired through them) —
+# not merely deleted like annotation nodes.
+REROUTE_NODE_CLASSES = ("Reroute", "Reroute (rgthree)", "ReroutePrimitive",
+                        "PrimitiveNode", "Reroute//nodes")
+
+# Model-file extensions — used to tell a model combo (downloadable) apart from an
+# ordinary enum combo (sampler_name, scheduler, …) when a value can't be snapped.
+_MODEL_EXTS = (".safetensors", ".ckpt", ".pth", ".pt", ".gguf", ".bin", ".onnx", ".sft")
+
+# LoadImage-family classes whose primary widget names an input image file.
+_LOADIMAGE_CLASSES = ("LoadImage", "LoadImageMask", "LoadImageOutput")
+
+
+def strip_reroute_nodes(workflow: dict) -> list[str]:
+    """Bypass and remove Reroute/Primitive passthrough nodes (API format), in
+    place. Every consumer input wired to a Reroute's output is rewired to the
+    Reroute's own upstream source (following Reroute chains); a Reroute with no
+    upstream has its consuming inputs dropped. Returns the removed ids."""
+    reroutes = {nid: nd for nid, nd in workflow.items()
+                if isinstance(nd, dict) and nd.get("class_type") in REROUTE_NODE_CLASSES}
+    if not reroutes:
+        return []
+
+    def upstream(rid: str):
+        """The [src_id, slot] a Reroute forwards (its first link-valued input)."""
+        for v in (reroutes[rid].get("inputs") or {}).values():
+            if isinstance(v, list) and len(v) == 2:
+                return v
+        return None
+
+    def resolve(link):
+        """Follow a link through any chain of Reroutes to the real producer."""
+        seen: set = set()
+        while isinstance(link, list) and len(link) == 2 and str(link[0]) in reroutes:
+            if str(link[0]) in seen:
+                return None
+            seen.add(str(link[0]))
+            link = upstream(str(link[0]))
+            if link is None:
+                return None
+        return link
+
+    for nid, node in workflow.items():
+        if nid in reroutes or not isinstance(node, dict):
+            continue
+        for k, v in list((node.get("inputs") or {}).items()):
+            if isinstance(v, list) and len(v) == 2 and str(v[0]) in reroutes:
+                r = resolve(v)
+                if r is None:
+                    node["inputs"].pop(k, None)  # dangling reroute → drop input
+                else:
+                    node["inputs"][k] = r
+    for rid in reroutes:
+        del workflow[rid]
+    return list(reroutes.keys())
+
+
+def rebind_placeholder_images(workflow: dict, object_info: dict) -> list[str]:
+    """Bind LoadImage nodes that still hold a *placeholder* filename (one the
+    server doesn't actually have as an input) to a real available input image,
+    preferring the harness-staged ``agent/`` inputs. Returns applied notes.
+
+    Video/edit templates ship a sample image name (e.g. ``egyptian_queen.png``)
+    and researchers frequently omit ``input_nodes``, so the graph would 400 with
+    ``value not in list`` at submission. Deterministically rebinding to a real
+    input rescues it."""
+    if not object_info:
+        return []
+    li = (object_info.get("LoadImage", {}) or {}).get("input", {}).get("required", {})
+    avail = [o for o in (combo_options(li.get("image")) or []) if isinstance(o, str)]
+    if not avail:
+        return []
+    staged = [o for o in avail if o.replace("\\", "/").lower().startswith("agent/")] or avail
+    notes: list[str] = []
+    j = 0
+    for nid, node in workflow.items():
+        if not isinstance(node, dict) or node.get("class_type") not in _LOADIMAGE_CLASSES:
+            continue
+        cur = (node.get("inputs") or {}).get("image")
+        if isinstance(cur, str) and cur in avail:
+            continue  # already a real input — leave it
+        pick = staged[j % len(staged)]
+        node.setdefault("inputs", {})["image"] = pick
+        notes.append(f"Node {nid}.inputs.image → {pick!r} (rebound placeholder)")
+        j += 1
+    return notes
+
+
 def coerce_dim(v):
     """Coerce a briefing resolution field to a positive int, or None (guards an
     ``int(dict)`` crash when the researcher emits junk)."""
@@ -56,9 +145,12 @@ def combo_options(spec):
     return None
 
 
-def snap_combo(val: str, opts: list):
+def snap_combo(val: str, opts: list, fallback_first: bool = True):
     """Snap an invalid combo value (e.g. a model file the template references but
-    that isn't installed) to the best same-family option, else the first option."""
+    that isn't installed) to the best same-family option. With ``fallback_first``
+    (default) an unmatched value falls back to the first option; pass False to
+    return None instead (so a model combo can be surfaced for download rather than
+    snapped to an unrelated file)."""
     base = str(val).replace("\\", "/").rsplit("/", 1)[-1].lower()
     stem = base.rsplit(".", 1)[0]
     for o in opts:
@@ -73,15 +165,28 @@ def snap_combo(val: str, opts: list):
         n = len(vt & ot)
         if n > best_n:
             best, best_n = o, n
-    return best if best_n >= 1 else (opts[0] if opts else None)
+    if best_n >= 1:
+        return best
+    return opts[0] if (fallback_first and opts) else None
 
 
-def harden_node_inputs(node: dict, required: dict) -> list[str]:
+def _is_model_combo(cval, copts) -> bool:
+    """True if a combo names model files (downloadable) rather than an enum."""
+    def _isf(x):
+        return isinstance(x, str) and x.lower().endswith(_MODEL_EXTS)
+    return _isf(cval) or (bool(copts) and _isf(copts[0]))
+
+
+def harden_node_inputs(node: dict, required: dict, missing_models: list | None = None) -> list[str]:
     """Make one node's inputs valid where it can be done mechanically:
 
     * inject a widget/combo default for a missing required *widget* input
-      (ComfyUI needs the value present in API format), and
-    * snap a present combo value that isn't a valid option to a substitute.
+      (ComfyUI needs the value present in API format),
+    * snap a present combo value that isn't a valid option to a same-family
+      substitute, and
+    * for a model combo with no same-family match, append the value to
+      *missing_models* (if given) so the caller can download it — instead of
+      snapping to an unrelated model file (which would render garbage).
 
     Returns the names of required inputs that remain genuinely missing — the
     *connection* inputs (a bare type, no default) that need real wiring.
@@ -115,9 +220,15 @@ def harden_node_inputs(node: dict, required: dict) -> list[str]:
         copts = combo_options(cspec)
         if not copts or cval in copts:
             continue
-        snapped = snap_combo(cval, copts)
-        if snapped and snapped != cval:
+        is_model = _is_model_combo(cval, copts)
+        snapped = snap_combo(cval, copts, fallback_first=not is_model)
+        if snapped is not None and snapped != cval:
             node.setdefault("inputs", {})[cinp] = snapped
+        elif snapped is None and is_model and missing_models is not None:
+            # Un-installed model with no same-family substitute — surface it for
+            # download rather than snapping to an unrelated file.
+            if cval not in missing_models:
+                missing_models.append(cval)
     return missing
 
 
@@ -204,4 +315,5 @@ def assemble_workflow_deterministic(brainbriefing_json: str) -> str:
         "workflow_path": res.get("workflow_path", path),
         "problems": res.get("problems", []),
         "applied": res.get("applied", []),
+        "missing_models": res.get("missing_models", []),
     })

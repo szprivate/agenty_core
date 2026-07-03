@@ -25,7 +25,9 @@ from agenty_core.tools.assembly_deterministic import (
     coerce_dim as _coerce_dim,
     ensure_output_node as _ensure_output_node,
     harden_node_inputs as _harden_node_inputs,
+    rebind_placeholder_images as _rebind_placeholder_images,
     strip_annotation_nodes as _strip_annotation_nodes,
+    strip_reroute_nodes as _strip_reroute_nodes,
 )
 
 
@@ -2104,6 +2106,7 @@ def update_workflow(
     # ── Validate ──────────────────────────────────────────────────────────────
     local_errors: list[str] = []
     server_errors: dict = {}
+    missing_models: list[str] = []
 
     try:
         all_nodes = _get_object_info()
@@ -2123,9 +2126,10 @@ def update_workflow(
         node_info = all_nodes.get(cls, {})
         required = node_info.get("input", {}).get("required", {})
         node_inputs = node.get("inputs", {})
-        # Inject widget/combo defaults + snap invalid combo values; what remains
-        # is a genuinely-missing connection input (needs real wiring).
-        for _missing in _harden_node_inputs(node, required):
+        # Inject widget/combo defaults + snap invalid combo values (collecting any
+        # un-installed model into missing_models); what remains is a
+        # genuinely-missing connection input (needs real wiring).
+        for _missing in _harden_node_inputs(node, required, missing_models):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
@@ -2258,6 +2262,11 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     # Strip pure-annotation nodes (Note / MarkdownNote) that ComfyUI rejects.
     for _nid in _strip_annotation_nodes(workflow):
         applied.append(f"Removed annotation node {_nid}")
+    # Bypass + remove Reroute/Primitive passthrough nodes (rewire links through
+    # them) — ComfyUI's /prompt API rejects them as unknown class_type.
+    _rr = _strip_reroute_nodes(workflow)
+    if _rr:
+        applied.append(f"Bypassed {len(_rr)} reroute/primitive node(s): {', '.join(_rr)}")
 
     # ── 1. Input nodes: replace filenames ─────────────────────────────────────
     for inp in bb.get("input_nodes", []):
@@ -2284,6 +2293,15 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         ref = _agent_input_ref(filename)
         node["inputs"][slot] = ref
         applied.append(f"Node {nid}.inputs.{slot} → {ref!r}")
+
+    # ── 1b. Rebind LoadImage placeholders ─────────────────────────────────────
+    # Templates ship a sample image name and researchers often omit input_nodes,
+    # so a LoadImage left on its placeholder 400s at submission. Bind any such
+    # node to a real available input (preferring the staged agent/ images).
+    try:
+        applied.extend(_rebind_placeholder_images(workflow, _get_object_info()))
+    except Exception:  # noqa: BLE001
+        pass
 
     # ── 2. Prompts ────────────────────────────────────────────────────────────
     prompt_block = bb.get("prompt", {})
@@ -2520,12 +2538,10 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     if _sv:
         applied.append(f"Synthesized SaveVideo node {_sv} for terminal VIDEO output")
 
-    # ── Save ──────────────────────────────────────────────────────────────────
-    path = _save_workflow(workflow, name=Path(workflow_path).stem)
-
-    # ── Validate ──────────────────────────────────────────────────────────────
+    # ── Validate (harden) ─────────────────────────────────────────────────────
     local_errors: list[str] = []
     server_errors: dict = {}
+    missing_models: list[str] = []
 
     try:
         all_nodes = _get_object_info()
@@ -2545,9 +2561,10 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         node_info = all_nodes.get(cls, {})
         required = node_info.get("input", {}).get("required", {})
         node_inputs = node.get("inputs", {})
-        # Inject widget/combo defaults + snap invalid combo values; what remains
-        # is a genuinely-missing connection input (needs real wiring).
-        for _missing in _harden_node_inputs(node, required):
+        # Inject widget/combo defaults + snap invalid combo values (collecting any
+        # un-installed model into missing_models); what remains is a
+        # genuinely-missing connection input (needs real wiring).
+        for _missing in _harden_node_inputs(node, required, missing_models):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
@@ -2582,6 +2599,11 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         else:
             server_errors = {"error": err_str}
 
+    # Save AFTER hardening so the file the executor submits reflects every
+    # deterministic fix (reroutes bypassed, images rebound, combos snapped,
+    # widget defaults injected) — not the raw pre-harden template.
+    path = _save_workflow(workflow, name=Path(workflow_path).stem)
+
     all_problems = problems + local_errors
     is_valid = len(all_problems) == 0 and len(server_errors) == 0
 
@@ -2593,6 +2615,7 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         "valid": is_valid,
         "local_errors": local_errors,
         "server_errors": server_errors,
+        "missing_models": missing_models,
     })
 
 
