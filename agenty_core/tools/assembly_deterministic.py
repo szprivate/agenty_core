@@ -180,7 +180,8 @@ def _is_model_combo(cval, copts) -> bool:
     return _isf(cval) or (bool(copts) and _isf(copts[0]))
 
 
-def harden_node_inputs(node: dict, required: dict, missing_models: list | None = None) -> list[str]:
+def harden_node_inputs(node: dict, required: dict, missing_models: list | None = None,
+                       optional: dict | None = None) -> list[str]:
     """Make one node's inputs valid where it can be done mechanically:
 
     * inject a widget/combo default for a missing required *widget* input
@@ -216,7 +217,12 @@ def harden_node_inputs(node: dict, required: dict, missing_models: list | None =
                 node.setdefault("inputs", {})[req_name] = default
             else:
                 missing.append(req_name)
-    for cinp, cspec in required.items():
+    # Sanitize PRESENT values in required and optional inputs alike (a bad value
+    # in an optional slot — e.g. CreateVideo.bit_depth=24, max 10 — is rejected
+    # by the server just the same); defaults are only injected for required.
+    _spec_by_name = dict(optional or {})
+    _spec_by_name.update(required)
+    for cinp, cspec in _spec_by_name.items():
         cval = node_inputs.get(cinp)
         if cval is None or isinstance(cval, list):
             continue  # absent, or a node connection

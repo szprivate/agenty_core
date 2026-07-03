@@ -2171,11 +2171,12 @@ def update_workflow(
             continue
         node_info = all_nodes.get(cls, {})
         required = node_info.get("input", {}).get("required", {})
+        optional = node_info.get("input", {}).get("optional", {})
         node_inputs = node.get("inputs", {})
         # Inject widget/combo defaults + snap invalid combo values (collecting any
         # un-installed model into missing_models); what remains is a
         # genuinely-missing connection input (needs real wiring).
-        for _missing in _harden_node_inputs(node, required, missing_models):
+        for _missing in _harden_node_inputs(node, required, missing_models, optional):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
@@ -2612,11 +2613,12 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
             continue
         node_info = all_nodes.get(cls, {})
         required = node_info.get("input", {}).get("required", {})
+        optional = node_info.get("input", {}).get("optional", {})
         node_inputs = node.get("inputs", {})
         # Inject widget/combo defaults + snap invalid combo values (collecting any
         # un-installed model into missing_models); what remains is a
         # genuinely-missing connection input (needs real wiring).
-        for _missing in _harden_node_inputs(node, required, missing_models):
+        for _missing in _harden_node_inputs(node, required, missing_models, optional):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
