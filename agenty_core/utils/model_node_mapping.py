@@ -24,6 +24,7 @@ NODE_TO_FOLDER: dict[str, str] = {
     "CheckpointLoader": "models/checkpoints",
     "unCLIPCheckpointLoader": "models/checkpoints",
     "CheckpointLoaderNF4": "models/checkpoints",
+    "ImageOnlyCheckpointLoader": "models/checkpoints",  # SVD, Hunyuan3D 2.1
 
     # UNETs (Flux, Wan, modern diffusion models)
     "UNETLoader": "models/unet",

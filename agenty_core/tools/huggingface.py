@@ -121,6 +121,14 @@ def _resolve_download_dir(node_class_type: str, destination_folder: str) -> tupl
     elif destination_folder:
         category = destination_folder.replace("\\", "/").strip("/").split("/")[0].lower()
 
+    # A bare model file with no category hint would otherwise land in the models
+    # root, which ComfyUI does not scan — so the file could never be loaded or
+    # verified (e.g. Hunyuan3D's repo has no HF subfolder). Default to
+    # 'checkpoints': always scanned, and the right home for the common case of an
+    # uncategorised checkpoint.
+    if not category:
+        category = "checkpoints"
+
     if category:
         # Every ComfyUI folder-path whose leaf dir matches the category.
         cand = [p for paths in _folder_paths().values() for p in paths
