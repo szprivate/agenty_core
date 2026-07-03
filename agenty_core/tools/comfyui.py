@@ -18,6 +18,15 @@ from pathlib import Path
 from agenty_core._compat import tool
 
 from agenty_core.utils.comfyui_client import get_client, parse_argv_dir_flag
+# Deterministic-assembly hardening lives in its own module; apply_brainbriefing
+# and update_workflow delegate to it (the LLM brain and the deterministic path
+# share the same robustness).
+from agenty_core.tools.assembly_deterministic import (
+    coerce_dim as _coerce_dim,
+    ensure_output_node as _ensure_output_node,
+    harden_node_inputs as _harden_node_inputs,
+    strip_annotation_nodes as _strip_annotation_nodes,
+)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1923,40 +1932,6 @@ def patch_workflow(workflow_path: str, patches: str) -> str:
     })
 
 
-def _combo_options(spec):
-    """Return the option list for a ComfyUI combo input spec, handling both the
-    ['COMBO', {'options': [...]}] and legacy [[opt1, opt2, ...], {...}] formats."""
-    if not isinstance(spec, list) or not spec:
-        return None
-    if isinstance(spec[0], list):
-        return spec[0]
-    if spec[0] == "COMBO" and len(spec) > 1 and isinstance(spec[1], dict):
-        return spec[1].get("options")
-    return None
-
-
-def _snap_combo(val: str, opts: list):
-    """Snap an invalid combo value (e.g. a model file the template references but
-    that isn't installed) to the best same-family option, else the first option.
-    Returns the chosen option or None."""
-    import re  # noqa: PLC0415
-    base = str(val).replace("\\", "/").rsplit("/", 1)[-1].lower()
-    stem = base.rsplit(".", 1)[0]
-    for o in opts:
-        ob = str(o).replace("\\", "/").rsplit("/", 1)[-1].lower()
-        if ob == base or ob.rsplit(".", 1)[0] == stem:
-            return o
-    vt = set(re.findall(r"[a-z0-9]+", stem))
-    best, best_n = None, 0
-    for o in opts:
-        ot = set(re.findall(r"[a-z0-9]+",
-                            str(o).replace("\\", "/").rsplit("/", 1)[-1].rsplit(".", 1)[0].lower()))
-        n = len(vt & ot)
-        if n > best_n:
-            best, best_n = o, n
-    return best if best_n >= 1 else (opts[0] if opts else None)
-
-
 @tool
 def update_workflow(
     workflow_path: str,
@@ -2148,36 +2123,10 @@ def update_workflow(
         node_info = all_nodes.get(cls, {})
         required = node_info.get("input", {}).get("required", {})
         node_inputs = node.get("inputs", {})
-        for req_name in required:
-            if req_name not in node_inputs:
-                # Auto-inject a widget/combo default so an unset widget still
-                # assembles (ComfyUI needs the value present in API format).
-                # Connection inputs (bare type, no default) stay a real error.
-                spec = required[req_name]
-                default = None
-                if isinstance(spec, list) and len(spec) >= 2 and isinstance(spec[1], dict) \
-                        and spec[1].get("default") is not None:
-                    default = spec[1]["default"]
-                else:
-                    _opts = _combo_options(spec)
-                    default = _opts[0] if _opts else None
-                if default is not None:
-                    node.setdefault("inputs", {})[req_name] = default
-                else:
-                    local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
-        # Snap a present combo value that isn't a valid option (a model/file the
-        # template referenced but that isn't installed) to a same-family match,
-        # else the first option — so the workflow validates with a substitute.
-        for _cinp, _cspec in required.items():
-            _cval = node_inputs.get(_cinp)
-            if not isinstance(_cval, str):
-                continue
-            _copts = _combo_options(_cspec)
-            if not _copts or _cval in _copts:
-                continue
-            _snapped = _snap_combo(_cval, _copts)
-            if _snapped and _snapped != _cval:
-                node.setdefault("inputs", {})[_cinp] = _snapped
+        # Inject widget/combo defaults + snap invalid combo values; what remains
+        # is a genuinely-missing connection input (needs real wiring).
+        for _missing in _harden_node_inputs(node, required):
+            local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
@@ -2306,13 +2255,8 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     applied: list[str] = []
     problems: list[str] = []
 
-    # ── Strip pure-annotation nodes ───────────────────────────────────────────
-    # Note / MarkdownNote carry no executable inputs or outputs; ComfyUI
-    # validation rejects them as unknown class_type. Remove them so a
-    # documentation-annotated template still assembles cleanly with no LLM fix-up.
-    for _nid in [n for n, nd in list(workflow.items())
-                 if isinstance(nd, dict) and nd.get("class_type") in ("Note", "MarkdownNote")]:
-        del workflow[_nid]
+    # Strip pure-annotation nodes (Note / MarkdownNote) that ComfyUI rejects.
+    for _nid in _strip_annotation_nodes(workflow):
         applied.append(f"Removed annotation node {_nid}")
 
     # ── 1. Input nodes: replace filenames ─────────────────────────────────────
@@ -2483,19 +2427,8 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         applied.append(f"Node {nid}.inputs.filename_prefix → {prefix!r}")
 
     # ── 4. Resolution ─────────────────────────────────────────────────────────
-    def _as_dim(v):
-        # Coerce a briefing resolution field to a positive int, or None. Guards
-        # against non-numeric values (dict/list/junk) the researcher may emit.
-        if isinstance(v, bool) or isinstance(v, (dict, list)):
-            return None
-        if isinstance(v, (int, float)):
-            return int(v) if v > 0 else None
-        if isinstance(v, str) and v.strip().lstrip("-").isdigit():
-            n = int(v.strip())
-            return n if n > 0 else None
-        return None
-    res_w = _as_dim(bb.get("resolution_width"))
-    res_h = _as_dim(bb.get("resolution_height"))
+    res_w = _coerce_dim(bb.get("resolution_width"))
+    res_h = _coerce_dim(bb.get("resolution_height"))
     if res_w or res_h:
         for nid, node in workflow.items():
             if not isinstance(node, dict):
@@ -2568,34 +2501,13 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                         applied.append(f"Node {nid}: {dim} clamped {int(v)}→{cap} (AGENTY_MAX_DIM)")
 
     # ── 7. Ensure a terminal output node ──────────────────────────────────────
-    # Some templates end in CreateVideo (a VIDEO producer, not an output node)
-    # with no SaveVideo, which ComfyUI rejects as "prompt has no outputs". If the
-    # graph has no output node at all, synthesize a SaveVideo wired to a terminal
-    # VIDEO producer (format/codec get widget defaults during validation).
     try:
         _oi_out = _get_object_info()
     except Exception:  # noqa: BLE001
         _oi_out = {}
-    if _oi_out:
-        _has_output = any(
-            isinstance(n, dict) and (_oi_out.get(n.get("class_type", "")) or {}).get("output_node")
-            for n in workflow.values()
-        )
-        if not _has_output and "SaveVideo" in _oi_out:
-            _video_src = next(
-                (nid for nid, n in workflow.items()
-                 if isinstance(n, dict)
-                 and "VIDEO" in ((_oi_out.get(n.get("class_type", "")) or {}).get("output") or [])),
-                None,
-            )
-            if _video_src is not None:
-                _new_id = str(max((int(k) for k in workflow if str(k).isdigit()), default=0) + 1)
-                workflow[_new_id] = {
-                    "class_type": "SaveVideo",
-                    "inputs": {"video": [_video_src, 0], "filename_prefix": "agent/video"},
-                    "_meta": {"title": "Save Video (auto)"},
-                }
-                applied.append(f"Synthesized SaveVideo node {_new_id} for terminal VIDEO output")
+    _sv = _ensure_output_node(workflow, _oi_out)
+    if _sv:
+        applied.append(f"Synthesized SaveVideo node {_sv} for terminal VIDEO output")
 
     # ── Save ──────────────────────────────────────────────────────────────────
     path = _save_workflow(workflow, name=Path(workflow_path).stem)
@@ -2622,36 +2534,10 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         node_info = all_nodes.get(cls, {})
         required = node_info.get("input", {}).get("required", {})
         node_inputs = node.get("inputs", {})
-        for req_name in required:
-            if req_name not in node_inputs:
-                # Auto-inject a widget/combo default so an unset widget still
-                # assembles (ComfyUI needs the value present in API format).
-                # Connection inputs (bare type, no default) stay a real error.
-                spec = required[req_name]
-                default = None
-                if isinstance(spec, list) and len(spec) >= 2 and isinstance(spec[1], dict) \
-                        and spec[1].get("default") is not None:
-                    default = spec[1]["default"]
-                else:
-                    _opts = _combo_options(spec)
-                    default = _opts[0] if _opts else None
-                if default is not None:
-                    node.setdefault("inputs", {})[req_name] = default
-                else:
-                    local_errors.append(f"Node {nid} ({cls}): missing required input '{req_name}'.")
-        # Snap a present combo value that isn't a valid option (a model/file the
-        # template referenced but that isn't installed) to a same-family match,
-        # else the first option — so the workflow validates with a substitute.
-        for _cinp, _cspec in required.items():
-            _cval = node_inputs.get(_cinp)
-            if not isinstance(_cval, str):
-                continue
-            _copts = _combo_options(_cspec)
-            if not _copts or _cval in _copts:
-                continue
-            _snapped = _snap_combo(_cval, _copts)
-            if _snapped and _snapped != _cval:
-                node.setdefault("inputs", {})[_cinp] = _snapped
+        # Inject widget/combo defaults + snap invalid combo values; what remains
+        # is a genuinely-missing connection input (needs real wiring).
+        for _missing in _harden_node_inputs(node, required):
+            local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
