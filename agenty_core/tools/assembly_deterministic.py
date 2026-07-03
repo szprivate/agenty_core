@@ -260,11 +260,24 @@ def autowire_dangling_inputs(workflow: dict, object_info: dict) -> list[str]:
         for slot, typ in enumerate(outs):
             if isinstance(typ, str):
                 producers.setdefault(typ, []).append((nid, slot))
+    def _is_audio(node_id: str) -> bool:
+        return "audio" in str(workflow.get(node_id, {}).get("class_type", "")).lower()
+
+    def _sig(node_id: str, slot: int):
+        """Producer equivalence signature: same class + same literal inputs
+        + same slot ⇒ identical output (e.g. two CheckpointLoaderSimple loading
+        the same checkpoint yield the same VAE) — picking either is safe."""
+        n = workflow.get(node_id, {})
+        lits = tuple(sorted((k, str(v)) for k, v in (n.get("inputs") or {}).items()
+                            if not isinstance(v, list)))
+        return (n.get("class_type"), lits, slot)
+
     wired: list[str] = []
     for nid, node in workflow.items():
         if not isinstance(node, dict):
             continue
-        info = object_info.get(node.get("class_type", ""), {}) or {}
+        cls = node.get("class_type", "")
+        info = object_info.get(cls, {}) or {}
         required = (info.get("input", {}) or {}).get("required", {}) or {}
         node_inputs = node.get("inputs", {})
         for rname, rspec in required.items():
@@ -278,10 +291,24 @@ def autowire_dangling_inputs(workflow: dict, object_info: dict) -> list[str]:
             if typ in _NON_CONNECTION_TYPES or "AUTOGROW" in typ.upper():
                 continue
             cands = [p for p in producers.get(typ, []) if p[0] != nid]
+            # VAE audio/video partition (verified against the official LTX-2
+            # templates + docs): an audio VAE (producer class contains "Audio",
+            # e.g. LTXVAudioVAELoader) feeds ONLY audio consumers (input named
+            # like 'audio_vae' or an Audio* node class); every other VAE consumer
+            # takes the video/image VAE. Filter candidates to the matching side.
+            if len(cands) > 1 and typ == "VAE":
+                want_audio = "audio" in rname.lower() or "audio" in cls.lower()
+                side = [p for p in cands if _is_audio(p[0]) == want_audio]
+                if side:
+                    cands = side
+            # Collapse equivalent producers (identical class + literal inputs +
+            # slot produce the same object) — any one of them is correct.
+            if len(cands) > 1 and len({_sig(i, s) for i, s in cands}) == 1:
+                cands = cands[:1]
             if len(cands) == 1:
                 src_id, src_slot = cands[0]
                 node.setdefault("inputs", {})[rname] = [src_id, src_slot]
-                wired.append(f"Node {nid}.{rname} ← {src_id}:{src_slot} ({typ})")
+                wired.append(f"Node {nid}.{rname} <- {src_id}:{src_slot} ({typ})")
     return wired
 
 
