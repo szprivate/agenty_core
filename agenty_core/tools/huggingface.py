@@ -35,7 +35,11 @@ from typing import Optional
 import requests
 from tqdm import tqdm
 
-from agenty_core.utils.model_node_mapping import NODE_TO_FOLDER, get_storage_path
+from agenty_core.utils.model_node_mapping import (
+    NODE_TO_FOLDER,
+    get_storage_path,
+    guess_folder_from_filename,
+)
 from agenty_core.utils.progress_signal import push as _push_progress
 from agenty_core.utils.secrets import get_secret
 from agenty_core._compat import tool
@@ -110,22 +114,37 @@ def _folder_paths() -> dict:
     return fp
 
 
-def _resolve_download_dir(node_class_type: str, destination_folder: str) -> tuple[Path, str]:
+def _resolve_download_dir(
+    node_class_type: str, destination_folder: str, filename: str = ""
+) -> tuple[Path, str]:
     """Resolve where to download a model, preferring the *additional* ComfyUI model
     path (given at server startup) for the model's category so the file lands where
     ComfyUI actually loads from — not the default ``models/`` dir, which is often on
-    a different drive. Returns (dir, source)."""
+    a different drive. Returns (dir, source).
+
+    Category resolution, most authoritative first:
+      1. the loader node class (NODE_TO_FOLDER),
+      2. an explicit destination_folder (e.g. the HF subfolder leaf),
+      3. the filename itself (guess_folder_from_filename — VAE / LoRA / CLIP /
+         ControlNet / upscaler / diffusion-model conventions),
+      4. else 'checkpoints' (always scanned; correct for a bare checkpoint)."""
     category = None
     if node_class_type and node_class_type in NODE_TO_FOLDER:
         category = NODE_TO_FOLDER[node_class_type].split("models/", 1)[-1].split("/")[0].lower()
     elif destination_folder:
         category = destination_folder.replace("\\", "/").strip("/").split("/")[0].lower()
 
-    # A bare model file with no category hint would otherwise land in the models
-    # root, which ComfyUI does not scan — so the file could never be loaded or
-    # verified (e.g. Hunyuan3D's repo has no HF subfolder). Default to
-    # 'checkpoints': always scanned, and the right home for the common case of an
-    # uncategorised checkpoint.
+    # No loader/destination hint → classify by filename convention. A bare model
+    # dropped in the models root would never be scanned (so never loaded or
+    # verified), so this keeps peripheral types (vae/loras/clip/controlnet/…) in
+    # their own folders instead of all defaulting to checkpoints.
+    if not category and filename:
+        guessed = guess_folder_from_filename(filename)
+        if guessed:
+            category = guessed.split("models/", 1)[-1].split("/")[0].lower()
+
+    # Last resort: an uncategorised file → 'checkpoints' (always scanned, and the
+    # right home for the common case of an uncategorised checkpoint).
     if not category:
         category = "checkpoints"
 
@@ -614,7 +633,7 @@ def download_hf_model(
         # model path given at server startup — often a different, larger drive)
         # for the model's category, so the file lands where ComfyUI actually loads
         # from. Falls back to the models base dir.
-        dl_dir, dl_source = _resolve_download_dir(node_class_type, destination_folder)
+        dl_dir, dl_source = _resolve_download_dir(node_class_type, destination_folder, filename)
         dl_dir, dl_source = _ensure_not_c_drive(dl_dir, dl_source)  # never fill C:
         dest_path = dl_dir / filename
         logger.info("download target: %s (%s)", dest_path, dl_source)
