@@ -571,6 +571,131 @@ def _convert_graph_to_api(workflow: dict) -> dict:
     return api_workflow
 
 
+def _api_to_graph(workflow: dict) -> dict:
+    """Build a ComfyUI *graph*-format workflow (nodes + links, auto-laid-out) from
+    an API/prompt-format workflow, so the exact thing the agent ran can be opened
+    on the canvas. Inverse of _convert_graph_to_api: reuses object_info for slot
+    order, widget order and output types. Best-effort — unknown node classes still
+    render (with no slots) so the graph is always openable."""
+    api = workflow.get("prompt", workflow) if isinstance(workflow, dict) else {}
+    api = {str(k): v for k, v in api.items()
+           if isinstance(v, dict) and v.get("class_type")}
+    try:
+        oi = _get_object_info()
+    except Exception:  # noqa: BLE001
+        oi = {}
+
+    def _is_link(v):
+        return (isinstance(v, list) and len(v) == 2
+                and isinstance(v[0], (str, int)) and not isinstance(v[0], bool)
+                and isinstance(v[1], int))
+
+    # Stable int id per (possibly colon-namespaced) api id.
+    id_map: dict = {}
+    used: set = set()
+    for k in api:
+        if k.isdigit():
+            id_map[k] = int(k); used.add(int(k))
+    nxt = 1
+    for k in api:
+        if k not in id_map:
+            while nxt in used:
+                nxt += 1
+            id_map[k] = nxt; used.add(nxt); nxt += 1
+
+    # Per node: ordered connection inputs, widget names, output (name, type).
+    meta: dict = {}
+    for k, nd in api.items():
+        info = oi.get(nd["class_type"], {})
+        spec = info.get("input", {})
+        allspec = {**(spec.get("required") or {}), **(spec.get("optional") or {})}
+        ins = nd.get("inputs", {})
+        conns, seen = [], set()
+        for name, sp in allspec.items():
+            t = sp[0] if isinstance(sp, list) and sp else None
+            if _is_link(ins.get(name)) or (isinstance(t, str) and t in _LINK_ONLY_TYPES):
+                conns.append((name, t if isinstance(t, str) else "*")); seen.add(name)
+        for name, v in ins.items():  # linked custom inputs absent from schema
+            if _is_link(v) and name not in seen:
+                conns.append((name, "*")); seen.add(name)
+        widgets = (_schema_widget_names(spec, {c[0] for c in conns}) if spec
+                   else [n for n, v in ins.items() if not _is_link(v)])
+        outs = info.get("output", []) or []
+        onames = info.get("output_name", []) or outs
+        meta[k] = {"conns": conns, "widgets": widgets, "outputs": list(zip(onames, outs))}
+
+    # Links + slot bookkeeping.
+    links: list = []
+    lid = 0
+    out_links: dict = {}
+    in_link: dict = {}
+    for k, nd in api.items():
+        for i, (name, typ) in enumerate(meta[k]["conns"]):
+            v = nd.get("inputs", {}).get(name)
+            if not _is_link(v) or str(v[0]) not in id_map:
+                continue
+            lid += 1
+            links.append([lid, id_map[str(v[0])], int(v[1]), id_map[k], i, typ])
+            out_links.setdefault((str(v[0]), int(v[1])), []).append(lid)
+            in_link[(k, name)] = lid
+
+    # Longest-path depth → column; row within column → y.
+    level: dict = {}
+
+    def _depth(k, stack):
+        if k in level:
+            return level[k]
+        if k in stack:
+            return 0
+        d = 0
+        for name, _ in meta[k]["conns"]:
+            v = api[k].get("inputs", {}).get(name)
+            if _is_link(v) and str(v[0]) in api:
+                d = max(d, _depth(str(v[0]), stack | {k}) + 1)
+        level[k] = d
+        return d
+
+    for k in api:
+        _depth(k, set())
+    from collections import defaultdict  # noqa: PLC0415
+    by_level: dict = defaultdict(list)
+    for k in sorted(api, key=lambda x: id_map[x]):
+        by_level[level[k]].append(k)
+
+    nodes: list = []
+    order = 0
+    for lv in sorted(by_level):
+        for row, k in enumerate(by_level[lv]):
+            m = meta[k]
+            ins = api[k].get("inputs", {})
+            wv: list = []
+            for wname in m["widgets"]:
+                val = ins.get(wname)
+                wv.append(val if (wname in ins and not _is_link(val)) else None)
+                if wname in _SEED_INPUT_NAMES:
+                    wv.append("fixed")  # frontend's control_after_generate widget
+            nodes.append({
+                "id": id_map[k], "type": api[k]["class_type"],
+                "pos": [80 + lv * 360, 80 + row * 240], "size": [300, 210],
+                "flags": {}, "order": order, "mode": 0,
+                "inputs": [{"name": n, "type": t, "link": in_link.get((k, n))}
+                           for n, t in m["conns"]],
+                "outputs": [{"name": (n or t), "type": t, "slot_index": i,
+                             "links": out_links.get((k, i)) or None}
+                            for i, (n, t) in enumerate(m["outputs"])],
+                "properties": {"Node name for S&R": api[k]["class_type"]},
+                "widgets_values": wv,
+                "title": (api[k].get("_meta") or {}).get("title"),
+            })
+            order += 1
+
+    return {
+        "last_node_id": max((n["id"] for n in nodes), default=0),
+        "last_link_id": lid, "nodes": nodes, "links": links,
+        "groups": [], "config": {}, "extra": {}, "version": 0.4,
+    }
+
+
 _MODEL_FILE_EXTS = (
     ".safetensors", ".ckpt", ".pt", ".pth", ".bin", ".gguf", ".sft", ".onnx",
 )
@@ -1861,6 +1986,61 @@ def get_workflow_recipe(task: str, model: str = "") -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Tools: Workflow modification
 # ═══════════════════════════════════════════════════════════════════════════════
+
+@tool
+def open_workflow_in_canvas(workflow_path: str, name: str = "") -> str:
+    """Load a workflow the agent built or ran into the ComfyUI canvas so the user
+    can visually inspect it.
+
+    Executed workflows are in API/prompt format, which the canvas can't render, so
+    this converts them to graph format (auto-laid-out) and saves them into
+    ComfyUI's user workflow folder via the /userdata API. The file then appears in
+    the Workflows sidebar of the open ComfyUI web UI (http://127.0.0.1:8188) under
+    an ``agent/`` folder — the user opens it there to see exactly what was built
+    and executed (nodes, connections, and widget values).
+
+    Call this after signalling/executing a workflow when the user wants to review
+    it visually. A graph-format workflow is saved as-is; an API-format one is
+    converted first.
+
+    Args:
+        workflow_path: Path to the workflow JSON (API or graph format).
+        name: Optional file/display name (defaults to the workflow's file stem).
+
+    Returns JSON: ``{status, saved_as, node_count, url, hint}``.
+    """
+    try:
+        wf = _load_workflow(workflow_path)
+    except (json.JSONDecodeError, FileNotFoundError, OSError) as e:
+        return json.dumps({"status": "error", "error": f"Cannot load workflow: {e}"})
+
+    graph = wf if _is_graph_format(wf) else _api_to_graph(wf)
+    if not graph.get("nodes"):
+        return json.dumps({"status": "error",
+                           "error": "workflow has no nodes to display"})
+
+    stem = re.sub(r"[^A-Za-z0-9_.-]", "_",
+                  (name or Path(workflow_path).stem or "agent_workflow"))
+    if stem.endswith(".json"):
+        stem = stem[:-5]
+    rel = f"workflows/agent/{stem}.json"
+
+    try:
+        import urllib.parse as _up  # noqa: PLC0415
+        # /userdata writes into the user's workflow folder (creates subdirs).
+        get_client().post("/userdata/" + _up.quote(rel, safe=""), json_data=graph)
+    except Exception as e:  # noqa: BLE001
+        return json.dumps({"status": "error", "error": f"Could not save to ComfyUI: {e}"})
+
+    return json.dumps({
+        "status": "ok",
+        "saved_as": f"agent/{stem}",
+        "node_count": len(graph["nodes"]),
+        "url": "http://127.0.0.1:8188",
+        "hint": f"In ComfyUI, open the Workflows sidebar and select agent/{stem} "
+                "to inspect the graph the agent built and ran.",
+    })
+
 
 @tool
 def save_workflow(workflow_json: str, name: str = "") -> str:
