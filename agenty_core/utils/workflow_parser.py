@@ -117,6 +117,7 @@ def _extract_models(workflow: dict[str, Any]) -> list[str]:
 
 
 from agenty_core.paths import project_root as _project_root
+from agenty_core.paths import corpus_root as _corpus_root
 
 
 def _looks_like_path(s: str) -> bool:
@@ -200,8 +201,9 @@ def _load_config() -> dict:
 def _custom_index_path() -> Path:
     """Return the resolved path to the custom-templates index.json from settings."""
     cfg = _load_config()
-    ct_dir = cfg.get("comfyui_custom_templates_dir", "./comfyui_workflows_templates_custom/")
-    return (_project_root() / ct_dir / "index.json").resolve()
+    ct_dir = cfg.get("comfyui_custom_templates_dir", "./comfyui_workflow_templates_custom/templates/")
+    # Canonical corpus lives in agenty_core (shared), not the per-app root.
+    return (_corpus_root() / ct_dir / "index.json").resolve()
 
 
 # ---------------------------------------------------------------------------

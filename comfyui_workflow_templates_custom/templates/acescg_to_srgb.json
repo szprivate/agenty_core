@@ -1,0 +1,48 @@
+{
+  "1": {
+    "class_type": "bepic_imageLoad",
+    "_meta": {
+      "title": "Load EXR (OIIO)"
+    },
+    "inputs": {
+      "image_path": "V:\\0193_Never_Stop_Dreaming_Spec\\03_sequences\\spec\\spec_0070\\render\\renderLightEnv\\v028\\0193_spec_0070_renderLightEnv_v028.0990.exr",
+      "load_sequence": false
+    }
+  },
+  "2": {
+    "class_type": "bepic_colorTransform",
+    "_meta": {
+      "title": "ACEScg to sRGB (OCIO)"
+    },
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "input_colorspace": "ACES - ACEScg",
+      "output_colorspace": "Output - sRGB",
+      "clamp": true
+    }
+  },
+  "3": {
+    "class_type": "bEpic_imageSave",
+    "_meta": {
+      "title": "Save PNG (OIIO)"
+    },
+    "inputs": {
+      "images": [
+        "2",
+        0
+      ],
+      "filename_prefix": "0193_spec_0070_renderLightEnv_v028_srgb",
+      "file_format": "png",
+      "bit_depth": "uint16",
+      "first_frame": 990,
+      "frame_padding": 4,
+      "include_frame_number": true,
+      "auto_version": false,
+      "create_directory": true,
+      "audio_format": "wav"
+    }
+  }
+}

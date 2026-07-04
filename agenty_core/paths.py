@@ -25,6 +25,7 @@ import os
 from pathlib import Path
 
 _PROJECT_ROOT: Path | None = None
+_CORPUS_ROOT: Path | None = None
 
 
 def set_project_root(path: str | os.PathLike) -> None:
@@ -45,3 +46,34 @@ def project_root() -> Path:
     if env:
         return Path(env).resolve()
     return Path.cwd().resolve()
+
+
+def set_corpus_root(path: str | os.PathLike) -> None:
+    """Pin the canonical corpus root (rarely needed; mainly for tests)."""
+    global _CORPUS_ROOT
+    _CORPUS_ROOT = Path(path).resolve()
+
+
+def corpus_root() -> Path:
+    """Root of the *canonical* workflow-template corpus and recipe database.
+
+    Unlike :func:`project_root` (per-app: ``config/settings.json``, ``models.json``,
+    ``output_workflows/``, ``.env``, ``batch_jobs/``), the template corpus and its
+    distilled recipe DB are shared by every consuming app, so they live **once**
+    in the ``agenty_core`` repo and each app reads them from here — every app
+    builds workflows from the same templates. Canonical layout under this root:
+
+        comfyui_workflow_templates_custom/   (+ templates/index.json)
+        comfyui_workflow_templates_official/ (+ index.json)
+        config/workflow_templates.json       (name -> description catalog)
+        config/workflow_recipes*.json        (generated DB, node_knowledge, cache)
+
+    Override with ``AGENTY_CORPUS_ROOT``; defaults to the agenty_core repo root
+    (this module is ``agenty_core/agenty_core/paths.py``, so two parents up).
+    """
+    if _CORPUS_ROOT is not None:
+        return _CORPUS_ROOT
+    env = os.environ.get("AGENTY_CORPUS_ROOT")
+    if env:
+        return Path(env).resolve()
+    return Path(__file__).resolve().parent.parent

@@ -107,6 +107,7 @@ def _get_object_info() -> dict:
 
 
 from agenty_core.paths import project_root as _project_root
+from agenty_core.paths import corpus_root as _corpus_root
 
 
 def _load_config() -> dict:
@@ -127,9 +128,10 @@ def _custom_templates_dir() -> Path:
     cfg = _load_config()
     ct_dir = cfg.get(
         "comfyui_custom_templates_dir",
-        "./comfyui_workflows_templates_custom/",
+        "./comfyui_workflow_templates_custom/templates/",
     )
-    return (_project_root() / ct_dir).resolve()
+    # Canonical corpus lives in agenty_core (shared), not the per-app root.
+    return (_corpus_root() / ct_dir).resolve()
 
 
 def _official_templates_dir() -> Path:
@@ -140,7 +142,7 @@ def _official_templates_dir() -> Path:
     """
     cfg = _load_config()
     od = cfg.get("comfyui_official_templates_dir", "./comfyui_workflow_templates_official/")
-    return (_project_root() / od).resolve()
+    return (_corpus_root() / od).resolve()
 
 
 def _workflows_dir() -> Path:
@@ -1510,7 +1512,7 @@ def get_workflow_catalog() -> str:
             and (now - _tool_catalog_timestamp) < _CATALOG_TTL
         ):
             return _tool_catalog_result
-    catalog_path = _project_root() / "config" / "workflow_templates.json"
+    catalog_path = _corpus_root() / "config" / "workflow_templates.json"
     try:
         data = catalog_path.read_text(encoding="utf-8")
         with _tool_cache_lock:
@@ -1724,7 +1726,7 @@ _RECIPE_TASK_ALIASES = {
 
 def _load_recipe_db():
     """Return (db_dict, path_str) for the recipe database, or (None, None)."""
-    root = _project_root()
+    root = _corpus_root()
     for rel in _RECIPE_DB_RELPATHS:
         p = root / rel
         if p.exists():

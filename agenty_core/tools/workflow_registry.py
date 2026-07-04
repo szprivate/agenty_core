@@ -15,6 +15,7 @@ import shutil
 from pathlib import Path
 
 from agenty_core._compat import tool
+from agenty_core.paths import corpus_root as _corpus_root
 from agenty_core.utils.workflow_parser import (
     _custom_index_path,
     _project_root,
@@ -26,8 +27,11 @@ from agenty_core.utils.workflow_parser import (
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
 def _catalog_path() -> Path:
-    """Path to config/workflow_templates.json (the {name: description} catalog)."""
-    return _project_root() / "config" / "workflow_templates.json"
+    """Path to config/workflow_templates.json (the {name: description} catalog).
+
+    The catalog is part of the canonical corpus (shared across apps), so it
+    resolves against corpus_root(), not the per-app project_root()."""
+    return _corpus_root() / "config" / "workflow_templates.json"
 
 
 def _name_in_index(name: str, index_path: Path) -> bool:

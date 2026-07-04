@@ -1,15 +1,15 @@
 """Thin command line entry point: parse the corpus, build the recipe database,
 write the three outputs.
 
-This generator lives in the shared ``agenty_core`` package, so it resolves its
-input/output paths against the *consuming app's* root (``project_root()``), not
-its own location. Run it from whichever app root you want the database written
-into:
+This generator lives in the shared ``agenty_core`` package and reads/writes the
+*canonical* corpus + database under ``corpus_root()`` (the agenty_core repo
+itself), so every app builds from — and shares — one recipe DB regardless of
+where it is launched:
 
     python -m agenty_core.workflow_recipes.cli            # fetch object_info if cache missing
     python -m agenty_core.workflow_recipes.cli --no-fetch # offline, cache only
 
-Outputs (default, under the consuming app's ``config/``):
+Outputs (default, under the canonical ``config/``):
   workflow_recipes.json                  the consumable recipe database
   workflow_recipes_node_knowledge.json   per node-class signatures
   workflow_recipes_report.md             human-readable hierarchical report
@@ -22,16 +22,17 @@ import json
 import os
 from typing import Dict
 
-from agenty_core.paths import project_root
+from agenty_core.paths import corpus_root
 
 from .parser import Corpus
 from .recipe import RecipeBuilder, node_knowledge_json_dict
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    # Anchor defaults on the consuming app's root (cwd at launch, or whatever the
-    # app pinned via set_project_root) so the same generator serves every app.
-    root = project_root()
+    # Anchor defaults on the canonical corpus root (the shared agenty_core repo),
+    # so every app's generator reads the same templates and writes the one shared
+    # recipe DB. Any path can still be overridden via the flags below.
+    root = corpus_root()
     p = argparse.ArgumentParser(
         prog="workflow_recipes",
         description="Discover ComfyUI workflow types and emit a recipe database "
