@@ -71,11 +71,16 @@ _MODEL_FAMILIES: List[tuple] = [
     ("SDPose", ["sdpose"]),
 ]
 
-# When a specific variant matches, drop the generic family it implies.
+# When a specific variant matches, drop the generic family it implies. This
+# covers both version specifics (WAN 2.2 implies WAN) and finetunes that ship
+# under their own name but load a base-architecture checkpoint (Bernini-R is a
+# WAN 2.2 finetune whose UNET file is "wan2.2_bernini_r_...": the family is
+# Bernini, not WAN 2.2, so a "WAN 2.2 video" request is not misrouted to it).
 _FAMILY_SUPPRESS = {
     "WAN VACE": ["WAN"], "WAN 2.2": ["WAN"], "WAN 2.6": ["WAN"],
     "LTX-2": ["LTX"],
     "Flux 2 Klein": ["Flux 2", "Flux"], "Flux 2": ["Flux"], "Flux Krea": ["Flux"],
+    "Bernini": ["WAN 2.2", "WAN"],
 }
 
 _TASKS: List[tuple] = [
@@ -91,6 +96,7 @@ _TASKS: List[tuple] = [
     ("geometry_estimation", ["geometry_estimation"]),
     ("depth_estimation", ["depth_estimation", "depth_anything", "to_depth", "depth_map", "to_depth_map"]),
     ("pose_estimation", ["pose_map", "to_pose", "sdpose", "pose_estimation"]),
+    ("landmark_estimation", ["facial_landmark", "face_landmark", "face_detection", "mediapipe", "landmark"]),
     ("segmentation", ["segmentation", "sam3"]),
     ("remove_background", ["remove_background", "birefnet", "rmbg"]),
     ("3d_generation", ["to_model", "to_3d", "image_to_model", "text_to_model",
@@ -152,6 +158,7 @@ _TASK_PHRASE = {
     "depth_estimation": "estimate a depth map",
     "geometry_estimation": "estimate 3D scene geometry",
     "pose_estimation": "estimate a pose map",
+    "landmark_estimation": "detect facial landmarks",
     "segmentation": "segment {am}",
     "remove_background": "remove the background from {am}",
     "3d_generation": "generate a 3D model",
@@ -167,7 +174,7 @@ _TASK_PRIORITY = [
     "image_edit", "video_edit", "video_inpaint", "inpaint", "outpaint",
     "upscale", "controlnet", "style_transfer", "relight",
     "character_replacement", "character_sheet", "segmentation",
-    "remove_background", "depth_estimation", "pose_estimation",
+    "remove_background", "depth_estimation", "pose_estimation", "landmark_estimation",
     "frame_interpolation", "captioning", "video_captioning",
     "prompt_enhance", "motion_prompt",
 ]
@@ -186,10 +193,17 @@ class IntentClassifier:
     # Per-workflow classification
     # --------------------------------------------------------------------- #
     def classify(self, graph: WorkflowGraph) -> Intent:
-        text = self._search_text(graph)
-        task = self._task(text)
+        # Two signal tiers: the human-facing intent text (filename + catalog
+        # title/description) says what the workflow *does*; the model-loader
+        # widget filenames say *which model* it loads. Task comes only from the
+        # former - model filenames carry lineage tokens (t2v/i2v/wan2.2) that
+        # describe the checkpoint, not the task (e.g. a "lightx2v_T2V" speed
+        # LoRA in an image-edit workflow must not make it "text_to_video").
+        primary = self._primary_text(graph)
+        model = self._model_text(graph)
+        task = self._task_of(graph)
         media = self._media(graph, task)
-        families = self._model_families(text)
+        families = self._model_families(primary, model)
         keywords = [t for t in _TOKEN_SPLIT.split(graph.name.lower()) if len(t) > 2]
         return Intent(media=media, task=task, model_families=families, keywords=keywords)
 
@@ -213,15 +227,35 @@ class IntentClassifier:
     # --------------------------------------------------------------------- #
     # Signals
     # --------------------------------------------------------------------- #
-    def _search_text(self, graph: WorkflowGraph) -> str:
-        """Lowercased text to match vocab against: filename + catalog title/desc
-        + model-loader widget filenames."""
-        parts = [graph.name, graph.index_title or "", graph.index_description or ""]
+    def _primary_text(self, graph: WorkflowGraph) -> str:
+        """The human-facing intent text: filename + catalog title/description.
+        Used to name the model family (the model may be named only in the prose,
+        e.g. "using the SCAIL-2 model")."""
+        return self._two_view([graph.name, graph.index_title or "", graph.index_description or ""])
+
+    def _task_of(self, graph: WorkflowGraph) -> Optional[str]:
+        """Task from the label-like signals (filename + title) first, falling
+        back to the description prose. The name/title names the task directly
+        ("image_edit_bernini_r", "depth_to_video"); a description only *mentions*
+        capabilities in passing ("...changes like ... or style transfer"), which
+        must not outrank the task the workflow is named for."""
+        label = self._two_view([graph.name, graph.index_title or ""])
+        return self._task(label) or self._task(self._two_view([graph.index_description or ""]))
+
+    def _model_text(self, graph: WorkflowGraph) -> str:
+        """Model-loader / LoRA widget filenames: *which model* is loaded. A
+        secondary signal - used to name the family only when the primary text
+        names none (a generic-titled workflow that loads e.g. wan2.2_i2v...)."""
+        parts: List[str] = []
         for node in graph.nodes.values():
             if classify_role(node.class_type) in ("model_loader", "lora_loader"):
                 wv = node.widgets_values
                 values = wv if isinstance(wv, list) else (wv.values() if isinstance(wv, dict) else [])
                 parts.extend(str(v) for v in values if isinstance(v, str))
+        return self._two_view(parts)
+
+    @staticmethod
+    def _two_view(parts: List[str]) -> str:
         # Match against two views so tokens hit regardless of separator style:
         #   joined - raw, keeps "_" (matches "text_to_image", "wan2_2", "wan2.2")
         #   norm   - "_"/"-" -> space (matches "wan 2.2")
@@ -233,11 +267,15 @@ class IntentClassifier:
         return f"{norm} {joined}"
 
     @staticmethod
-    def _model_families(text: str) -> List[str]:
-        matched = []
-        for label, subs in _MODEL_FAMILIES:
-            if any(s in text for s in subs):
-                matched.append(label)
+    def _model_families(primary_text: str, model_text: str = "") -> List[str]:
+        def _match(text: str) -> List[str]:
+            return [label for label, subs in _MODEL_FAMILIES if any(s in text for s in subs)]
+
+        # Prefer the model named in the human-facing text; only fall back to the
+        # loaded-checkpoint filenames when the primary text names no family, so a
+        # finetune's base-architecture file (wan2.2_bernini_r) does not inject a
+        # competing generation family that misroutes requests.
+        matched = _match(primary_text) or _match(model_text)
         suppressed = set()
         for label in matched:
             suppressed.update(_FAMILY_SUPPRESS.get(label, []))

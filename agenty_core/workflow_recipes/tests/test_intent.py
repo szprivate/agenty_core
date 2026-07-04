@@ -48,6 +48,34 @@ class TestMediaTaskModel(unittest.TestCase):
         it = I.classify(g)
         self.assertIn("WAN 2.2", it.model_families)
 
+    def test_finetune_not_flipped_by_base_architecture_or_lora_token(self):
+        # Bernini-R is a WAN 2.2 finetune: its UNET file is "wan2.2_bernini_r_..."
+        # and it uses a "lightx2v_T2V" speed LoRA. Neither the base-architecture
+        # filename nor the incidental T2V lora token must flip a single-image edit
+        # into a WAN 2.2 text-to-video workflow.
+        g = _graph(
+            "image_edit_bernini_r", classes=["UNETLoader", "LoraLoaderModelOnly", "VAEDecode"],
+            description="Edits a single image using a text prompt, for changes like "
+                        "object addition, removal, or style transfer.",
+            widgets={"UNETLoader": ["wan2.2_bernini_r_high_noise_fp8_scaled.safetensors"],
+                     "LoraLoaderModelOnly": ["lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors"]})
+        it = I.classify(g)
+        self.assertEqual(it.media, "image")            # not "video"
+        self.assertEqual(it.task, "image_edit")        # not "text_to_video"/"style_transfer"
+        self.assertEqual(it.model_families, ["Bernini"])  # not ["WAN 2.2", "Bernini"]
+
+    def test_task_from_name_not_incidental_description_mention(self):
+        # The description only *mentions* style transfer as one capability; the
+        # task the workflow is named for (image edit) must win.
+        g = _graph("image_edit_generic",
+                   description="Edit an image; supports style transfer and upscale.")
+        self.assertEqual(I.classify(g).task, "image_edit")
+
+    def test_face_detection_is_landmark_estimation(self):
+        it = I.classify(_graph("video_face_detection_mediapipe"))
+        self.assertEqual(it.task, "landmark_estimation")   # not "video_generation"
+        self.assertIn("MediaPipe", it.model_families)
+
     def test_audio_and_3d(self):
         self.assertEqual(I.classify(_graph("text_to_audio_ace_step_1_5")).media, "audio")
         self.assertEqual(I.classify(_graph("api_meshy_image_to_model")).media, "3d")
