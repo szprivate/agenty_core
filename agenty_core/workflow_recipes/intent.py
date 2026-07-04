@@ -327,7 +327,13 @@ class IntentClassifier:
     def task_phrase(self, task: Optional[str], media: Optional[str] = None) -> str:
         """Natural-language phrase for a task. Media-neutral tasks adapt to the
         actual output media so a video controlnet does not read as 'an image'."""
-        phrase = _TASK_PHRASE.get(task or "", "run a node graph")
+        phrase = _TASK_PHRASE.get(task or "")
+        if phrase is None:
+            # Unknown task (e.g. a bare "api_veo3" whose name carries no task
+            # token): describe by the output media rather than a bland "run a
+            # node graph", so undescribed templates still read sensibly.
+            noun = media or "image"
+            phrase = f"produce {self._article(noun)} {noun}"
         if "{m}" in phrase or "{am}" in phrase:
             noun = media or "image"
             phrase = phrase.replace("{am}", f"{self._article(noun)} {noun}").replace("{m}", noun)

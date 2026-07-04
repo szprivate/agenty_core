@@ -14236,13 +14236,13 @@
             "model_families": [
               "Veo"
             ],
-            "when_to_use": "Use to run a node graph using Veo.",
+            "when_to_use": "Use to produce a video using Veo.",
             "example_requests": [
               "build a video workflow using Veo",
-              "run a node graph using Veo"
+              "produce a video using Veo"
             ]
           },
-          "description": "Run a node graph using Veo. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: VIDEO.",
+          "description": "Produce a video using Veo. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: VIDEO.",
           "description_source": "synthesized",
           "node_clusters": [
             {

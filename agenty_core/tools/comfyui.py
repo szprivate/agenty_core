@@ -1491,11 +1491,52 @@ def _force_build() -> bool:
     return bool(os.environ.get("AGENTY_FORCE_BUILD"))
 
 
+def _synthesize_catalog_descriptions(names: list) -> dict:
+    """Intent-synthesized one-line descriptions for corpus templates that neither
+    index.json nor workflow_templates.json describes, so get_workflow_catalog can
+    be a complete inventory (every template listed *and* described) without writing
+    synthesized text into the hand-authored catalog. Best-effort: a template whose
+    file can't be found or parsed is skipped (left blank)."""
+    out: dict = {}
+    if not names:
+        return out
+    try:
+        from agenty_core.workflow_recipes import parser as _wr_parser
+        from agenty_core.workflow_recipes.intent import IntentClassifier
+    except Exception:
+        return out
+    ic = IntentClassifier()
+    dirs = [_custom_templates_dir(), _official_templates_dir()]
+    for name in names:
+        path = next((Path(d) / f"{name}.json" for d in dirs
+                     if (Path(d) / f"{name}.json").exists()), None)
+        if path is None:
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8-sig"))
+            g = (_wr_parser.parse_ui(data, name, path.name, "custom")
+                 if isinstance(data.get("nodes"), list)
+                 else _wr_parser.parse_api(data, name, path.name, "custom"))
+            it = ic.classify(g)
+            desc = ic.when_to_use(it.media, it.task, it.model_families)
+            if desc:
+                out[name] = desc
+        except Exception:
+            continue
+    return out
+
+
 def get_workflow_catalog() -> str:
     """Return the workflow template catalog as a flat {name: description} dictionary.
 
-    This is the cheapest way to discover available templates.
-    The dictionary keys are the exact names to pass to get_workflow_template().
+    This is the cheapest way to discover available templates. Keys are the exact
+    names to pass to get_workflow_template(), and cover **every** template in the
+    corpus — both custom/API workflows (described in config/workflow_templates.json)
+    and the official Comfy templates (described in their index.json). Descriptions
+    are merged from both sources; for the few templates neither source describes, a
+    one-line description is synthesized from the workflow's intent at read time
+    (the hand-authored catalog is never modified), so the catalog is a complete,
+    fully-described inventory that agrees with the recipe DB's template set.
 
     Results are cached for up to 1 hour per session (``clear_tool_caches()`` resets
     the cache at the start of every new pipeline session).
@@ -1512,9 +1553,24 @@ def get_workflow_catalog() -> str:
             and (now - _tool_catalog_timestamp) < _CATALOG_TTL
         ):
             return _tool_catalog_result
-    catalog_path = _corpus_root() / "config" / "workflow_templates.json"
     try:
-        data = catalog_path.read_text(encoding="utf-8")
+        # Merge index.json descriptions (official + custom) with the flat
+        # workflow_templates.json map so the catalog covers all templates, not
+        # just the ones with a hand-written entry. Reuses the generator's loader.
+        from agenty_core.workflow_recipes.parser import load_descriptions
+        folders = {
+            "custom": str(_custom_templates_dir()),
+            "official": str(_official_templates_dir()),
+        }
+        desc_path = str(_corpus_root() / "config" / "workflow_templates.json")
+        meta = load_descriptions(folders, desc_path, log=lambda *a, **k: None)
+        catalog = {name: (m.get("description") or "") for name, m in sorted(meta.items())}
+        # Fill any template the catalog sources leave blank with an intent-
+        # synthesized description, so every listed template is also described.
+        blank = [n for n, d in catalog.items() if not d.strip()]
+        for name, desc in _synthesize_catalog_descriptions(blank).items():
+            catalog[name] = desc
+        data = json.dumps(catalog, ensure_ascii=False)
         with _tool_cache_lock:
             _tool_catalog_result = data
             _tool_catalog_timestamp = time.time()

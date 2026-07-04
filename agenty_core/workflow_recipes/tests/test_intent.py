@@ -94,6 +94,14 @@ class TestPhrasing(unittest.TestCase):
         self.assertIn("WAN 2.2", s)
         self.assertTrue(s.endswith("."))
 
+    def test_unknown_task_describes_by_media(self):
+        # A workflow whose name carries no task token (e.g. "api_veo3") still gets
+        # a sensible phrase from its output media, not a bland "run a node graph".
+        self.assertEqual(I.task_phrase(None, "video"), "produce a video")
+        s = I.when_to_use("video", None, ["Veo"])
+        self.assertIn("produce a video", s)
+        self.assertNotIn("run a node graph", s)
+
 
 class TestDeterminism(unittest.TestCase):
     def test_stable(self):

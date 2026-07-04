@@ -629,9 +629,9 @@
 
 ## API / Partner Nodes - Text to Video / Veo  (`api_partner_nodes_text_to_video__veo`)  -  1 workflow(s)  -  source: custom
 - execution: api (API nodes: Veo3VideoGenerationNode)
-- when to use: Use to run a node graph using Veo.
+- when to use: Use to produce a video using Veo.
 - example request: "build a video workflow using Veo"
-- description: Run a node graph using Veo. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: VIDEO.
+- description: Produce a video using Veo. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: VIDEO.
 - member workflows:
     - api_veo3
 - node clusters (required structure):
