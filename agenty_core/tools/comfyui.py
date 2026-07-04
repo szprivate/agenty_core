@@ -2214,7 +2214,11 @@ def update_workflow(
                     )
 
     try:
-        result = get_client().post("/prompt", json_data={"prompt": workflow})
+        _vc = get_client()
+        _vpayload: dict = {"prompt": workflow}
+        if _vc.api_key:  # API/partner nodes 401 without the key, even to validate
+            _vpayload["extra_data"] = {"api_key_comfy_org": _vc.api_key}
+        result = _vc.post("/prompt", json_data=_vpayload)
         if isinstance(result, dict):
             if "error" in result:
                 server_errors = {
@@ -2666,7 +2670,11 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                     )
 
     try:
-        result = get_client().post("/prompt", json_data={"prompt": workflow})
+        _vc = get_client()
+        _vpayload: dict = {"prompt": workflow}
+        if _vc.api_key:  # API/partner nodes 401 without the key, even to validate
+            _vpayload["extra_data"] = {"api_key_comfy_org": _vc.api_key}
+        result = _vc.post("/prompt", json_data=_vpayload)
         if isinstance(result, dict):
             if "error" in result:
                 server_errors = {
@@ -2926,7 +2934,11 @@ def validate_workflow(workflow_path: str) -> str:
     # Server-side validation
     server_errors: dict = {}
     try:
-        result = get_client().post("/prompt", json_data={"prompt": workflow})
+        _vc = get_client()
+        _vpayload: dict = {"prompt": workflow}
+        if _vc.api_key:  # API/partner nodes 401 without the key, even to validate
+            _vpayload["extra_data"] = {"api_key_comfy_org": _vc.api_key}
+        result = _vc.post("/prompt", json_data=_vpayload)
         if isinstance(result, dict):
             if "error" in result:
                 server_errors = {
