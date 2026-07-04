@@ -2032,13 +2032,25 @@ def open_workflow_in_canvas(workflow_path: str, name: str = "") -> str:
     except Exception as e:  # noqa: BLE001
         return json.dumps({"status": "error", "error": f"Could not save to ComfyUI: {e}"})
 
+    # Also push it straight onto the open canvas via the AgentCanvas extension
+    # (custom_nodes/comfyui-agent-canvas). Harmless 404 when the extension isn't
+    # installed/loaded — the sidebar copy above is always available as fallback.
+    opened = False
+    try:
+        _r = get_client().post("/agent/load_workflow", json_data={"workflow": graph})
+        opened = isinstance(_r, dict) and bool(_r.get("ok"))
+    except Exception:  # noqa: BLE001
+        pass
+
     return json.dumps({
         "status": "ok",
         "saved_as": f"agent/{stem}",
+        "opened_on_canvas": opened,
         "node_count": len(graph["nodes"]),
         "url": "http://127.0.0.1:8188",
-        "hint": f"In ComfyUI, open the Workflows sidebar and select agent/{stem} "
-                "to inspect the graph the agent built and ran.",
+        "hint": ("Opened on the ComfyUI canvas." if opened else
+                 f"Saved — open the Workflows sidebar and select agent/{stem} "
+                 "(install/restart to enable auto-open on the canvas)."),
     })
 
 
