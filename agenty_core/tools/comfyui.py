@@ -86,12 +86,30 @@ def clear_tool_caches() -> None:
       - get_comfyui_dirs      (no TTL; cleared so next call fetches fresh)
       - get_workflow_template (per-name; cleared so templates re-fetched if changed)
     """
-    global _tool_catalog_result, _tool_catalog_timestamp, _tool_dirs_result, _tool_template_results
+    global _tool_catalog_result, _tool_catalog_timestamp, _tool_dirs_result, _tool_template_results, _object_info_cache
     with _tool_cache_lock:
         _tool_catalog_result = None
         _tool_catalog_timestamp = None
         _tool_dirs_result = None
         _tool_template_results = {}
+        # Drop /object_info too — its LoadImage combo lists the input dir, which
+        # changes as images are uploaded, so a stale copy misroutes input images.
+        _object_info_cache = None
+
+
+def reset_object_info_cache() -> None:
+    """Drop the cached ``/object_info`` so the next fetch reflects newly-staged
+    input files.
+
+    ``LoadImage``'s valid-file combo is part of ``/object_info``. When an image is
+    staged into ComfyUI's input dir mid-session (e.g. ``upload_image`` during the
+    researcher run), a stale cache omits it, so ``apply_brainbriefing``'s
+    snap-to-valid step would replace the user's freshly-uploaded image with the
+    template's default — i.e. the workflow "ignores" the input image. Call this
+    after staging an input, or before assembling, to force a refresh.
+    """
+    global _object_info_cache
+    _object_info_cache = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -2528,19 +2546,20 @@ _AGENT_SUBFOLDER = "agent"
 
 
 def _agent_input_ref(filename: str) -> str:
-    """Qualify a bare LoadImage filename with the ``agent/`` input subfolder.
+    """Return the bare LoadImage filename (input dir root, no subfolder).
 
-    ``upload_image`` / ``download_image`` place agent inputs under
-    ``input/agent[/...]``, and ComfyUI's LoadImage encodes the subfolder in the
-    image field as ``"subfolder/filename"``.  A bare ``"foo.png"`` therefore
-    becomes ``"agent/foo.png"``; names that already carry a subfolder
-    (e.g. ``"agent/references/foo.jpg"``) or look like absolute/local paths are
-    left untouched.
+    ``upload_image`` / ``download_image`` now stage agent inputs flat in ComfyUI's
+    input dir root, because LoadImage on some ComfyUI builds cannot load files
+    from input subdirectories. Any leftover ``agent/`` (or ``agent/references/``)
+    prefix from a briefing is flattened to the basename so the reference points at
+    the root file. Absolute / drive-qualified paths are left untouched.
     """
     f = (filename or "").replace("\\", "/").strip()
-    if not f or "/" in f:
+    if not f:
         return filename
-    return f"{_AGENT_SUBFOLDER}/{f}"
+    if f.startswith("/") or (len(f) > 1 and f[1] == ":"):
+        return filename  # absolute path — leave as-is
+    return f.rsplit("/", 1)[-1]  # bare filename; agent inputs live in the input root
 
 
 def _agent_output_prefix(path_or_prefix: str) -> str:
@@ -2595,6 +2614,15 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
 
     applied: list[str] = []
     problems: list[str] = []
+
+    # Refresh /object_info before validating input images: any image staged during
+    # the researcher run (upload_image) is absent from the session-cached
+    # object_info, so LoadImage's valid-file combo would be stale and the
+    # snap-to-valid step below would replace the user's image with the template's
+    # default ("reproduces the template"). Only needed when the briefing wires
+    # input images.
+    if bb.get("input_nodes"):
+        reset_object_info_cache()
 
     # Strip pure-annotation nodes (Note / MarkdownNote) that ComfyUI rejects.
     for _nid in _strip_annotation_nodes(workflow):
