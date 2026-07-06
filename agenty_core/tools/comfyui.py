@@ -2761,14 +2761,46 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                 "(provide prompt_nodes or positive_prompt_node_id)"
             )
         else:
-            # No text-conditioning node exists in this graph at all — it's a
-            # prompt-less workflow (background removal, upscale, detection, depth
-            # estimation, …). The researcher's prompt simply does not apply here,
-            # so skip it rather than failing the whole assembly.
-            applied.append(
-                "positive prompt: workflow has no text-conditioning node — "
-                "prompt not applicable (skipped)"
-            )
+            # No CLIPTextEncode-style node. Before treating this as prompt-less,
+            # try API / unified-text nodes that carry a literal ``prompt`` (or
+            # ``text``) STRING input — e.g. GeminiNanoBanana2, GeminiImage2Node,
+            # IdeogramV3. The LLM brain frequently reconstructs the briefing and
+            # drops its ``prompt_nodes`` / sets ``positive_prompt_node_id`` to null,
+            # so the target node must be found here or the prompt is lost.
+            try:
+                _oi = _get_object_info()
+            except Exception:  # noqa: BLE001
+                _oi = {}
+            _api_cands: list[tuple[str, str]] = []  # (node_id, input_name)
+            for _nid, _node in workflow.items():
+                if not isinstance(_node, dict) or _nid in handled_nids:
+                    continue
+                if "negative" in ((_node.get("_meta") or {}).get("title", "")).lower():
+                    continue
+                _in = (_oi.get(_node.get("class_type", ""), {}) or {}).get("input", {}) or {}
+                _allin = {**(_in.get("optional") or {}), **(_in.get("required") or {})}
+                for _pname in ("prompt", "text"):  # exact keys — never system_prompt
+                    _pspec = _allin.get(_pname)
+                    if isinstance(_pspec, list) and _pspec and _pspec[0] == "STRING":
+                        _api_cands.append((_nid, _pname))
+                        break
+            if _api_cands:
+                # Prefer a ``prompt`` input over ``text``, then the lowest node id.
+                _pref = [c for c in _api_cands if c[1] == "prompt"] or _api_cands
+                _tnid, _tname = min(_pref, key=lambda c: (len(str(c[0])), str(c[0])))
+                workflow[_tnid].setdefault("inputs", {})[_tname] = positive_text
+                applied.append(
+                    f"Node {_tnid}.inputs.{_tname} → (positive prompt, api-node, "
+                    f"{len(positive_text)} chars)"
+                )
+                handled_nids.add(_tnid)
+                positive_injected = True
+            else:
+                # Genuinely prompt-less (background removal, upscale, depth, …).
+                applied.append(
+                    "positive prompt: workflow has no text-conditioning node — "
+                    "prompt not applicable (skipped)"
+                )
 
     # Negative prompt: find a node with "negative" in its title that has a text input
     if negative_text and not any(
