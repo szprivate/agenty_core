@@ -811,6 +811,69 @@ def _strip_history(data: dict | list) -> dict | list:
     return stripped
 
 
+def _autogrow_info(meta: dict) -> dict:
+    """Parse a ``COMFY_AUTOGROW_V3`` metadata dict (2nd element of the input spec).
+
+    V3 dynamic *autogrow* inputs (image batchers, multi-reference encoders, …)
+    never appear under their umbrella name (e.g. ``images``): ComfyUI grows them
+    into per-slot keys. Returns ``{grown_type, keys, min, max}`` where *keys* are
+    the concrete per-slot input names — a 0-based ``prefix`` sequence
+    (``image0, image1, …``, per ComfyUI source ``[f"{prefix}{i}" for i in
+    range(max)]``) or an explicit ``names`` list (``image_1, …`` / ``a, b, …``).
+    """
+    tmpl = (meta or {}).get("template", {}) or {}
+    grown_spec = next(iter((tmpl.get("input", {}).get("required", {}) or {}).values()), None)
+    if isinstance(grown_spec, list) and grown_spec:
+        grown_type = "COMBO" if isinstance(grown_spec[0], list) else str(grown_spec[0])
+    else:
+        grown_type = "*"
+    if isinstance(tmpl.get("names"), list):
+        keys = [str(k) for k in tmpl["names"]]
+    else:
+        prefix = str(tmpl.get("prefix", ""))
+        try:
+            mx = int(tmpl.get("max", 0))
+        except (TypeError, ValueError):
+            mx = 0
+        keys = [f"{prefix}{i}" for i in range(mx)]  # 0-based, per ComfyUI source
+    try:
+        mn = int(tmpl.get("min", 0) or 0)
+    except (TypeError, ValueError):
+        mn = 0
+    return {"grown_type": grown_type, "keys": keys, "min": mn, "max": tmpl.get("max")}
+
+
+def _is_autogrow_spec(spec) -> bool:
+    """True when a raw object_info input spec is a V3 autogrow (``COMFY_AUTOGROW_V3``)."""
+    return (isinstance(spec, list) and spec and isinstance(spec[0], str)
+            and "AUTOGROW" in spec[0].upper())
+
+
+def _parse_autogrow(name: str, opts: dict) -> dict:
+    """Render a V3 autogrow input legibly so the agent can actually wire it."""
+    ag = _autogrow_info(opts)
+    keys, gtype = ag["keys"], ag["grown_type"]
+    sample = keys[:6] + (["…"] if len(keys) > 6 else [])
+    hint = ", ".join(keys[:3]) if keys else "image0, image1"
+    entry: dict = {
+        "type": gtype,
+        "dynamic": True,
+        "connect_as": sample,
+        "note": (
+            f"Dynamic autogrow input: do NOT use '{name}' as an input key. Connect "
+            f"one or more {gtype} producers by adding numbered/named keys "
+            f"({hint}, …) to this node's 'inputs' — each carries type {gtype}."
+        ),
+    }
+    if ag.get("min") is not None:
+        entry["min"] = ag["min"]
+    if ag.get("max") is not None:
+        entry["max"] = ag["max"]
+    if isinstance(opts, dict) and "tooltip" in opts:
+        entry["tooltip"] = opts["tooltip"]
+    return entry
+
+
 def _parse_inputs_schema(spec: dict) -> dict:
     """Turn ComfyUI's input spec into a friendlier format."""
     result = {}
@@ -819,6 +882,11 @@ def _parse_inputs_schema(spec: dict) -> dict:
         if isinstance(definition, list) and len(definition) >= 1:
             type_info = definition[0]
             opts = definition[1] if len(definition) > 1 else {}
+            if isinstance(type_info, str) and "AUTOGROW" in type_info.upper():
+                # V3 dynamic autogrow input — surface the grown type + slot keys
+                # instead of the opaque COMFY_AUTOGROW_V3 sentinel.
+                result[name] = _parse_autogrow(name, opts if isinstance(opts, dict) else {})
+                continue
             if isinstance(type_info, list):
                 entry["type"] = "COMBO"
                 entry["options"] = type_info
@@ -3226,7 +3294,22 @@ def validate_workflow(workflow_path: str) -> str:
         required = node_info.get("input", {}).get("required", {})
         inputs = node.get("inputs", {})
 
-        for req_name in required:
+        for req_name, req_spec in required.items():
+            # V3 autogrow umbrella (COMFY_AUTOGROW_V3): the name is never a literal
+            # key — ComfyUI grows it into per-slot keys (image0, image1, … / a, b…).
+            # Don't flag the umbrella as missing; verify enough grown slots are wired.
+            if _is_autogrow_spec(req_spec):
+                meta = req_spec[1] if len(req_spec) > 1 and isinstance(req_spec[1], dict) else {}
+                ag = _autogrow_info(meta)
+                slot_keys = set(ag["keys"])
+                have = sum(1 for k in inputs if k in slot_keys)
+                if ag["min"] and have < ag["min"]:
+                    local_errors.append(
+                        f"Node {nid} ({cls}): autogrow input '{req_name}' needs at "
+                        f"least {ag['min']} connected slot(s) "
+                        f"(e.g. {', '.join(ag['keys'][:2]) or 'image0, image1'}); found {have}."
+                    )
+                continue
             if req_name not in inputs:
                 local_errors.append(
                     f"Node {nid} ({cls}): missing required input '{req_name}'."
