@@ -1,50 +1,11 @@
 {
   "generated_from": {
-    "workflow_count": 142,
-    "node_class_count": 230,
-    "custom_classes": 20,
+    "workflow_count": 140,
+    "node_class_count": 228,
+    "custom_classes": 18,
     "unresolved_classes": 9
   },
   "nodes": [
-    {
-      "class": "AILab_ImageToList",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
-      "inputs": {
-        "required": [
-          "resize_mode"
-        ],
-        "optional": [
-          "image_1",
-          "image_2",
-          "image_3",
-          "image_4",
-          "image_5",
-          "image_6"
-        ],
-        "types": {
-          "resize_mode": "COMBO",
-          "image_1": "IMAGE",
-          "image_2": "IMAGE",
-          "image_3": "IMAGE",
-          "image_4": "IMAGE",
-          "image_5": "IMAGE",
-          "image_6": "IMAGE"
-        }
-      },
-      "outputs": [
-        "IMAGE",
-        "INT",
-        "INT",
-        "INT"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_edit__nano_banana"
-      ],
-      "occurrences": 2
-    },
     {
       "class": "AudioMerge",
       "role": "other",
@@ -1715,7 +1676,7 @@
         "api_partner_nodes_character__nano_banana",
         "api_partner_nodes_image_edit__nano_banana"
       ],
-      "occurrences": 4
+      "occurrences": 3
     },
     {
       "class": "GeminiNanoBanana2",
@@ -1757,10 +1718,9 @@
         "IMAGE"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_inpaint_outpaint__nano_banana"
       ],
-      "occurrences": 2
+      "occurrences": 1
     },
     {
       "class": "GeminiNode",
@@ -2279,29 +2239,6 @@
         "video_to_video__ltx_2"
       ],
       "occurrences": 4
-    },
-    {
-      "class": "ImageListToImageBatch",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
-      "inputs": {
-        "required": [
-          "images"
-        ],
-        "optional": [],
-        "types": {
-          "images": "IMAGE"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_edit__nano_banana"
-      ],
-      "occurrences": 2
     },
     {
       "class": "ImageOnlyCheckpointLoader",
@@ -3576,7 +3513,6 @@
         "api_partner_nodes_first_last_frame_to_video__kling",
         "api_partner_nodes_image_edit__kling",
         "api_partner_nodes_image_edit__magnific",
-        "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__ltx_2",
@@ -3603,7 +3539,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 53
+      "occurrences": 49
     },
     {
       "class": "LoadMediaPipeFaceLandmarker",
@@ -5405,7 +5341,7 @@
         "upscale__flux",
         "upscale__generic"
       ],
-      "occurrences": 21
+      "occurrences": 19
     },
     {
       "class": "SaveVideo",
