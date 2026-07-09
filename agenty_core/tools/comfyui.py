@@ -1195,6 +1195,72 @@ def get_comfyui_dirs() -> str:
 
 
 @tool
+def get_agent_output_dirs() -> str:
+    """Return the canonical, absolute folders the agent must write into.
+
+    Use this BEFORE writing any file yourself — especially when you produce media
+    with a Python script (``run_script`` / ``write_text_file``) instead of a
+    ComfyUI workflow.  All agent-generated media must land in the same buckets a
+    ComfyUI workflow would use, so everything is in one predictable place.
+
+    Returns a JSON object with absolute paths (folders are created if missing):
+      - ``images``  — ``<comfyui_output>/agent/images``  (save any image here)
+      - ``videos``  — ``<comfyui_output>/agent/videos``  (save any video here)
+      - ``audio``   — ``<comfyui_output>/agent/audio``
+      - ``models``  — ``<comfyui_output>/agent/models``  (3D assets)
+      - ``scripts`` — ``<agent_repo>/output/scripts``     (write scripts here; git-ignored)
+      - ``proposals`` — ``<agent_repo>/output/proposals`` (proposed code changes for human review)
+      - ``comfyui_output`` — the resolved ComfyUI ``--output-directory``.
+
+    Rule of thumb: images → ``images``, videos → ``videos``, the script that made
+    them → ``scripts``.  Never scatter files in the ComfyUI output root or the CWD.
+    """
+    result: dict[str, str] = {}
+    # Resolve ComfyUI's output dir via the same authoritative source as
+    # get_comfyui_dirs (argv from /system_stats, with defaults).
+    comfy_out: Path | None = None
+    try:
+        dirs = json.loads(get_comfyui_dirs())
+        od = dirs.get("output_dir") if isinstance(dirs, dict) else None
+        if od and od != "unknown":
+            comfy_out = Path(od)
+    except Exception:  # noqa: BLE001
+        comfy_out = None
+
+    if comfy_out is not None:
+        agent_root = comfy_out / _AGENT_SUBFOLDER
+        for bucket in _MEDIA_BUCKETS:
+            d = agent_root / bucket
+            try:
+                d.mkdir(parents=True, exist_ok=True)
+            except Exception:  # noqa: BLE001
+                pass
+            result[bucket] = str(d)
+        result["comfyui_output"] = str(comfy_out)
+    else:
+        result["warning"] = (
+            "Could not resolve ComfyUI --output-directory; media buckets omitted. "
+            "Call get_comfyui_dirs() and write under <output_dir>/agent/<kind>."
+        )
+
+    # Scripts + code-change proposals live in the consuming app's own repo
+    # (git-ignored ``output/`` tree), not in ComfyUI's output dir.
+    try:
+        from agenty_core.paths import project_root as _project_root
+        out_root = _project_root() / "output"
+        scripts_dir = out_root / "scripts"
+        proposals_dir = out_root / "proposals"
+        scripts_dir.mkdir(parents=True, exist_ok=True)
+        proposals_dir.mkdir(parents=True, exist_ok=True)
+        result["scripts"] = str(scripts_dir)
+        result["proposals"] = str(proposals_dir)
+    except Exception as exc:  # noqa: BLE001
+        result["scripts_error"] = str(exc)
+
+    return json.dumps(result)
+
+
+@tool
 def get_logs(keyword: str = "", max_lines: int = 100) -> str:
     """Get the latest ComfyUI error / exception block from the runtime log.
 
@@ -2630,18 +2696,51 @@ def _agent_input_ref(filename: str) -> str:
     return f.rsplit("/", 1)[-1]  # bare filename; agent inputs live in the input root
 
 
-def _agent_output_prefix(path_or_prefix: str) -> str:
-    """Route a SaveImage/VHS ``filename_prefix`` under the output dir's ``agent/`` subfolder.
+# Media-kind buckets under agent/.  Every agent-generated output is routed into
+# one of a small, predictable set of folders keyed by the *kind* of media the
+# saver node produces (not by task type), so files are easy to find and script
+# tooling can rely on the layout:  agent/images, agent/videos, agent/audio,
+# agent/models.
+_MEDIA_BUCKETS = ("images", "videos", "audio", "models")
+_VIDEO_SAVERS = {"VHS_VideoCombine", "SaveVideo", "SaveWEBM", "VHS_SaveVideo"}
+_AUDIO_SAVERS = {"SaveAudio", "VHS_SaveAudio", "SaveAudioMP3", "SaveAudioOpus"}
+_MODEL_SAVERS = {"SaveGLB", "SaveGLTF", "Save3DModel", "Save3D"}
+_BUCKET_DEFAULT_STEM = {"images": "image", "videos": "video", "audio": "audio", "models": "model"}
 
-    Keeps the trailing descriptive component and flattens any deeper structure:
-    ``"W:/.../output/image_generation"`` → ``"agent/image_generation"``.  A value
-    already under ``agent/`` is returned unchanged.
+
+def _agent_media_bucket(class_type: str) -> str:
+    """Map an output-saver node's ``class_type`` to a media-kind bucket name.
+
+    Defaults to ``images`` for the common ``SaveImage`` / ``PreviewImage`` case
+    (and anything unrecognised — an image is the safe fallback).
     """
+    ct = class_type or ""
+    if ct in _AUDIO_SAVERS or "Audio" in ct:
+        return "audio"
+    if ct in _VIDEO_SAVERS or "Video" in ct:
+        return "videos"
+    if ct in _MODEL_SAVERS or ct.startswith("Save3D") or ct.startswith("TripoSG"):
+        return "models"
+    return "images"
+
+
+def _agent_output_prefix(class_type: str = "", path_or_prefix: str = "") -> str:
+    """Route a saver node's ``filename_prefix`` under ``agent/<media-kind>/``.
+
+    Buckets by media kind derived from *class_type* (images/videos/audio/models),
+    then keeps a descriptive filename stem so results stay recognisable:
+    ``(SaveImage, "W:/.../output/image_generation")`` → ``"agent/images/image_generation"``.
+    Files therefore land in exactly two folders for the common cases —
+    ``agent/images/`` and ``agent/videos/`` — regardless of task type.
+    """
+    bucket = _agent_media_bucket(class_type)
     p = (path_or_prefix or "").replace("\\", "/").strip().strip("/")
-    if p == _AGENT_SUBFOLDER or p.startswith(_AGENT_SUBFOLDER + "/"):
-        return p or f"{_AGENT_SUBFOLDER}/output"
-    stem = p.rsplit("/", 1)[-1] if p else "output"
-    return f"{_AGENT_SUBFOLDER}/{stem or 'output'}"
+    stem = p.rsplit("/", 1)[-1] if p else ""
+    # Drop a stem that is itself a bucket / generic label so we don't produce
+    # noise like agent/images/images; fall back to the media-kind default.
+    if not stem or stem in _MEDIA_BUCKETS or stem in ("agent", "output"):
+        stem = _BUCKET_DEFAULT_STEM.get(bucket, "output")
+    return f"{_AGENT_SUBFOLDER}/{bucket}/{stem}"
 
 
 @tool
@@ -2912,11 +3011,12 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         node = workflow[nid]
         if "inputs" not in node:
             node["inputs"] = {}
-        # Keep all agent-generated outputs under <output_dir>/agent/. Use the
-        # descriptive name from output_path when given, else the node's existing
-        # filename_prefix, so files stay recognisable (e.g. agent/image_generation).
+        # Keep all agent-generated outputs under <output_dir>/agent/<media-kind>/.
+        # The bucket (images/videos/audio/models) is derived from the saver node's
+        # class_type; a descriptive stem from output_path (or the node's existing
+        # filename_prefix) is kept as the filename base (e.g. agent/images/image_edit).
         existing_prefix = node["inputs"].get("filename_prefix", "")
-        prefix = _agent_output_prefix(output_path or existing_prefix)
+        prefix = _agent_output_prefix(node.get("class_type", ""), output_path or existing_prefix)
         node["inputs"]["filename_prefix"] = prefix
         applied.append(f"Node {nid}.inputs.filename_prefix → {prefix!r}")
 
