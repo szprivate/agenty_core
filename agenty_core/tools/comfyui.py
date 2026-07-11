@@ -1628,6 +1628,303 @@ def search_nodes(query: str, limit: int = 10) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Tools: Custom node management (install + auto-heal a missing node)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _comfyui_root() -> "Path | None":
+    """Best-effort absolute path to the ComfyUI install root (the folder that
+    contains ``custom_nodes/``).
+
+    Resolved from ``/system_stats`` argv: an explicit ``--base-directory`` wins,
+    otherwise the parent of ``argv[0]`` (``main.py``). Returns ``None`` when it
+    cannot be determined (e.g. a remote ComfyUI that doesn't echo a usable argv).
+    """
+    try:
+        stats = get_client().get("/system_stats")
+    except Exception:
+        return None
+    argv = stats.get("system", {}).get("argv", []) if isinstance(stats, dict) else []
+    base = parse_argv_dir_flag(argv, "--base-directory")
+    if base:
+        p = Path(base)
+        if p.exists():
+            return p.resolve()
+    if argv and isinstance(argv[0], str) and argv[0]:
+        root = Path(argv[0]).parent
+        if root.exists():
+            return root.resolve()
+    return None
+
+
+def _custom_nodes_dir() -> "Path | None":
+    """The ComfyUI ``custom_nodes/`` directory, or ``None`` when unresolved."""
+    root = _comfyui_root()
+    if root is None:
+        return None
+    cn = root / "custom_nodes"
+    return cn if cn.exists() else None
+
+
+def _resolve_comfyui_python() -> "Path | None":
+    """Best-effort path to the interpreter ComfyUI itself runs on, so a pack's
+    requirements install into ComfyUI's environment (not the agent's venv).
+
+    Checks the common portable / venv layouts around the ComfyUI root. Returns
+    ``None`` when none is found — the caller then reports that pip was skipped so
+    the user can install requirements themselves.
+    """
+    root = _comfyui_root()
+    if root is None:
+        return None
+    if os.name == "nt":
+        candidates = [
+            root.parent / "python_embeded" / "python.exe",   # windows portable
+            root / "python_embeded" / "python.exe",
+            root / ".venv" / "Scripts" / "python.exe",
+            root / "venv" / "Scripts" / "python.exe",
+        ]
+    else:
+        candidates = [
+            root / ".venv" / "bin" / "python",
+            root / "venv" / "bin" / "python",
+            root.parent / "venv" / "bin" / "python",
+        ]
+    return next((c for c in candidates if c.exists()), None)
+
+
+def _manager_get_mappings() -> dict:
+    """ComfyUI-Manager's node-class → repository mapping, or ``{}`` when Manager
+    isn't installed / reachable.
+
+    The payload maps a repo URL → ``[[node_class_names, …], {"title": …, …}]``,
+    which is what lets us resolve which pack provides a given (missing) node.
+    """
+    for path in ("/customnode/getmappings?mode=nickname",
+                 "/api/customnode/getmappings?mode=nickname",
+                 "/customnode/getmappings"):
+        try:
+            data = get_client().get(path)
+            if isinstance(data, dict) and data:
+                return data
+        except Exception:
+            continue
+    return {}
+
+
+def _registry_search(query: str, limit: int = 5) -> list:
+    """Query the public ComfyUI Registry (``api.comfy.org``) for node packs
+    matching *query*. Best-effort → ``[]`` on any failure.
+    """
+    import requests
+    try:
+        resp = requests.get(
+            "https://api.comfy.org/nodes",
+            params={"search": query, "limit": limit},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception:
+        return []
+    nodes = data.get("nodes", data) if isinstance(data, dict) else data
+    out: list = []
+    for n in (nodes or [])[:limit]:
+        if not isinstance(n, dict):
+            continue
+        repo = n.get("repository") or n.get("repository_url") or ""
+        out.append({
+            "id": n.get("id") or n.get("name") or "",
+            "name": n.get("name") or n.get("id") or "",
+            "repository": repo,
+            "description": (n.get("description") or "")[:160],
+        })
+    return out
+
+
+def _manager_reboot() -> bool:
+    """Ask ComfyUI-Manager to restart the ComfyUI server. Returns True when the
+    reboot was (very likely) triggered.
+
+    The reboot tears the server down, so the request connection usually drops
+    mid-flight — that dropped connection is treated as success. Only a clean 404
+    (endpoint absent → Manager not installed / old version) counts as failure.
+    """
+    import requests as _rq
+    for path in ("/api/manager/reboot", "/manager/reboot"):
+        try:
+            get_client().get(path)
+            return True
+        except _rq.HTTPError as e:
+            if getattr(e.response, "status_code", None) == 404:
+                continue
+            return True
+        except Exception:
+            # Connection dropped == the server is going down to reboot => success.
+            return True
+    return False
+
+
+@tool
+def find_custom_node_for(node_type: str) -> str:
+    """Find which custom-node pack provides a given ComfyUI node class.
+
+    Use this to auto-heal an "unknown/missing node type" failure: pass the class
+    name ComfyUI reported as missing and get back candidate packs (each with a git
+    URL) to hand to ``install_custom_node``.
+
+    Resolution order: ComfyUI-Manager's node→repo mappings (when Manager is
+    installed), then the public ComfyUI Registry (``api.comfy.org``).
+
+    Args:
+        node_type: The missing node's class name (e.g. 'UltralyticsDetectorProvider').
+
+    Returns:
+        JSON ``{node_type, candidates: [{source, name, node_count?, description?,
+        via}], source}``. ``source`` of the winning resolver ("manager" |
+        "registry" | ""); ``candidates`` is empty when nothing matched.
+    """
+    if not isinstance(node_type, str) or not node_type.strip():
+        return json.dumps({"status": "error", "error": "node_type must be a non-empty string"})
+    node_type = node_type.strip()
+    nt_low = node_type.lower()
+    candidates: list = []
+
+    mappings = _manager_get_mappings()
+    for url, meta in mappings.items():
+        try:
+            names = meta[0] if isinstance(meta, list) and meta else []
+            title = meta[1].get("title", "") if len(meta) > 1 and isinstance(meta[1], dict) else ""
+        except Exception:
+            names, title = [], ""
+        if any(isinstance(n, str) and n.lower() == nt_low for n in names):
+            candidates.append({
+                "source": url,
+                "name": title or url.rstrip("/").split("/")[-1],
+                "node_count": len(names),
+                "via": "manager",
+            })
+
+    source = "manager" if candidates else ""
+    if not candidates:
+        for r in _registry_search(node_type):
+            if r.get("repository"):
+                candidates.append({
+                    "source": r["repository"],
+                    "name": r["name"],
+                    "description": r["description"],
+                    "via": "registry",
+                })
+        if candidates:
+            source = "registry"
+
+    return json.dumps({"node_type": node_type, "candidates": candidates[:5], "source": source})
+
+
+@tool
+def install_custom_node(source: str, run_pip: bool = True, restart: bool = False) -> str:
+    """Install a ComfyUI custom-node pack from a git URL.
+
+    Clones the pack into ComfyUI's ``custom_nodes/`` directory and (when
+    ``run_pip`` is True) installs its ``requirements.txt`` into ComfyUI's *own*
+    Python environment. New nodes only load after a ComfyUI restart — set
+    ``restart=True`` to ask ComfyUI-Manager to reboot the server (works only when
+    Manager is installed); otherwise restart ComfyUI manually.
+
+    To resolve a git URL from a *missing node class*, call ``find_custom_node_for``
+    first and pass one of its candidate ``source`` URLs here.
+
+    Args:
+        source: A git URL (``https://…`` or ``git@…``) to the pack's repository.
+        run_pip: Install the pack's requirements.txt into ComfyUI's Python (default True).
+        restart: Ask ComfyUI-Manager to reboot ComfyUI afterwards (default False).
+
+    Returns:
+        JSON ``{status, path?, cloned, pip, restarted, needs_restart, message}``.
+    """
+    import shutil
+    import subprocess
+
+    if not isinstance(source, str) or not source.strip():
+        return json.dumps({"status": "error", "error": "source must be a git URL"})
+    source = source.strip()
+    if not (source.startswith("http://") or source.startswith("https://") or source.startswith("git@")):
+        return json.dumps({
+            "status": "error",
+            "error": (f"source does not look like a git URL: {source!r}. Call "
+                      "find_custom_node_for(node_type) to resolve a URL first."),
+        })
+
+    cn_dir = _custom_nodes_dir()
+    if cn_dir is None:
+        return json.dumps({
+            "status": "error",
+            "error": "Could not locate ComfyUI's custom_nodes directory from /system_stats.",
+        })
+    if shutil.which("git") is None:
+        return json.dumps({"status": "error", "error": "'git' is not on PATH; cannot clone."})
+
+    name = source.rstrip("/").split("/")[-1]
+    if name.endswith(".git"):
+        name = name[:-4]
+    dest = cn_dir / name
+
+    result = {
+        "status": "ok", "path": str(dest), "cloned": False, "pip": "skipped",
+        "restarted": False, "needs_restart": True, "message": "",
+    }
+
+    if dest.exists():
+        result["message"] = f"'{name}' already present in custom_nodes; skipped clone."
+    else:
+        try:
+            subprocess.run(
+                ["git", "clone", "--depth", "1", source, str(dest)],
+                check=True, capture_output=True, text=True, timeout=300,
+            )
+            result["cloned"] = True
+        except subprocess.CalledProcessError as e:
+            return json.dumps({"status": "error",
+                               "error": f"git clone failed: {(e.stderr or '').strip() or e}"})
+        except Exception as e:  # noqa: BLE001
+            return json.dumps({"status": "error", "error": f"git clone failed: {e}"})
+
+    req = dest / "requirements.txt"
+    if run_pip and req.exists():
+        py = _resolve_comfyui_python()
+        if py is None:
+            result["pip"] = "unresolved-python"
+            result["message"] += (" Could not locate ComfyUI's Python — install the pack's "
+                                  "requirements.txt into ComfyUI's environment manually.")
+        else:
+            try:
+                subprocess.run(
+                    [str(py), "-m", "pip", "install", "-r", str(req)],
+                    check=True, capture_output=True, text=True, timeout=600,
+                )
+                result["pip"] = "installed"
+            except subprocess.CalledProcessError as e:
+                result["pip"] = "failed"
+                result["message"] += f" pip install failed: {(e.stderr or '').strip()[:300]}"
+            except Exception as e:  # noqa: BLE001
+                result["pip"] = "failed"
+                result["message"] += f" pip install failed: {e}"
+    elif run_pip:
+        result["pip"] = "no-requirements"
+
+    if restart:
+        if _manager_reboot():
+            result["restarted"] = True
+            result["needs_restart"] = False
+        else:
+            result["message"] += (" Restart requested, but the ComfyUI-Manager reboot endpoint "
+                                  "was unavailable — restart ComfyUI manually.")
+
+    if result["needs_restart"] and not result["restarted"]:
+        result["message"] = (result["message"] + " Restart ComfyUI to load the new nodes.").strip()
+    return json.dumps(result)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Tools: Workflow templates
 # ═══════════════════════════════════════════════════════════════════════════════
 
