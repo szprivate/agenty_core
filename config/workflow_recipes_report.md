@@ -1,6 +1,6 @@
 # Workflow recipe database  (task -> model -> node clusters)
 
-- Tasks: 27 | task+model recipes: 77
+- Tasks: 27 | task+model recipes: 78
 - Self-contained: every recipe has user_intent + description + node clusters. No human annotation step.
 
 # Image Tools  (`image_tools`)  -  18 workflow(s), 2 model(s)
@@ -536,6 +536,61 @@
 - paired/multiple required: CLIPTextEncode x2, GetVideoComponents x2, KSamplerAdvanced x2, ModelSamplingSD3 x2, UNETLoader x2
 
 
+# API / Partner Nodes - Image Edit  (`api_partner_nodes_image_edit`)  -  6 workflow(s), 4 model(s)
+
+## API / Partner Nodes - Image Edit / Nano-Banana  (`api_partner_nodes_image_edit__nano_banana`)  -  3 workflow(s)  -  source: custom
+- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode)
+- when to use: Use to edit an existing image using Nano-Banana, Gemini.
+- example request: "build an image workflow using Nano-Banana"
+- description: Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references.
+- member workflows:
+    - api_imageEdit_nano_banana2
+    - imageEdit_nano_bananaPro
+    - styletransfer_NanoBananaPro
+- node clusters (required structure):
+    - output: SaveImage
+- optional roles: VHS_LoadImagePath, BatchImagesNode, GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode, LoadImage, PreviewImage, VHS_LoadVideoPath, VHS_SelectImages, bEpicReformat
+
+## API / Partner Nodes - Image Edit / Kling  (`api_partner_nodes_image_edit__kling`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: KlingOmniProImageNode)
+- when to use: Use to generate an image using Kling.
+- example request: "build an image workflow using Kling"
+- description: Generate an image using Kling. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
+- member workflows:
+    - api_kling_o3_image
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+    - output: SaveImage
+    - other operations: ImageBatchMulti, KlingOmniProImageNode
+- paired/multiple required: LoadImage x2
+
+## API / Partner Nodes - Image Edit / Magnific  (`api_partner_nodes_image_edit__magnific`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: MagnificImageRelightNode)
+- when to use: Use to relight an image using Magnific.
+- example request: "build an image workflow using Magnific"
+- description: API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image.
+- member workflows:
+    - api_magnific_image_relight
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+    - output: SaveImage
+    - other operations: MagnificImageRelightNode
+- paired/multiple required: LoadImage x2
+
+## API / Partner Nodes - Image Edit / Seedream  (`api_partner_nodes_image_edit__seedream`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: ByteDanceSeedreamNode)
+- when to use: Use to edit an existing image using Seedream.
+- example request: "build an image workflow using Seedream"
+- description: Edit an existing image using Seedream. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
+- member workflows:
+    - api_bytedance_seedream_5_0_lite_image_edit
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+    - output: SaveImage
+    - other operations: ByteDanceSeedreamNode, ImageBatchMulti
+- paired/multiple required: LoadImage x2
+
+
 # API / Partner Nodes - Text to Video  (`api_partner_nodes_text_to_video`)  -  5 workflow(s), 5 model(s)
 
 ## API / Partner Nodes - Text to Video / Generic  (`api_partner_nodes_text_to_video__generic`)  -  1 workflow(s)  -  source: custom
@@ -701,61 +756,6 @@
 - node clusters (required structure):
     - (none resolved)
 - optional roles: GeminiNode, RegexExtract
-
-
-# API / Partner Nodes - Image Edit  (`api_partner_nodes_image_edit`)  -  4 workflow(s), 4 model(s)
-
-## API / Partner Nodes - Image Edit / Kling  (`api_partner_nodes_image_edit__kling`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: KlingOmniProImageNode)
-- when to use: Use to generate an image using Kling.
-- example request: "build an image workflow using Kling"
-- description: Generate an image using Kling. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
-- member workflows:
-    - api_kling_o3_image
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveImage
-    - other operations: ImageBatchMulti, KlingOmniProImageNode
-- paired/multiple required: LoadImage x2
-
-## API / Partner Nodes - Image Edit / Magnific  (`api_partner_nodes_image_edit__magnific`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: MagnificImageRelightNode)
-- when to use: Use to relight an image using Magnific.
-- example request: "build an image workflow using Magnific"
-- description: API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image.
-- member workflows:
-    - api_magnific_image_relight
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveImage
-    - other operations: MagnificImageRelightNode
-- paired/multiple required: LoadImage x2
-
-## API / Partner Nodes - Image Edit / Nano-Banana  (`api_partner_nodes_image_edit__nano_banana`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: GeminiImage2Node, GeminiNode)
-- when to use: Use to transfer a style onto an image using Gemini, Nano-Banana.
-- example request: "build an image workflow using Gemini"
-- description: Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references.
-- member workflows:
-    - styletransfer_NanoBananaPro
-- node clusters (required structure):
-    - inputs: VHS_LoadImagePath (x7), VHS_LoadVideoPath
-    - output: PreviewImage, SaveImage
-    - other operations: BatchImagesNode (x2), GeminiImage2Node, GeminiNode, PreviewAny, PrimitiveStringMultiline, VHS_SelectImages, bEpicReformat
-- paired/multiple required: VHS_LoadImagePath x7, BatchImagesNode x2
-
-## API / Partner Nodes - Image Edit / Seedream  (`api_partner_nodes_image_edit__seedream`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: ByteDanceSeedreamNode)
-- when to use: Use to edit an existing image using Seedream.
-- example request: "build an image workflow using Seedream"
-- description: Edit an existing image using Seedream. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
-- member workflows:
-    - api_bytedance_seedream_5_0_lite_image_edit
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveImage
-    - other operations: ByteDanceSeedreamNode, ImageBatchMulti
-- paired/multiple required: LoadImage x2
 
 
 # API / Partner Nodes - Upscale  (`api_partner_nodes_upscale`)  -  4 workflow(s), 3 model(s)
@@ -1116,6 +1116,31 @@
 - paired/multiple required: LoadImage x3
 
 
+# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  2 workflow(s), 2 model(s)
+
+## API / Partner Nodes - Text to Image / Ideogram  (`api_partner_nodes_text_to_image__ideogram`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: IdeogramV3)
+- when to use: Use to generate an image from a text prompt using Ideogram.
+- example request: "build an image workflow using Ideogram"
+- description: Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
+- member workflows:
+    - api_ideogram_v3_t2i
+- node clusters (required structure):
+    - output: SaveImage
+    - other operations: IdeogramV3
+
+## API / Partner Nodes - Text to Image / Nano-Banana  (`api_partner_nodes_text_to_image__nano_banana`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: GeminiNanoBanana2)
+- when to use: Use to generate an image from a text prompt using Nano-Banana.
+- example request: "build an image workflow using Nano-Banana"
+- description: API image generation (Text-to-Image via Nano Banana 2.
+- member workflows:
+    - api_t2i_NanoBanana2
+- node clusters (required structure):
+    - output: SaveImage
+    - other operations: GeminiNanoBanana2
+
+
 # API / Partner Nodes - Video to Video  (`api_partner_nodes_video_to_video`)  -  2 workflow(s), 2 model(s)
 
 ## API / Partner Nodes - Video to Video / Generic  (`api_partner_nodes_video_to_video__generic`)  -  1 workflow(s)  -  source: custom
@@ -1215,18 +1240,4 @@
     - inputs: LoadImage
     - output: SaveImage
     - other operations: GeminiNanoBanana2
-
-
-# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  1 workflow(s), 1 model(s)
-
-## API / Partner Nodes - Text to Image / Ideogram  (`api_partner_nodes_text_to_image__ideogram`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: IdeogramV3)
-- when to use: Use to generate an image from a text prompt using Ideogram.
-- example request: "build an image workflow using Ideogram"
-- description: Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
-- member workflows:
-    - api_ideogram_v3_t2i
-- node clusters (required structure):
-    - output: SaveImage
-    - other operations: IdeogramV3
 

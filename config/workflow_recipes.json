@@ -1,9 +1,9 @@
 {
   "structure": "task -> model -> node clusters",
   "generated_from": {
-    "workflow_count": 140,
+    "workflow_count": 143,
     "task_count": 27,
-    "recipe_count": 77
+    "recipe_count": 78
   },
   "tasks": [
     {
@@ -13118,6 +13118,637 @@
       ]
     },
     {
+      "task": "API / Partner Nodes - Image Edit",
+      "id": "api_partner_nodes_image_edit",
+      "execution": "api",
+      "member_count": 6,
+      "model_count": 4,
+      "models": [
+        {
+          "id": "api_partner_nodes_image_edit__nano_banana",
+          "model": "Nano-Banana",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "GeminiImage2Node",
+            "GeminiNanoBanana2V2",
+            "GeminiNode"
+          ],
+          "member_files": [
+            "api_imageEdit_nano_banana2",
+            "imageEdit_nano_bananaPro",
+            "styletransfer_NanoBananaPro"
+          ],
+          "member_descriptions": [
+            {
+              "name": "styletransfer_NanoBananaPro",
+              "title": null,
+              "description": "Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references."
+            }
+          ],
+          "member_count": 3,
+          "user_intent": {
+            "media": "image",
+            "task": "image_edit",
+            "model_families": [
+              "Nano-Banana",
+              "Gemini"
+            ],
+            "when_to_use": "Use to edit an existing image using Nano-Banana, Gemini.",
+            "example_requests": [
+              "build an image workflow using Nano-Banana",
+              "build an image workflow using Gemini",
+              "edit an existing image using Nano-Banana"
+            ]
+          },
+          "description": "Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references.",
+          "description_source": "catalog+synthesized",
+          "node_clusters": [
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (3/3)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "VHS_LoadImagePath",
+              "utility": false,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 7
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "BatchImagesNode",
+              "utility": false,
+              "frequency": "2/3 members",
+              "min_instances": 0,
+              "max_instances": 2
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiImage2Node",
+              "utility": false,
+              "frequency": "2/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiNanoBanana2V2",
+              "utility": false,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiNode",
+              "utility": false,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "2/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "PreviewImage",
+              "utility": false,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "video input / load",
+              "role_key": "video_loader",
+              "node_class": "VHS_LoadVideoPath",
+              "utility": false,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "VHS_SelectImages",
+              "utility": false,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "bEpicReformat",
+              "utility": false,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "PreviewAny",
+              "utility": true,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "PrimitiveStringMultiline",
+              "utility": true,
+              "frequency": "1/3 members",
+              "min_instances": 0,
+              "max_instances": 1
+            }
+          ],
+          "connection_patterns": [
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (3/3)",
+              "invariant": true
+            },
+            {
+              "from_role": "BatchImagesNode",
+              "to_role": "api_node",
+              "data_type": "IMAGE",
+              "frequency": "2/3 members",
+              "invariant": false
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "BatchImagesNode",
+              "data_type": "IMAGE",
+              "frequency": "2/3 members",
+              "invariant": false
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "image_loader"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "varies across members: SaveImage",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": [
+            "VHS_LoadImagePath",
+            "VHS_LoadVideoPath",
+            "VHS_SelectImages",
+            "bEpicReformat"
+          ]
+        },
+        {
+          "id": "api_partner_nodes_image_edit__kling",
+          "model": "Kling",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "KlingOmniProImageNode"
+          ],
+          "member_files": [
+            "api_kling_o3_image"
+          ],
+          "member_descriptions": [],
+          "member_count": 1,
+          "user_intent": {
+            "media": "image",
+            "task": "image_generation",
+            "model_families": [
+              "Kling"
+            ],
+            "when_to_use": "Use to generate an image using Kling.",
+            "example_requests": [
+              "build an image workflow using Kling",
+              "generate an image using Kling"
+            ]
+          },
+          "description": "Generate an image using Kling. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
+          "description_source": "synthesized",
+          "node_clusters": [
+            {
+              "cluster": "inputs",
+              "nodes": [
+                "LoadImage (x2)"
+              ]
+            },
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "ImageBatchMulti",
+                "KlingOmniProImageNode"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "ImageBatchMulti",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "KlingOmniProImageNode",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "ImageBatchMulti",
+              "to_role": "api_node",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "ImageBatchMulti",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "image_loader"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": [
+            "ImageBatchMulti"
+          ]
+        },
+        {
+          "id": "api_partner_nodes_image_edit__magnific",
+          "model": "Magnific",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "MagnificImageRelightNode"
+          ],
+          "member_files": [
+            "api_magnific_image_relight"
+          ],
+          "member_descriptions": [
+            {
+              "name": "api_magnific_image_relight",
+              "title": null,
+              "description": "API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image."
+            }
+          ],
+          "member_count": 1,
+          "user_intent": {
+            "media": "image",
+            "task": "relight",
+            "model_families": [
+              "Magnific"
+            ],
+            "when_to_use": "Use to relight an image using Magnific.",
+            "example_requests": [
+              "build an image workflow using Magnific",
+              "relight an image using Magnific"
+            ]
+          },
+          "description": "API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image.",
+          "description_source": "catalog",
+          "node_clusters": [
+            {
+              "cluster": "inputs",
+              "nodes": [
+                "LoadImage (x2)"
+              ]
+            },
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "MagnificImageRelightNode"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "MagnificImageRelightNode",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "api_node",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "image_loader"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": []
+        },
+        {
+          "id": "api_partner_nodes_image_edit__seedream",
+          "model": "Seedream",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "ByteDanceSeedreamNode"
+          ],
+          "member_files": [
+            "api_bytedance_seedream_5_0_lite_image_edit"
+          ],
+          "member_descriptions": [],
+          "member_count": 1,
+          "user_intent": {
+            "media": "image",
+            "task": "image_edit",
+            "model_families": [
+              "Seedream"
+            ],
+            "when_to_use": "Use to edit an existing image using Seedream.",
+            "example_requests": [
+              "build an image workflow using Seedream",
+              "edit an existing image using Seedream"
+            ]
+          },
+          "description": "Edit an existing image using Seedream. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
+          "description_source": "synthesized",
+          "node_clusters": [
+            {
+              "cluster": "inputs",
+              "nodes": [
+                "LoadImage (x2)"
+              ]
+            },
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "ByteDanceSeedreamNode",
+                "ImageBatchMulti"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "ByteDanceSeedreamNode",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "ImageBatchMulti",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "ImageBatchMulti",
+              "to_role": "api_node",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "ImageBatchMulti",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "image_loader"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": [
+            "ImageBatchMulti"
+          ]
+        }
+      ]
+    },
+    {
       "task": "API / Partner Nodes - Text to Video",
       "id": "api_partner_nodes_text_to_video",
       "execution": "api",
@@ -16344,740 +16975,6 @@
           },
           "unresolved_nodes": [],
           "custom_nodes": []
-        }
-      ]
-    },
-    {
-      "task": "API / Partner Nodes - Image Edit",
-      "id": "api_partner_nodes_image_edit",
-      "execution": "api",
-      "member_count": 4,
-      "model_count": 4,
-      "models": [
-        {
-          "id": "api_partner_nodes_image_edit__kling",
-          "model": "Kling",
-          "execution": "api",
-          "source": "custom",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "KlingOmniProImageNode"
-          ],
-          "member_files": [
-            "api_kling_o3_image"
-          ],
-          "member_descriptions": [],
-          "member_count": 1,
-          "user_intent": {
-            "media": "image",
-            "task": "image_generation",
-            "model_families": [
-              "Kling"
-            ],
-            "when_to_use": "Use to generate an image using Kling.",
-            "example_requests": [
-              "build an image workflow using Kling",
-              "generate an image using Kling"
-            ]
-          },
-          "description": "Generate an image using Kling. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
-          "description_source": "synthesized",
-          "node_clusters": [
-            {
-              "cluster": "inputs",
-              "nodes": [
-                "LoadImage (x2)"
-              ]
-            },
-            {
-              "cluster": "output",
-              "nodes": [
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "ImageBatchMulti",
-                "KlingOmniProImageNode"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "LoadImage",
-              "utility": false,
-              "frequency": "all members (1/1), 2 required instances",
-              "min_instances": 2,
-              "max_instances": 2,
-              "paired_or_multiple": true
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "ImageBatchMulti",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "KlingOmniProImageNode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "ImageBatchMulti",
-              "to_role": "api_node",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "ImageBatchMulti",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "image_loader"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [],
-          "custom_nodes": [
-            "ImageBatchMulti"
-          ]
-        },
-        {
-          "id": "api_partner_nodes_image_edit__magnific",
-          "model": "Magnific",
-          "execution": "api",
-          "source": "custom",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "MagnificImageRelightNode"
-          ],
-          "member_files": [
-            "api_magnific_image_relight"
-          ],
-          "member_descriptions": [
-            {
-              "name": "api_magnific_image_relight",
-              "title": null,
-              "description": "API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image."
-            }
-          ],
-          "member_count": 1,
-          "user_intent": {
-            "media": "image",
-            "task": "relight",
-            "model_families": [
-              "Magnific"
-            ],
-            "when_to_use": "Use to relight an image using Magnific.",
-            "example_requests": [
-              "build an image workflow using Magnific",
-              "relight an image using Magnific"
-            ]
-          },
-          "description": "API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image.",
-          "description_source": "catalog",
-          "node_clusters": [
-            {
-              "cluster": "inputs",
-              "nodes": [
-                "LoadImage (x2)"
-              ]
-            },
-            {
-              "cluster": "output",
-              "nodes": [
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "MagnificImageRelightNode"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "LoadImage",
-              "utility": false,
-              "frequency": "all members (1/1), 2 required instances",
-              "min_instances": 2,
-              "max_instances": 2,
-              "paired_or_multiple": true
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "MagnificImageRelightNode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "api_node",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "image_loader"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [],
-          "custom_nodes": []
-        },
-        {
-          "id": "api_partner_nodes_image_edit__nano_banana",
-          "model": "Nano-Banana",
-          "execution": "api",
-          "source": "custom",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "GeminiImage2Node",
-            "GeminiNode"
-          ],
-          "member_files": [
-            "styletransfer_NanoBananaPro"
-          ],
-          "member_descriptions": [
-            {
-              "name": "styletransfer_NanoBananaPro",
-              "title": null,
-              "description": "Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references."
-            }
-          ],
-          "member_count": 1,
-          "user_intent": {
-            "media": "image",
-            "task": "style_transfer",
-            "model_families": [
-              "Gemini",
-              "Nano-Banana"
-            ],
-            "when_to_use": "Use to transfer a style onto an image using Gemini, Nano-Banana.",
-            "example_requests": [
-              "build an image workflow using Gemini",
-              "build an image workflow using Nano-Banana",
-              "transfer a style onto an image using Gemini"
-            ]
-          },
-          "description": "Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references.",
-          "description_source": "catalog",
-          "node_clusters": [
-            {
-              "cluster": "inputs",
-              "nodes": [
-                "VHS_LoadImagePath (x7)",
-                "VHS_LoadVideoPath"
-              ]
-            },
-            {
-              "cluster": "output",
-              "nodes": [
-                "PreviewImage",
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "BatchImagesNode (x2)",
-                "GeminiImage2Node",
-                "GeminiNode",
-                "PreviewAny",
-                "PrimitiveStringMultiline",
-                "VHS_SelectImages",
-                "bEpicReformat"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "VHS_LoadImagePath",
-              "utility": false,
-              "frequency": "all members (1/1), 7 required instances",
-              "min_instances": 7,
-              "max_instances": 7,
-              "paired_or_multiple": true
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "BatchImagesNode",
-              "utility": false,
-              "frequency": "all members (1/1), 2 required instances",
-              "min_instances": 2,
-              "max_instances": 2,
-              "paired_or_multiple": true,
-              "distinct_instances": [
-                {
-                  "feeds_into": [
-                    "BatchImagesNode"
-                  ],
-                  "fed_by": [
-                    "image_loader",
-                    "image_loader",
-                    "image_loader",
-                    "image_loader",
-                    "image_loader"
-                  ],
-                  "occurrences": 1
-                },
-                {
-                  "feeds_into": [
-                    "api_node",
-                    "bEpicReformat"
-                  ],
-                  "fed_by": [
-                    "BatchImagesNode",
-                    "VHS_SelectImages",
-                    "image_loader",
-                    "image_loader"
-                  ],
-                  "occurrences": 1
-                }
-              ]
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "GeminiImage2Node",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "GeminiNode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "PreviewImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "video input / load",
-              "role_key": "video_loader",
-              "node_class": "VHS_LoadVideoPath",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "VHS_SelectImages",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "bEpicReformat",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "PreviewAny",
-              "utility": true,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "PrimitiveStringMultiline",
-              "utility": true,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "BatchImagesNode",
-              "to_role": "BatchImagesNode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "BatchImagesNode",
-              "to_role": "api_node",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "BatchImagesNode",
-              "to_role": "bEpicReformat",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "PrimitiveStringMultiline",
-              "to_role": "api_node",
-              "data_type": "STRING",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "VHS_SelectImages",
-              "to_role": "BatchImagesNode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "api_node",
-              "to_role": "PreviewAny",
-              "data_type": "STRING",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "api_node",
-              "to_role": "api_node",
-              "data_type": "STRING",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "bEpicReformat",
-              "to_role": "api_node",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "bEpicReformat",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "BatchImagesNode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "video_loader",
-              "to_role": "VHS_SelectImages",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "image_loader"
-              },
-              {
-                "data_type": "IMAGE",
-                "role": "video_loader"
-              },
-              {
-                "data_type": "STRING",
-                "role": "PrimitiveStringMultiline"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              },
-              {
-                "data_type": "STRING",
-                "role": "PreviewAny"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [],
-          "custom_nodes": [
-            "VHS_LoadImagePath",
-            "VHS_LoadVideoPath",
-            "VHS_SelectImages",
-            "bEpicReformat"
-          ]
-        },
-        {
-          "id": "api_partner_nodes_image_edit__seedream",
-          "model": "Seedream",
-          "execution": "api",
-          "source": "custom",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "ByteDanceSeedreamNode"
-          ],
-          "member_files": [
-            "api_bytedance_seedream_5_0_lite_image_edit"
-          ],
-          "member_descriptions": [],
-          "member_count": 1,
-          "user_intent": {
-            "media": "image",
-            "task": "image_edit",
-            "model_families": [
-              "Seedream"
-            ],
-            "when_to_use": "Use to edit an existing image using Seedream.",
-            "example_requests": [
-              "build an image workflow using Seedream",
-              "edit an existing image using Seedream"
-            ]
-          },
-          "description": "Edit an existing image using Seedream. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
-          "description_source": "synthesized",
-          "node_clusters": [
-            {
-              "cluster": "inputs",
-              "nodes": [
-                "LoadImage (x2)"
-              ]
-            },
-            {
-              "cluster": "output",
-              "nodes": [
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "ByteDanceSeedreamNode",
-                "ImageBatchMulti"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "LoadImage",
-              "utility": false,
-              "frequency": "all members (1/1), 2 required instances",
-              "min_instances": 2,
-              "max_instances": 2,
-              "paired_or_multiple": true
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "ByteDanceSeedreamNode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "ImageBatchMulti",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "ImageBatchMulti",
-              "to_role": "api_node",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "ImageBatchMulti",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "image_loader"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [],
-          "custom_nodes": [
-            "ImageBatchMulti"
-          ]
         }
       ]
     },
@@ -23696,6 +23593,213 @@
       ]
     },
     {
+      "task": "API / Partner Nodes - Text to Image",
+      "id": "api_partner_nodes_text_to_image",
+      "execution": "api",
+      "member_count": 2,
+      "model_count": 2,
+      "models": [
+        {
+          "id": "api_partner_nodes_text_to_image__ideogram",
+          "model": "Ideogram",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "IdeogramV3"
+          ],
+          "member_files": [
+            "api_ideogram_v3_t2i"
+          ],
+          "member_descriptions": [],
+          "member_count": 1,
+          "user_intent": {
+            "media": "image",
+            "task": "text_to_image",
+            "model_families": [
+              "Ideogram"
+            ],
+            "when_to_use": "Use to generate an image from a text prompt using Ideogram.",
+            "example_requests": [
+              "build an image workflow using Ideogram",
+              "generate an image from a text prompt using Ideogram"
+            ]
+          },
+          "description": "Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
+          "description_source": "synthesized",
+          "node_clusters": [
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "IdeogramV3"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "IdeogramV3",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "api_node"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": []
+        },
+        {
+          "id": "api_partner_nodes_text_to_image__nano_banana",
+          "model": "Nano-Banana",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "GeminiNanoBanana2"
+          ],
+          "member_files": [
+            "api_t2i_NanoBanana2"
+          ],
+          "member_descriptions": [
+            {
+              "name": "api_t2i_NanoBanana2",
+              "title": null,
+              "description": "API image generation (Text-to-Image via Nano Banana 2."
+            }
+          ],
+          "member_count": 1,
+          "user_intent": {
+            "media": "image",
+            "task": "text_to_image",
+            "model_families": [
+              "Nano-Banana"
+            ],
+            "when_to_use": "Use to generate an image from a text prompt using Nano-Banana.",
+            "example_requests": [
+              "build an image workflow using Nano-Banana",
+              "generate an image from a text prompt using Nano-Banana"
+            ]
+          },
+          "description": "API image generation (Text-to-Image via Nano Banana 2.",
+          "description_source": "catalog",
+          "node_clusters": [
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "GeminiNanoBanana2"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiNanoBanana2",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "api_node"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": []
+        }
+      ]
+    },
+    {
       "task": "API / Partner Nodes - Video to Video",
       "id": "api_partner_nodes_video_to_video",
       "execution": "api",
@@ -26200,111 +26304,6 @@
               {
                 "data_type": "IMAGE",
                 "role": "image_loader"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [],
-          "custom_nodes": []
-        }
-      ]
-    },
-    {
-      "task": "API / Partner Nodes - Text to Image",
-      "id": "api_partner_nodes_text_to_image",
-      "execution": "api",
-      "member_count": 1,
-      "model_count": 1,
-      "models": [
-        {
-          "id": "api_partner_nodes_text_to_image__ideogram",
-          "model": "Ideogram",
-          "execution": "api",
-          "source": "custom",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "IdeogramV3"
-          ],
-          "member_files": [
-            "api_ideogram_v3_t2i"
-          ],
-          "member_descriptions": [],
-          "member_count": 1,
-          "user_intent": {
-            "media": "image",
-            "task": "text_to_image",
-            "model_families": [
-              "Ideogram"
-            ],
-            "when_to_use": "Use to generate an image from a text prompt using Ideogram.",
-            "example_requests": [
-              "build an image workflow using Ideogram",
-              "generate an image from a text prompt using Ideogram"
-            ]
-          },
-          "description": "Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
-          "description_source": "synthesized",
-          "node_clusters": [
-            {
-              "cluster": "output",
-              "nodes": [
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "IdeogramV3"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "IdeogramV3",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "api_node"
               }
             ],
             "outputs": [

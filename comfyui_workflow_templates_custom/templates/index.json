@@ -1154,5 +1154,24 @@
         }
       }
     ]
+  },
+  {
+    "templates": [
+      {
+        "name": "api_t2i_NanoBanana2",
+        "models": [],
+        "io": {
+          "inputs": [],
+          "outputs": [
+            {
+              "nodeId": 6,
+              "nodeType": "SaveImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ]
+        }
+      }
+    ]
   }
 ]

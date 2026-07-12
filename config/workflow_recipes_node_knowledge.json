@@ -1,7 +1,7 @@
 {
   "generated_from": {
-    "workflow_count": 140,
-    "node_class_count": 228,
+    "workflow_count": 143,
+    "node_class_count": 229,
     "custom_classes": 18,
     "unresolved_classes": 9
   },
@@ -121,7 +121,7 @@
         "video_to_video__wan_vace",
         "video_tools__generic"
       ],
-      "occurrences": 6
+      "occurrences": 7
     },
     {
       "class": "BerniniConditioning",
@@ -1676,7 +1676,7 @@
         "api_partner_nodes_character__nano_banana",
         "api_partner_nodes_image_edit__nano_banana"
       ],
-      "occurrences": 3
+      "occurrences": 4
     },
     {
       "class": "GeminiNanoBanana2",
@@ -1718,7 +1718,42 @@
         "IMAGE"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_inpaint_outpaint__nano_banana"
+        "api_partner_nodes_inpaint_outpaint__nano_banana",
+        "api_partner_nodes_text_to_image__nano_banana"
+      ],
+      "occurrences": 2
+    },
+    {
+      "class": "GeminiNanoBanana2V2",
+      "role": "api_node",
+      "role_description": "external API generation node",
+      "resolved": true,
+      "is_custom": false,
+      "inputs": {
+        "required": [
+          "model",
+          "prompt",
+          "response_modalities",
+          "seed"
+        ],
+        "optional": [
+          "system_prompt"
+        ],
+        "types": {
+          "prompt": "STRING",
+          "model": "COMFY_DYNAMICCOMBO_V3",
+          "seed": "INT",
+          "response_modalities": "COMBO",
+          "system_prompt": "STRING"
+        }
+      },
+      "outputs": [
+        "IMAGE",
+        "STRING",
+        "IMAGE"
+      ],
+      "used_in_type_ids": [
+        "api_partner_nodes_image_edit__nano_banana"
       ],
       "occurrences": 1
     },
@@ -3513,6 +3548,7 @@
         "api_partner_nodes_first_last_frame_to_video__kling",
         "api_partner_nodes_image_edit__kling",
         "api_partner_nodes_image_edit__magnific",
+        "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__ltx_2",
@@ -3539,7 +3575,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 49
+      "occurrences": 51
     },
     {
       "class": "LoadMediaPipeFaceLandmarker",
@@ -5330,6 +5366,7 @@
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_inpaint_outpaint__nano_banana",
         "api_partner_nodes_text_to_image__ideogram",
+        "api_partner_nodes_text_to_image__nano_banana",
         "api_partner_nodes_upscale__magnific",
         "api_partner_nodes_upscale__z_image",
         "image_edit__flux_2_klein",
@@ -5341,7 +5378,7 @@
         "upscale__flux",
         "upscale__generic"
       ],
-      "occurrences": 19
+      "occurrences": 22
     },
     {
       "class": "SaveVideo",

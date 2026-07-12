@@ -1,0 +1,31 @@
+{
+  "1": {
+    "inputs": {
+      "prompt": "make an image",
+      "model": "Nano Banana 2 (Gemini 3.1 Flash Image)",
+      "seed": 603677662236534,
+      "aspect_ratio": "16:9",
+      "resolution": "1K",
+      "response_modalities": "IMAGE",
+      "thinking_level": "MINIMAL",
+      "system_prompt": "You are an expert image-generation engine. You must ALWAYS produce an image.\nInterpret all user input—regardless of format, intent, or abstraction—as literal visual directives for image composition.\nIf a prompt is conversational or lacks specific visual details, you must creatively invent a concrete visual scenario that depicts the concept.\nPrioritize generating the visual representation above any text, formatting, or conversational requests."
+    },
+    "class_type": "GeminiNanoBanana2",
+    "_meta": {
+      "title": "Nano Banana 2"
+    }
+  },
+  "6": {
+    "inputs": {
+      "filename_prefix": "NanoBananaOutpaintAndUpscale",
+      "images": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  }
+}
