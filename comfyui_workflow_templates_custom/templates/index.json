@@ -1173,5 +1173,24 @@
         }
       }
     ]
+  },
+  {
+    "templates": [
+      {
+        "name": "NanoBanana2_text_to_image",
+        "models": [],
+        "io": {
+          "inputs": [],
+          "outputs": [
+            {
+              "nodeId": 6,
+              "nodeType": "SaveImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ]
+        }
+      }
+    ]
   }
 ]

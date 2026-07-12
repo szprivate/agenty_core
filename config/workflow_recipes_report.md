@@ -963,6 +963,32 @@
     - other operations: GetVideoComponents, WanImageToVideoApi
 
 
+# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  3 workflow(s), 2 model(s)
+
+## API / Partner Nodes - Text to Image / Nano-Banana  (`api_partner_nodes_text_to_image__nano_banana`)  -  2 workflow(s)  -  source: custom
+- execution: api (API nodes: GeminiNanoBanana2, GeminiNanoBanana2V2)
+- when to use: Use to generate an image from a text prompt using Nano-Banana.
+- example request: "build an image workflow using Nano-Banana"
+- description: API image generation (Text-to-Image via Nano Banana 2. | Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows.
+- member workflows:
+    - NanoBanana2_text_to_image
+    - api_t2i_NanoBanana2
+- node clusters (required structure):
+    - output: SaveImage
+- optional roles: GeminiNanoBanana2, GeminiNanoBanana2V2
+
+## API / Partner Nodes - Text to Image / Ideogram  (`api_partner_nodes_text_to_image__ideogram`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: IdeogramV3)
+- when to use: Use to generate an image from a text prompt using Ideogram.
+- example request: "build an image workflow using Ideogram"
+- description: Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
+- member workflows:
+    - api_ideogram_v3_t2i
+- node clusters (required structure):
+    - output: SaveImage
+    - other operations: IdeogramV3
+
+
 # Audio  (`audio`)  -  3 workflow(s), 2 model(s)
 
 ## Audio / Qwen Image  (`audio__qwen_image`)  -  2 workflow(s)  -  source: official
@@ -1114,31 +1140,6 @@
     - output: VHS_VideoCombine
     - other operations: GetVideoComponents, ImageBatchMulti, KlingOmniProFirstLastFrameNode
 - paired/multiple required: LoadImage x3
-
-
-# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  2 workflow(s), 2 model(s)
-
-## API / Partner Nodes - Text to Image / Ideogram  (`api_partner_nodes_text_to_image__ideogram`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: IdeogramV3)
-- when to use: Use to generate an image from a text prompt using Ideogram.
-- example request: "build an image workflow using Ideogram"
-- description: Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
-- member workflows:
-    - api_ideogram_v3_t2i
-- node clusters (required structure):
-    - output: SaveImage
-    - other operations: IdeogramV3
-
-## API / Partner Nodes - Text to Image / Nano-Banana  (`api_partner_nodes_text_to_image__nano_banana`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: GeminiNanoBanana2)
-- when to use: Use to generate an image from a text prompt using Nano-Banana.
-- example request: "build an image workflow using Nano-Banana"
-- description: API image generation (Text-to-Image via Nano Banana 2.
-- member workflows:
-    - api_t2i_NanoBanana2
-- node clusters (required structure):
-    - output: SaveImage
-    - other operations: GeminiNanoBanana2
 
 
 # API / Partner Nodes - Video to Video  (`api_partner_nodes_video_to_video`)  -  2 workflow(s), 2 model(s)

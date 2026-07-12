@@ -1,7 +1,7 @@
 {
   "structure": "task -> model -> node clusters",
   "generated_from": {
-    "workflow_count": 143,
+    "workflow_count": 144,
     "task_count": 27,
     "recipe_count": 78
   },
@@ -19945,6 +19945,224 @@
       ]
     },
     {
+      "task": "API / Partner Nodes - Text to Image",
+      "id": "api_partner_nodes_text_to_image",
+      "execution": "api",
+      "member_count": 3,
+      "model_count": 2,
+      "models": [
+        {
+          "id": "api_partner_nodes_text_to_image__nano_banana",
+          "model": "Nano-Banana",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "GeminiNanoBanana2",
+            "GeminiNanoBanana2V2"
+          ],
+          "member_files": [
+            "NanoBanana2_text_to_image",
+            "api_t2i_NanoBanana2"
+          ],
+          "member_descriptions": [
+            {
+              "name": "NanoBanana2_text_to_image",
+              "title": null,
+              "description": "Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows."
+            },
+            {
+              "name": "api_t2i_NanoBanana2",
+              "title": null,
+              "description": "API image generation (Text-to-Image via Nano Banana 2."
+            }
+          ],
+          "member_count": 2,
+          "user_intent": {
+            "media": "image",
+            "task": "text_to_image",
+            "model_families": [
+              "Nano-Banana"
+            ],
+            "when_to_use": "Use to generate an image from a text prompt using Nano-Banana.",
+            "example_requests": [
+              "build an image workflow using Nano-Banana",
+              "generate an image from a text prompt using Nano-Banana"
+            ]
+          },
+          "description": "API image generation (Text-to-Image via Nano Banana 2. | Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows.",
+          "description_source": "catalog",
+          "node_clusters": [
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (2/2)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiNanoBanana2",
+              "utility": false,
+              "frequency": "1/2 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiNanoBanana2V2",
+              "utility": false,
+              "frequency": "1/2 members",
+              "min_instances": 0,
+              "max_instances": 1
+            }
+          ],
+          "connection_patterns": [
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (2/2)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "api_node"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "constant across members: SaveImage",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": []
+        },
+        {
+          "id": "api_partner_nodes_text_to_image__ideogram",
+          "model": "Ideogram",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "IdeogramV3"
+          ],
+          "member_files": [
+            "api_ideogram_v3_t2i"
+          ],
+          "member_descriptions": [],
+          "member_count": 1,
+          "user_intent": {
+            "media": "image",
+            "task": "text_to_image",
+            "model_families": [
+              "Ideogram"
+            ],
+            "when_to_use": "Use to generate an image from a text prompt using Ideogram.",
+            "example_requests": [
+              "build an image workflow using Ideogram",
+              "generate an image from a text prompt using Ideogram"
+            ]
+          },
+          "description": "Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
+          "description_source": "synthesized",
+          "node_clusters": [
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "IdeogramV3"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "IdeogramV3",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "api_node",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "api_node"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": []
+        }
+      ]
+    },
+    {
       "task": "Audio",
       "id": "audio",
       "execution": "local",
@@ -23589,213 +23807,6 @@
             "ImageBatchMulti",
             "VHS_VideoCombine"
           ]
-        }
-      ]
-    },
-    {
-      "task": "API / Partner Nodes - Text to Image",
-      "id": "api_partner_nodes_text_to_image",
-      "execution": "api",
-      "member_count": 2,
-      "model_count": 2,
-      "models": [
-        {
-          "id": "api_partner_nodes_text_to_image__ideogram",
-          "model": "Ideogram",
-          "execution": "api",
-          "source": "custom",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "IdeogramV3"
-          ],
-          "member_files": [
-            "api_ideogram_v3_t2i"
-          ],
-          "member_descriptions": [],
-          "member_count": 1,
-          "user_intent": {
-            "media": "image",
-            "task": "text_to_image",
-            "model_families": [
-              "Ideogram"
-            ],
-            "when_to_use": "Use to generate an image from a text prompt using Ideogram.",
-            "example_requests": [
-              "build an image workflow using Ideogram",
-              "generate an image from a text prompt using Ideogram"
-            ]
-          },
-          "description": "Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.",
-          "description_source": "synthesized",
-          "node_clusters": [
-            {
-              "cluster": "output",
-              "nodes": [
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "IdeogramV3"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "IdeogramV3",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "api_node"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [],
-          "custom_nodes": []
-        },
-        {
-          "id": "api_partner_nodes_text_to_image__nano_banana",
-          "model": "Nano-Banana",
-          "execution": "api",
-          "source": "custom",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "GeminiNanoBanana2"
-          ],
-          "member_files": [
-            "api_t2i_NanoBanana2"
-          ],
-          "member_descriptions": [
-            {
-              "name": "api_t2i_NanoBanana2",
-              "title": null,
-              "description": "API image generation (Text-to-Image via Nano Banana 2."
-            }
-          ],
-          "member_count": 1,
-          "user_intent": {
-            "media": "image",
-            "task": "text_to_image",
-            "model_families": [
-              "Nano-Banana"
-            ],
-            "when_to_use": "Use to generate an image from a text prompt using Nano-Banana.",
-            "example_requests": [
-              "build an image workflow using Nano-Banana",
-              "generate an image from a text prompt using Nano-Banana"
-            ]
-          },
-          "description": "API image generation (Text-to-Image via Nano Banana 2.",
-          "description_source": "catalog",
-          "node_clusters": [
-            {
-              "cluster": "output",
-              "nodes": [
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "GeminiNanoBanana2"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "GeminiNanoBanana2",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "api_node"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [],
-          "custom_nodes": []
         }
       ]
     },

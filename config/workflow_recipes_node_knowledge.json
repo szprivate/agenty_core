@@ -1,6 +1,6 @@
 {
   "generated_from": {
-    "workflow_count": 143,
+    "workflow_count": 144,
     "node_class_count": 229,
     "custom_classes": 18,
     "unresolved_classes": 9
@@ -1753,9 +1753,10 @@
         "IMAGE"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_image_edit__nano_banana"
+        "api_partner_nodes_image_edit__nano_banana",
+        "api_partner_nodes_text_to_image__nano_banana"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "class": "GeminiNode",
@@ -5378,7 +5379,7 @@
         "upscale__flux",
         "upscale__generic"
       ],
-      "occurrences": 22
+      "occurrences": 23
     },
     {
       "class": "SaveVideo",
