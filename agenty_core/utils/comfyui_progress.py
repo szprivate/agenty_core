@@ -72,6 +72,57 @@ def _check_history(client, prompt_id: str):
     return None
 
 
+def _prompt_in_queue(client, prompt_id: str):
+    """Is *prompt_id* currently running or pending in the ComfyUI queue?
+
+    Returns True (queued), False (not queued), or None (couldn't check). ComfyUI
+    ``/queue`` entries are lists shaped ``[number, prompt_id, prompt, ...]``.
+    """
+    try:
+        q = client.get("/queue")
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("queue check failed: %s", exc)
+        return None
+    if not isinstance(q, dict):
+        return None
+    for key in ("queue_running", "queue_pending"):
+        for entry in (q.get(key) or []):
+            if isinstance(entry, (list, tuple)) and len(entry) > 1 and str(entry[1]) == str(prompt_id):
+                return True
+    return False
+
+
+async def _check_terminal(client, prompt_id: str):
+    """Terminal-state check that does NOT rely solely on /history.
+
+    Extends ``_check_history`` with a **queue** check so a job that left the queue
+    without a recorded success/error (ComfyUI sometimes drops such a prompt from
+    /history entirely) is detected in seconds instead of hanging until the hard
+    timeout. Returns a terminal dict (``{"history": …}`` or ``{"error": …}``) or
+    ``None`` (still running / can't tell — keep waiting).
+    """
+    hist = _check_history(client, prompt_id)
+    if hist is not None:
+        return hist
+    # Still queued (or the queue can't be read) → not terminal.
+    if _prompt_in_queue(client, prompt_id) is not False:
+        return None
+    # Not in the queue and /history isn't terminal: the job has finished/failed.
+    # Give lagging outputs a brief window before declaring the outcome.
+    for _ in range(6):  # ~2.4 s
+        await asyncio.sleep(0.4)
+        hist = _check_history(client, prompt_id)
+        if hist is not None:
+            return hist
+        if _prompt_in_queue(client, prompt_id):  # re-queued (rare) → keep waiting
+            return None
+    return {
+        "error": "ComfyUI job left the queue without producing a result — it "
+                 "likely failed to execute (check the ComfyUI log).",
+        "details": {"prompt_id": prompt_id, "reason": "queue_drained_no_output"},
+    }
+
+
 async def _fetch_history_with_outputs(client, prompt_id: str, *, attempts: int = 10, delay: float = 0.4):
     """Fetch /history for a finished prompt, retrying until its outputs appear.
 
@@ -161,11 +212,14 @@ async def stream_comfyui_job(
                 try:
                     raw = await asyncio.wait_for(ws.recv(), timeout=RECV_TIMEOUT)
                 except asyncio.TimeoutError:
-                    # No event for RECV_TIMEOUT — re-check history in case we
-                    # missed the completion event (e.g. server restart, or the
-                    # prompt finished between our pre-check and ws.connect).
+                    # No event for RECV_TIMEOUT — re-check the terminal state in
+                    # case we missed the completion/error event (server restart,
+                    # the prompt finished between pre-check and ws.connect, or the
+                    # job errored and was dropped from /history). The queue-aware
+                    # check ends the wait as soon as the prompt leaves the queue,
+                    # instead of hanging until the hard timeout.
                     elapsed += RECV_TIMEOUT
-                    fallback = _check_history(client, prompt_id)
+                    fallback = await _check_terminal(client, prompt_id)
                     if fallback is not None:
                         yield fallback
                         return
