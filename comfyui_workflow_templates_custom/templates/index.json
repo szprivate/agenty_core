@@ -2,38 +2,6 @@
   {
     "templates": [
       {
-        "name": "api_bytedance_seedream_5_0_lite_image_edit",
-        "models": [],
-        "io": {
-          "inputs": [
-            {
-              "nodeId": 29,
-              "nodeType": "LoadImage",
-              "file": "man_with_old_computers.png",
-              "mediaType": "image"
-            },
-            {
-              "nodeId": 32,
-              "nodeType": "LoadImage",
-              "file": "inflated_character.png",
-              "mediaType": "image"
-            }
-          ],
-          "outputs": [
-            {
-              "nodeId": 26,
-              "nodeType": "SaveImage",
-              "file": "",
-              "mediaType": "image"
-            }
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "templates": [
-      {
         "name": "api_ideogram_v3_t2i",
         "models": [],
         "io": {
@@ -1158,7 +1126,7 @@
   {
     "templates": [
       {
-        "name": "api_t2i_NanoBanana2",
+        "name": "NanoBanana2_text_to_image",
         "models": [],
         "io": {
           "inputs": [],
@@ -1177,13 +1145,97 @@
   {
     "templates": [
       {
-        "name": "NanoBanana2_text_to_image",
+        "name": "api_t2i_nanoBananaPro",
         "models": [],
         "io": {
           "inputs": [],
           "outputs": [
             {
+              "nodeId": 4,
+              "nodeType": "SaveImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "templates": [
+      {
+        "name": "api_i2i_imageEdit_nanoBanana2",
+        "models": [],
+        "io": {
+          "inputs": [
+            {
+              "nodeId": 5,
+              "nodeType": "LoadImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ],
+          "outputs": [
+            {
               "nodeId": 6,
+              "nodeType": "SaveImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "templates": [
+      {
+        "name": "api_i2i_imageEdit_OpenAi_GPT2",
+        "models": [],
+        "io": {
+          "inputs": [
+            {
+              "nodeId": 5,
+              "nodeType": "LoadImage",
+              "file": "0193_spec_0040_renderLightEnv_v006_png.png",
+              "mediaType": "image"
+            }
+          ],
+          "outputs": [
+            {
+              "nodeId": 4,
+              "nodeType": "SaveImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "templates": [
+      {
+        "name": "api_bytedance_seedream_5_0_lite_image_edit",
+        "models": [],
+        "io": {
+          "inputs": [
+            {
+              "nodeId": 29,
+              "nodeType": "LoadImage",
+              "file": "man_with_old_computers.png",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 32,
+              "nodeType": "LoadImage",
+              "file": "inflated_character.png",
+              "mediaType": "image"
+            }
+          ],
+          "outputs": [
+            {
+              "nodeId": 26,
               "nodeType": "SaveImage",
               "file": "",
               "mediaType": "image"

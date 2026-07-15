@@ -1,0 +1,45 @@
+{
+  "3": {
+    "inputs": {
+      "prompt": "image edit prompt",
+      "model": "gpt-image-2",
+      "model.size": "auto",
+      "model.custom_width": 1024,
+      "model.custom_height": 1024,
+      "model.background": "auto",
+      "model.quality": "low",
+      "n": 1,
+      "seed": 0,
+      "model.images.image_1": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "OpenAIGPTImageNodeV2",
+    "_meta": {
+      "title": "OpenAI GPT Image 2"
+    }
+  },
+  "4": {
+    "inputs": {
+      "filename_prefix": "GPT_Image_2",
+      "images": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "5": {
+    "inputs": {
+      "image": "0193_spec_0040_renderLightEnv_v006_png.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  }
+}

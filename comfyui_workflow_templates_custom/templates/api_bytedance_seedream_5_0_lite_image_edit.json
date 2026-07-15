@@ -1,31 +1,9 @@
 {
-  "25": {
-    "inputs": {
-      "model": "seedream 5.0 lite",
-      "prompt": "Refer to the second image and change the style of the first picture to match that of the second image.",
-      "size_preset": "2048x2048 (1:1)",
-      "width": 2048,
-      "height": 2048,
-      "sequential_image_generation": "disabled",
-      "max_images": 1,
-      "seed": 1372846604,
-      "watermark": false,
-      "fail_on_partial": true,
-      "image": [
-        "33",
-        0
-      ]
-    },
-    "class_type": "ByteDanceSeedreamNode",
-    "_meta": {
-      "title": "ByteDance Seedream 4.5 & 5.0"
-    }
-  },
   "26": {
     "inputs": {
       "filename_prefix": "Seedream5.0_lite",
       "images": [
-        "25",
+        "34",
         0
       ]
     },
@@ -52,22 +30,29 @@
       "title": "Load Image"
     }
   },
-  "33": {
+  "34": {
     "inputs": {
-      "inputcount": 14,
-      "Update inputs": null,
-      "image_1": [
+      "prompt": "",
+      "model": "seedream 5.0 lite",
+      "model.size_preset": "(2K) 2048x2048 (1:1)",
+      "model.width": 2048,
+      "model.height": 2048,
+      "model.max_images": 1,
+      "model.fail_on_partial": false,
+      "seed": 0,
+      "watermark": false,
+      "model.images.image_1": [
         "29",
         0
       ],
-      "image_2": [
+      "model.images.image_2": [
         "32",
         0
       ]
     },
-    "class_type": "ImageBatchMulti",
+    "class_type": "ByteDanceSeedreamNodeV2",
     "_meta": {
-      "title": "Image Batch Multi"
+      "title": "ByteDance Seedream 4.5 & 5.0"
     }
   }
 }

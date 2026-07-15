@@ -1,7 +1,7 @@
 {
   "generated_from": {
-    "workflow_count": 144,
-    "node_class_count": 229,
+    "workflow_count": 146,
+    "node_class_count": 230,
     "custom_classes": 18,
     "unresolved_classes": 9
   },
@@ -232,7 +232,7 @@
       "occurrences": 1
     },
     {
-      "class": "ByteDanceSeedreamNode",
+      "class": "ByteDanceSeedreamNodeV2",
       "role": "api_node",
       "role_description": "external API generation node",
       "resolved": true,
@@ -241,30 +241,15 @@
         "required": [
           "model",
           "prompt",
-          "size_preset"
-        ],
-        "optional": [
-          "fail_on_partial",
-          "height",
-          "image",
-          "max_images",
           "seed",
-          "sequential_image_generation",
-          "watermark",
-          "width"
+          "watermark"
         ],
+        "optional": [],
         "types": {
-          "model": "COMBO",
           "prompt": "STRING",
-          "size_preset": "COMBO",
-          "image": "IMAGE",
-          "width": "INT",
-          "height": "INT",
-          "sequential_image_generation": "COMBO",
-          "max_images": "INT",
+          "model": "COMFY_DYNAMICCOMBO_V3",
           "seed": "INT",
-          "watermark": "BOOLEAN",
-          "fail_on_partial": "BOOLEAN"
+          "watermark": "BOOLEAN"
         }
       },
       "outputs": [
@@ -1674,9 +1659,10 @@
       ],
       "used_in_type_ids": [
         "api_partner_nodes_character__nano_banana",
-        "api_partner_nodes_image_edit__nano_banana"
+        "api_partner_nodes_image_edit__nano_banana",
+        "api_partner_nodes_text_to_image__nano_banana"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "class": "GeminiNanoBanana2",
@@ -1718,8 +1704,8 @@
         "IMAGE"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_inpaint_outpaint__nano_banana",
-        "api_partner_nodes_text_to_image__nano_banana"
+        "api_partner_nodes_image_edit__nano_banana",
+        "api_partner_nodes_inpaint_outpaint__nano_banana"
       ],
       "occurrences": 2
     },
@@ -2101,10 +2087,9 @@
       "used_in_type_ids": [
         "api_partner_nodes_first_last_frame_to_video__kling",
         "api_partner_nodes_image_edit__kling",
-        "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_image_to_video__kling"
       ],
-      "occurrences": 4
+      "occurrences": 3
     },
     {
       "class": "ImageBlur",
@@ -3547,6 +3532,7 @@
         "api_partner_nodes_character__nano_banana",
         "api_partner_nodes_first_last_frame_to_video__generic",
         "api_partner_nodes_first_last_frame_to_video__kling",
+        "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__kling",
         "api_partner_nodes_image_edit__magnific",
         "api_partner_nodes_image_edit__nano_banana",
@@ -3576,7 +3562,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 51
+      "occurrences": 53
     },
     {
       "class": "LoadMediaPipeFaceLandmarker",
@@ -4415,6 +4401,35 @@
         "text_to_video__wan_2_2"
       ],
       "occurrences": 7
+    },
+    {
+      "class": "OpenAIGPTImageNodeV2",
+      "role": "other",
+      "role_description": "unclassified node role",
+      "resolved": true,
+      "is_custom": false,
+      "inputs": {
+        "required": [
+          "model",
+          "n",
+          "prompt",
+          "seed"
+        ],
+        "optional": [],
+        "types": {
+          "prompt": "STRING",
+          "model": "COMFY_DYNAMICCOMBO_V3",
+          "n": "INT",
+          "seed": "INT"
+        }
+      },
+      "outputs": [
+        "IMAGE"
+      ],
+      "used_in_type_ids": [
+        "api_partner_nodes_image_edit__generic"
+      ],
+      "occurrences": 1
     },
     {
       "class": "OpticalFlowLoader",
@@ -5361,6 +5376,7 @@
       "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_character__nano_banana",
+        "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__kling",
         "api_partner_nodes_image_edit__magnific",
         "api_partner_nodes_image_edit__nano_banana",
@@ -5379,7 +5395,7 @@
         "upscale__flux",
         "upscale__generic"
       ],
-      "occurrences": 23
+      "occurrences": 25
     },
     {
       "class": "SaveVideo",

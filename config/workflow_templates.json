@@ -123,6 +123,9 @@
     "api_seedance2_reference2v": "API reference-to-video via Seedance 2.0 (ByteDance). 1 reference image + 1 reference video -> 1 video output. Generates, edits, or extends video using multimodal references for subject consistency, video editing, and video extension.",
     "api_seedance2_t2v": "API text-to-video via Seedance 2.0 (ByteDance). Text prompt only -> 1 video output. Generates high-quality video from a text description using the Seedance 2.0 model.",
     "image_z_image_turbo_i2i": "[Local] image-to-image via Z-Image-Turbo. 1 image input + text prompt -> 1 image output. Uses TextEncodeZImageOmni to feed the input image directly into conditioning for high-fidelity i2i edits. Denoise defaults to 0.75 - lower for more structure preservation, higher for more creative freedom.",
-    "api_t2i_NanoBanana2": "API image generation (Text-to-Image via Nano Banana 2.",
-    "NanoBanana2_text_to_image": "API / cloud generation via Nano Banana 2. text input → 1 image output. Processes and generates content using ComfyUI workflows."
+    "NanoBanana2_text_to_image": "API / cloud generation via Nano Banana 2. text input → 1 image output. Processes and generates content using ComfyUI workflows.",
+    "api_t2i_nanoBananaPro": "Local generation via ComfyUI Model. text input → 1 image output. Processes and generates content using ComfyUI workflows.",
+    "api_i2i_imageEdit_nanoBanana2": "Local image editing via ComfyUI Model. 1 image input → 1 image output. Processes and generates content using ComfyUI workflows.",
+    "api_i2i_imageEdit_OpenAi_GPT2": "Local image editing via ComfyUI Model. 1 image input → 1 image output. Processes and generates content using ComfyUI workflows.",
+    "api_bytedance_seedream_5_0_lite_image_edit": "Local image editing via ComfyUI Model. 2 image inputs → 1 image output. Processes and generates content using ComfyUI workflows."
 }
