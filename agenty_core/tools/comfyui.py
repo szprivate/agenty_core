@@ -688,8 +688,21 @@ def _api_to_graph(workflow: dict) -> dict:
         for row, k in enumerate(by_level[lv]):
             m = meta[k]
             ins = api[k].get("inputs", {})
+            # Widget order for the canvas node's positional widgets_values.
+            # Normally object_info's schema order (m["widgets"]). But dynamic-combo
+            # nodes (e.g. OpenAIGPTImageNodeV2) expose dotted sub-widgets
+            # (model.size, model.custom_width, model.custom_height, …) that the
+            # schema does NOT list — it carries only the top-level 'model' combo.
+            # Using the schema order then drops every dotted value and shifts the
+            # rest, so the frontend reads widgets_values into the wrong slots (size,
+            # custom_width, custom_height show garbage; e.g. custom_height="fixed").
+            # The API node's own input dict already holds the dotted keys in the
+            # authored (frontend) order, so for such nodes drive the values from it.
+            _non_link = [n for n in ins if not _is_link(ins.get(n))]
+            _widget_names = (_non_link if any("." in str(n) for n in _non_link)
+                             else m["widgets"])
             wv: list = []
-            for wname in m["widgets"]:
+            for wname in _widget_names:
                 val = ins.get(wname)
                 wv.append(val if (wname in ins and not _is_link(val)) else None)
                 if wname in _SEED_INPUT_NAMES:
