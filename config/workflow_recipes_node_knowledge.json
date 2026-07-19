@@ -1,6 +1,6 @@
 {
   "generated_from": {
-    "workflow_count": 146,
+    "workflow_count": 147,
     "node_class_count": 230,
     "custom_classes": 18,
     "unresolved_classes": 9
@@ -4427,9 +4427,10 @@
         "IMAGE"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_image_edit__generic"
+        "api_partner_nodes_image_edit__generic",
+        "api_partner_nodes_text_to_image__generic"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "class": "OpticalFlowLoader",
@@ -5382,6 +5383,7 @@
         "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_inpaint_outpaint__nano_banana",
+        "api_partner_nodes_text_to_image__generic",
         "api_partner_nodes_text_to_image__ideogram",
         "api_partner_nodes_text_to_image__nano_banana",
         "api_partner_nodes_upscale__magnific",
@@ -5395,7 +5397,7 @@
         "upscale__flux",
         "upscale__generic"
       ],
-      "occurrences": 25
+      "occurrences": 26
     },
     {
       "class": "SaveVideo",

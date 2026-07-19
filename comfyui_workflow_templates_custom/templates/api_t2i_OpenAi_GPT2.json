@@ -9,11 +9,7 @@
       "model.background": "auto",
       "model.quality": "medium",
       "n": 1,
-      "seed": 0,
-      "model.images.image_1": [
-        "5",
-        0
-      ]
+      "seed": 0
     },
     "class_type": "OpenAIGPTImageNodeV2",
     "_meta": {
@@ -31,15 +27,6 @@
     "class_type": "SaveImage",
     "_meta": {
       "title": "Save Image"
-    }
-  },
-  "5": {
-    "inputs": {
-      "image": "images.jpg"
-    },
-    "class_type": "LoadImage",
-    "_meta": {
-      "title": "Load Image"
     }
   }
 }

@@ -1,6 +1,6 @@
 # Workflow recipe database  (task -> model -> node clusters)
 
-- Tasks: 27 | task+model recipes: 79
+- Tasks: 27 | task+model recipes: 80
 - Self-contained: every recipe has user_intent + description + node clusters. No human annotation step.
 
 # Image Tools  (`image_tools`)  -  18 workflow(s), 2 model(s)
@@ -771,6 +771,43 @@
 - optional roles: GeminiNode, RegexExtract
 
 
+# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  4 workflow(s), 3 model(s)
+
+## API / Partner Nodes - Text to Image / Nano-Banana  (`api_partner_nodes_text_to_image__nano_banana`)  -  2 workflow(s)  -  source: custom
+- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2V2)
+- when to use: Use to generate an image from a text prompt using Nano-Banana.
+- example request: "build an image workflow using Nano-Banana"
+- description: API / cloud generation via Nano Banana 2. text input -> 1 image output. Processes and generates content using ComfyUI workflows. | Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows.
+- member workflows:
+    - NanoBanana2_text_to_image
+    - api_t2i_nanoBananaPro
+- node clusters (required structure):
+    - output: SaveImage
+- optional roles: GeminiImage2Node, GeminiNanoBanana2V2
+
+## API / Partner Nodes - Text to Image / Generic  (`api_partner_nodes_text_to_image__generic`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: OpenAIGPTImageNodeV2)
+- when to use: Use to generate an image from a text prompt.
+- example request: "build an image workflow"
+- description: Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows.
+- member workflows:
+    - api_t2i_OpenAi_GPT2
+- node clusters (required structure):
+    - output: SaveImage
+    - other operations: OpenAIGPTImageNodeV2
+
+## API / Partner Nodes - Text to Image / Ideogram  (`api_partner_nodes_text_to_image__ideogram`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: IdeogramV3)
+- when to use: Use to generate an image from a text prompt using Ideogram.
+- example request: "build an image workflow using Ideogram"
+- description: Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
+- member workflows:
+    - api_ideogram_v3_t2i
+- node clusters (required structure):
+    - output: SaveImage
+    - other operations: IdeogramV3
+
+
 # API / Partner Nodes - Upscale  (`api_partner_nodes_upscale`)  -  4 workflow(s), 3 model(s)
 
 ## API / Partner Nodes - Upscale / Magnific  (`api_partner_nodes_upscale__magnific`)  -  2 workflow(s)  -  source: custom
@@ -974,32 +1011,6 @@
     - inputs: LoadImage
     - output: VHS_VideoCombine
     - other operations: GetVideoComponents, WanImageToVideoApi
-
-
-# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  3 workflow(s), 2 model(s)
-
-## API / Partner Nodes - Text to Image / Nano-Banana  (`api_partner_nodes_text_to_image__nano_banana`)  -  2 workflow(s)  -  source: custom
-- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2V2)
-- when to use: Use to generate an image from a text prompt using Nano-Banana.
-- example request: "build an image workflow using Nano-Banana"
-- description: API / cloud generation via Nano Banana 2. text input -> 1 image output. Processes and generates content using ComfyUI workflows. | Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows.
-- member workflows:
-    - NanoBanana2_text_to_image
-    - api_t2i_nanoBananaPro
-- node clusters (required structure):
-    - output: SaveImage
-- optional roles: GeminiImage2Node, GeminiNanoBanana2V2
-
-## API / Partner Nodes - Text to Image / Ideogram  (`api_partner_nodes_text_to_image__ideogram`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: IdeogramV3)
-- when to use: Use to generate an image from a text prompt using Ideogram.
-- example request: "build an image workflow using Ideogram"
-- description: Generate an image from a text prompt using Ideogram. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
-- member workflows:
-    - api_ideogram_v3_t2i
-- node clusters (required structure):
-    - output: SaveImage
-    - other operations: IdeogramV3
 
 
 # Audio  (`audio`)  -  3 workflow(s), 2 model(s)

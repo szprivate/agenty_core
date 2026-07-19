@@ -1190,32 +1190,6 @@
   {
     "templates": [
       {
-        "name": "api_i2i_imageEdit_OpenAi_GPT2",
-        "models": [],
-        "io": {
-          "inputs": [
-            {
-              "nodeId": 5,
-              "nodeType": "LoadImage",
-              "file": "0193_spec_0040_renderLightEnv_v006_png.png",
-              "mediaType": "image"
-            }
-          ],
-          "outputs": [
-            {
-              "nodeId": 4,
-              "nodeType": "SaveImage",
-              "file": "",
-              "mediaType": "image"
-            }
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "templates": [
-      {
         "name": "api_bytedance_seedream_5_0_lite_image_edit",
         "models": [],
         "io": {
@@ -1236,6 +1210,51 @@
           "outputs": [
             {
               "nodeId": 26,
+              "nodeType": "SaveImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "templates": [
+      {
+        "name": "api_i2i_imageEdit_OpenAi_GPT2",
+        "models": [],
+        "io": {
+          "inputs": [
+            {
+              "nodeId": 5,
+              "nodeType": "LoadImage",
+              "file": "images.jpg",
+              "mediaType": "image"
+            }
+          ],
+          "outputs": [
+            {
+              "nodeId": 4,
+              "nodeType": "SaveImage",
+              "file": "",
+              "mediaType": "image"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "templates": [
+      {
+        "name": "api_t2i_OpenAi_GPT2",
+        "models": [],
+        "io": {
+          "inputs": [],
+          "outputs": [
+            {
+              "nodeId": 4,
               "nodeType": "SaveImage",
               "file": "",
               "mediaType": "image"
