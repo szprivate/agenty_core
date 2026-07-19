@@ -45,7 +45,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API first-last-frame-to-video via Kling O3 (Kling 3.0). Up to 4 reference/keyframe images → 1 video output. Generates videos with precise semantic control, longer duration, and improved narrative coherence."
       }
     ]
   },
@@ -71,7 +72,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API image-to-video via Kling O3 (Kling 3.0). 1 reference image (+ optional audio/text prompt) → 1 video output. Generates character-consistent video with native audio output and precise storyboard control."
       }
     ]
   },
@@ -135,7 +137,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API video editing via Kling O3. 1 video + 1 reference image → 1 edited video output. Enables precise subject editing and scene composition with native audio-visual synchronization."
       }
     ]
   },
@@ -192,7 +195,8 @@
         "io": {
           "inputs": [],
           "outputs": []
-        }
+        },
+        "description": "API image relighting via Magnific. 1 source image + 1 lighting reference image → 1 relit image output. Applies the lighting conditions from the reference onto the source image."
       }
     ]
   },
@@ -218,7 +222,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API creative image upscaling via Magnific. 1 image → 1 upscaled image output. Supports up to 16x enlargement with creative detail enhancement."
       }
     ]
   },
@@ -244,7 +249,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API precise image upscaling via Magnific. 1 image → 1 high-resolution image output. Upscales with strict detail preservation and enhanced sharpness."
       }
     ]
   },
@@ -263,7 +269,8 @@
             }
           ],
           "outputs": []
-        }
+        },
+        "description": "API image-to-3D via Meshy 6. 1 image → 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology."
       }
     ]
   },
@@ -294,7 +301,8 @@
             }
           ],
           "outputs": []
-        }
+        },
+        "description": "API multi-image-to-3D via Meshy 6. 3+ images → 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure."
       }
     ]
   },
@@ -306,7 +314,8 @@
         "io": {
           "inputs": [],
           "outputs": []
-        }
+        },
+        "description": "API text-to-3D via Meshy 6. Text prompt only → 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry."
       }
     ]
   },
@@ -332,7 +341,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API image enhancement/upscaling via Topaz Reimagine. 1 image → 1 enhanced image output. Applies face enhancement and detail restoration for professional results."
       }
     ]
   },
@@ -344,7 +354,8 @@
         "io": {
           "inputs": [],
           "outputs": []
-        }
+        },
+        "description": "API video upscaling via Topaz AI. 1 video → 1 enhanced video output. Supports resolution upscaling (Starlight/Astra Fast model) and frame interpolation (apo-8 model)."
       }
     ]
   },
@@ -396,7 +407,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API image-to-video via Wan 2.6. 1 image → 1 video output. Generates 1080P video with enhanced image quality, smoother motion, and natural movement."
       }
     ]
   },
@@ -415,7 +427,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API text-to-video via Wan 2.6. Text prompt only → 1 video output. Generates 1080P video with enhanced quality, smoother motion, and improved prompt understanding."
       }
     ]
   },
@@ -453,7 +466,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API multi-shot storyboard video via Kling 3.0 (kling-v3). 1 input image (start frame, LoadImage node) → 1 video output (VHS_VideoCombine). Generates 1-6 sequential shots in a single generation: each shot has its own text prompt (max 512 chars) and duration set directly on the KlingVideoNode. Use for storyboards, scene sequences, and narrative clips with multiple camera cuts. Prompts go into multi_shot.storyboard_N_prompt inputs; multi_shot must match shot count exactly (e.g. '3 storyboards'). Aspect ratio defaults to 16:9, resolution to 720p — override only on explicit user request."
       }
     ]
   },
@@ -479,7 +493,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API upscale and outpaint via Nano-Banana 2. 1 image → 1 image output. Upscales the input image while also generating new content around the edges to expand the overall dimensions, guided by the original image's style and content."
       }
     ]
   },
@@ -505,7 +520,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API character sheet generation via Nano-Banana Pro. 1 character image → 1 image output (3x3 sheet). Uses an LLM call to generate a prompt from the reference, then renders 9 character views with varying body pose in a single sheet."
       }
     ]
   },
@@ -531,7 +547,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API character sheet generation FOR FACE CLOSEUPS via Nano-Banana Pro. 1 character image → 1 image output (3x3 sheet). Uses an LLM call to generate a prompt from the reference, then renders 9 character views with varying facial expressions in a single sheet."
       }
     ]
   },
@@ -574,7 +591,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "Local image editing via QWEN-Image-Edit-2511-Lightning. Up to 3 images (including optional depth/canny control inputs) → 1 edited image output. Supports text-guided edits with optional structural control."
       }
     ]
   },
@@ -648,7 +666,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) → 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references."
       }
     ]
   },
@@ -758,7 +777,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "Local, simple image upscaling via specified ESRGAN model. 1 image → 1 upscaled image output. Supports various models."
       }
     ]
   },
@@ -786,7 +806,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "Local image upscaling using UltimateSD upscale node (this uses a diffusion model for the upscale process, allowing a creative upscale that invents details). Setup with Flux-1 dev fp8. 1 image → 1 upscaled image output."
       }
     ]
   },
@@ -880,7 +901,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "[Local] image editing via Z-Image-Turbo. 1 image input → 1 image output. Uses ControlNet for precise and controlled image editing."
       }
     ]
   },
@@ -922,7 +944,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "[Local] image editing via Wan. 3 image inputs → 1 image output. Performs advanced image-to-image editing and transformations."
       }
     ]
   },
@@ -945,7 +968,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "[Local] text-to-image via Z-Image-Turbo. 1 text input → 1 image output. High-speed image generation from text prompts."
       }
     ]
   },
@@ -964,7 +988,8 @@
             }
           ],
           "outputs": []
-        }
+        },
+        "description": "[API] motion prompt generation via Gemini, analyses a video and output a desscription of the motion in it. 1 video input → 1 output. Generates descriptive motion prompts for video generation."
       }
     ]
   },
@@ -994,7 +1019,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "[Local] image editing via Flux. 1 image input → 1 image output. Performs image editing using the Flux 2 Klein distilled model."
       }
     ]
   },
@@ -1013,7 +1039,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API text-to-video via Seedance 2.0 (ByteDance). Text prompt only -> 1 video output. Generates high-quality video from a text description using the Seedance 2.0 model."
       }
     ]
   },
@@ -1045,7 +1072,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API first-last-frame-to-video via Seedance 2.0 (ByteDance). 1 first frame image + 1 optional last frame image -> 1 video output. Generates video interpolated between keyframes with precise motion control."
       }
     ]
   },
@@ -1077,7 +1105,8 @@
               "mediaType": "video"
             }
           ]
-        }
+        },
+        "description": "API reference-to-video via Seedance 2.0 (ByteDance). 1 reference image + 1 reference video -> 1 video output. Generates, edits, or extends video using multimodal references for subject consistency, video editing, and video extension."
       }
     ]
   },
@@ -1107,7 +1136,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "[Local] image-to-image via Z-Image-Turbo. 1 image input + text prompt -> 1 image output. Uses TextEncodeZImageOmni to feed the input image directly into conditioning for high-fidelity i2i edits. Denoise defaults to 0.75 - lower for more structure preservation, higher for more creative freedom."
       }
     ]
   },
@@ -1119,7 +1149,8 @@
         "io": {
           "inputs": [],
           "outputs": []
-        }
+        },
+        "description": "[Local] OCIO color convert. 1 EXR (or PNG) in -> 1 PNG out. Loads via bepic_imageLoad (OIIO), applies bepic_colorTransform input ACES - ACEScg to output Output - sRGB with clamp on, saves 16-bit PNG via bEpic_imageSave (OIIO). For batches of non-contiguous frames, run one job per file and patch image_path + first_frame; keep auto_version false so saves go straight into the target folder."
       }
     ]
   },
@@ -1138,7 +1169,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API / cloud generation via Nano Banana 2. text input → 1 image output. Processes and generates content using ComfyUI workflows."
       }
     ]
   },
@@ -1157,7 +1189,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API / cloud generation via Nano Banana 2. text input → 1 image output."
       }
     ]
   },
@@ -1183,7 +1216,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API / cloud image editing via Nano Banana 2. 1 image input → 1 image output. Processes and generates content using ComfyUI workflows."
       }
     ]
   },
@@ -1215,7 +1249,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API / cloud image editing via Seedream 5.0 lite. 2 image inputs → 1 image output. Processes and generates content using ComfyUI workflows."
       }
     ]
   },
@@ -1241,7 +1276,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "API / cloud image editing via OpenAI GPT2. 1 image input → 1 image output. Processes and generates content using ComfyUI workflows."
       }
     ]
   },
@@ -1260,7 +1296,8 @@
               "mediaType": "image"
             }
           ]
-        }
+        },
+        "description": "Local generation via ComfyUI Model. text input → 1 image output. Processes and generates content using ComfyUI workflows."
       }
     ]
   }

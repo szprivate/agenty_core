@@ -1,6 +1,6 @@
 {
   "generated_from": {
-    "workflow_count": 147,
+    "workflow_count": 145,
     "node_class_count": 230,
     "custom_classes": 18,
     "unresolved_classes": 9
@@ -121,7 +121,7 @@
         "video_to_video__wan_vace",
         "video_tools__generic"
       ],
-      "occurrences": 7
+      "occurrences": 6
     },
     {
       "class": "BerniniConditioning",
@@ -1662,7 +1662,7 @@
         "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_text_to_image__nano_banana"
       ],
-      "occurrences": 5
+      "occurrences": 4
     },
     {
       "class": "GeminiNanoBanana2",
@@ -1739,10 +1739,9 @@
         "IMAGE"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_text_to_image__nano_banana"
       ],
-      "occurrences": 2
+      "occurrences": 1
     },
     {
       "class": "GeminiNode",
@@ -3562,7 +3561,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 53
+      "occurrences": 51
     },
     {
       "class": "LoadMediaPipeFaceLandmarker",
@@ -5397,7 +5396,7 @@
         "upscale__flux",
         "upscale__generic"
       ],
-      "occurrences": 26
+      "occurrences": 24
     },
     {
       "class": "SaveVideo",

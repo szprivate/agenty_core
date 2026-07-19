@@ -48,9 +48,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--object-info-cache",
                    default=str(root / "config" / "workflow_recipes_object_info_cache.json"),
                    help="path to cached /object_info JSON (read, or written on fetch)")
-    p.add_argument("--templates-descriptions", default=str(root / "config" / "workflow_templates.json"),
-                   help="flat name->description JSON used to enrich workflows the "
-                        "index.json files do not describe (typically custom ones)")
+    p.add_argument("--templates-descriptions", default=None,
+                   help="optional flat name->description JSON to enrich workflows the "
+                        "index.json files do not describe; unused by default now that "
+                        "descriptions live in the templates' index.json")
     p.add_argument("--host", default="127.0.0.1", help="ComfyUI host for object_info")
     p.add_argument("--port", type=int, default=8188, help="ComfyUI port for object_info")
     p.add_argument("--no-fetch", action="store_true",

@@ -63,9 +63,9 @@ def corpus_root() -> Path:
     in the ``agenty_core`` repo and each app reads them from here — every app
     builds workflows from the same templates. Canonical layout under this root:
 
-        comfyui_workflow_templates_custom/   (+ templates/index.json)
+        comfyui_workflow_templates_custom/   (+ templates/index.json — the catalog:
+                                              name, models, io, description)
         comfyui_workflow_templates_official/ (+ index.json)
-        config/workflow_templates.json       (name -> description catalog)
         config/workflow_recipes*.json        (generated DB, node_knowledge, cache)
 
     Override with ``AGENTY_CORPUS_ROOT``; defaults to the agenty_core repo root

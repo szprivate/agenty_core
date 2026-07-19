@@ -8,7 +8,7 @@ performs, and which model family it uses.
 Extraction is deterministic and rule-based from transparent, tunable vocab
 tables (kept as module-level constants), using several signals per workflow:
   - the filename tokens (e.g. "video_wan2_2_14B_flf2v"),
-  - the catalog title/description (index.json + config/workflow_templates.json),
+  - the catalog title/description (from each template's index.json),
   - the node roles present (reusing roles.classify_role),
   - model-loader widget filenames (e.g. "wan2.2_i2v_high_noise.safetensors").
 

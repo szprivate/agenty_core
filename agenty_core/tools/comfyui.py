@@ -1954,11 +1954,11 @@ def _force_build() -> bool:
 
 
 def _synthesize_catalog_descriptions(names: list) -> dict:
-    """Intent-synthesized one-line descriptions for corpus templates that neither
-    index.json nor workflow_templates.json describes, so get_workflow_catalog can
-    be a complete inventory (every template listed *and* described) without writing
-    synthesized text into the hand-authored catalog. Best-effort: a template whose
-    file can't be found or parsed is skipped (left blank)."""
+    """Intent-synthesized one-line descriptions for corpus templates that their
+    index.json does not describe, so get_workflow_catalog can be a complete
+    inventory (every template listed *and* described) without persisting the
+    synthesized text. Best-effort: a template whose file can't be found or parsed
+    is skipped (left blank)."""
     out: dict = {}
     if not names:
         return out
@@ -1993,12 +1993,11 @@ def get_workflow_catalog() -> str:
 
     This is the cheapest way to discover available templates. Keys are the exact
     names to pass to get_workflow_template(), and cover **every** template in the
-    corpus — both custom/API workflows (described in config/workflow_templates.json)
-    and the official Comfy templates (described in their index.json). Descriptions
-    are merged from both sources; for the few templates neither source describes, a
-    one-line description is synthesized from the workflow's intent at read time
-    (the hand-authored catalog is never modified), so the catalog is a complete,
-    fully-described inventory that agrees with the recipe DB's template set.
+    corpus — both custom/API workflows and the official Comfy templates, each
+    described in its own index.json. For the few templates the index does not
+    describe, a one-line description is synthesized from the workflow's intent at
+    read time, so the catalog is a complete, fully-described inventory that agrees
+    with the recipe DB's template set.
 
     Results are cached for up to 1 hour per session (``clear_tool_caches()`` resets
     the cache at the start of every new pipeline session).
@@ -2016,16 +2015,16 @@ def get_workflow_catalog() -> str:
         ):
             return _tool_catalog_result
     try:
-        # Merge index.json descriptions (official + custom) with the flat
-        # workflow_templates.json map so the catalog covers all templates, not
-        # just the ones with a hand-written entry. Reuses the generator's loader.
+        # Read every template's metadata from its index.json (official =
+        # ComfyUI-curated; custom = agentY's, descriptions migrated in). Reuses
+        # the generator's loader. The flat workflow_templates.json catalog is
+        # retired — index.json is the sole description store.
         from agenty_core.workflow_recipes.parser import load_descriptions
         folders = {
             "custom": str(_custom_templates_dir()),
             "official": str(_official_templates_dir()),
         }
-        desc_path = str(_corpus_root() / "config" / "workflow_templates.json")
-        meta = load_descriptions(folders, desc_path, log=lambda *a, **k: None)
+        meta = load_descriptions(folders, None, log=lambda *a, **k: None)
         catalog = {name: (m.get("description") or "") for name, m in sorted(meta.items())}
         # Fill any template the catalog sources leave blank with an intent-
         # synthesized description, so every listed template is also described.

@@ -422,74 +422,6 @@
     - other operations: GetImageSize, ModelSamplingAuraFlow
 
 
-# API / Partner Nodes - Image Edit  (`api_partner_nodes_image_edit`)  -  8 workflow(s), 5 model(s)
-
-## API / Partner Nodes - Image Edit / Nano-Banana  (`api_partner_nodes_image_edit__nano_banana`)  -  4 workflow(s)  -  source: custom
-- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2, GeminiNanoBanana2V2, GeminiNode)
-- when to use: Use to edit an existing image using Nano-Banana, Gemini.
-- example request: "build an image workflow using Nano-Banana"
-- description: Local image editing via ComfyUI Model. 1 image input -> 1 image output. Processes and generates content using ComfyUI workflows. | Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references.
-- member workflows:
-    - api_i2i_imageEdit_nanoBanana2
-    - api_imageEdit_nano_banana2
-    - imageEdit_nano_bananaPro
-    - styletransfer_NanoBananaPro
-- node clusters (required structure):
-    - output: SaveImage
-- optional roles: VHS_LoadImagePath, BatchImagesNode, GeminiImage2Node, GeminiNanoBanana2, GeminiNanoBanana2V2, GeminiNode, LoadImage, PreviewImage, VHS_LoadVideoPath, VHS_SelectImages, bEpicReformat
-
-## API / Partner Nodes - Image Edit / Generic  (`api_partner_nodes_image_edit__generic`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: OpenAIGPTImageNodeV2)
-- when to use: Use to edit an existing image.
-- example request: "build an image workflow"
-- description: Local image editing via ComfyUI Model. 1 image input -> 1 image output. Processes and generates content using ComfyUI workflows.
-- member workflows:
-    - api_i2i_imageEdit_OpenAi_GPT2
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: SaveImage
-    - other operations: OpenAIGPTImageNodeV2
-
-## API / Partner Nodes - Image Edit / Kling  (`api_partner_nodes_image_edit__kling`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: KlingOmniProImageNode)
-- when to use: Use to generate an image using Kling.
-- example request: "build an image workflow using Kling"
-- description: Generate an image using Kling. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
-- member workflows:
-    - api_kling_o3_image
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveImage
-    - other operations: ImageBatchMulti, KlingOmniProImageNode
-- paired/multiple required: LoadImage x2
-
-## API / Partner Nodes - Image Edit / Magnific  (`api_partner_nodes_image_edit__magnific`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: MagnificImageRelightNode)
-- when to use: Use to relight an image using Magnific.
-- example request: "build an image workflow using Magnific"
-- description: API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image.
-- member workflows:
-    - api_magnific_image_relight
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveImage
-    - other operations: MagnificImageRelightNode
-- paired/multiple required: LoadImage x2
-
-## API / Partner Nodes - Image Edit / Seedream  (`api_partner_nodes_image_edit__seedream`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: ByteDanceSeedreamNodeV2)
-- when to use: Use to edit an existing image using Seedream.
-- example request: "build an image workflow using Seedream"
-- description: Local image editing via ComfyUI Model. 2 image inputs -> 1 image output. Processes and generates content using ComfyUI workflows.
-- member workflows:
-    - api_bytedance_seedream_5_0_lite_image_edit
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveImage
-    - other operations: ByteDanceSeedreamNodeV2
-- paired/multiple required: LoadImage x2
-
-
 # Image to Video  (`image_to_video`)  -  7 workflow(s), 2 model(s)
 
 ## Image to Video / LTX-2  (`image_to_video__ltx_2`)  -  4 workflow(s)  -  source: mixed
@@ -602,6 +534,72 @@
     - output: VHS_VideoCombine
     - other operations: CreateVideo, GetVideoComponents (x2), ModelSamplingSD3 (x2), Wan22FunControlToVideo
 - paired/multiple required: CLIPTextEncode x2, GetVideoComponents x2, KSamplerAdvanced x2, ModelSamplingSD3 x2, UNETLoader x2
+
+
+# API / Partner Nodes - Image Edit  (`api_partner_nodes_image_edit`)  -  6 workflow(s), 5 model(s)
+
+## API / Partner Nodes - Image Edit / Nano-Banana  (`api_partner_nodes_image_edit__nano_banana`)  -  2 workflow(s)  -  source: custom
+- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2, GeminiNode)
+- when to use: Use to edit an existing image using Nano-Banana, Gemini.
+- example request: "build an image workflow using Nano-Banana"
+- description: API / cloud image editing via Nano Banana 2. 1 image input -> 1 image output. Processes and generates content using ComfyUI workflows. | Local style transfer FOR FULL BODY SHOTS via Nano-Banana Pro (Gemini). 1 video (layout reference) + 7 images (style + hero elements) -> 2 image outputs. Transfers the style reference onto the first video frame while integrating the look of hero element references.
+- member workflows:
+    - api_i2i_imageEdit_nanoBanana2
+    - styletransfer_NanoBananaPro
+- node clusters (required structure):
+    - output: SaveImage
+- optional roles: VHS_LoadImagePath, BatchImagesNode, GeminiImage2Node, GeminiNanoBanana2, GeminiNode, LoadImage, PreviewImage, VHS_LoadVideoPath, VHS_SelectImages, bEpicReformat
+
+## API / Partner Nodes - Image Edit / Generic  (`api_partner_nodes_image_edit__generic`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: OpenAIGPTImageNodeV2)
+- when to use: Use to edit an existing image.
+- example request: "build an image workflow"
+- description: API / cloud image editing via OpenAI GPT2. 1 image input -> 1 image output. Processes and generates content using ComfyUI workflows.
+- member workflows:
+    - api_i2i_imageEdit_OpenAi_GPT2
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: SaveImage
+    - other operations: OpenAIGPTImageNodeV2
+
+## API / Partner Nodes - Image Edit / Kling  (`api_partner_nodes_image_edit__kling`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: KlingOmniProImageNode)
+- when to use: Use to generate an image using Kling.
+- example request: "build an image workflow using Kling"
+- description: Generate an image using Kling. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: IMAGE.
+- member workflows:
+    - api_kling_o3_image
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+    - output: SaveImage
+    - other operations: ImageBatchMulti, KlingOmniProImageNode
+- paired/multiple required: LoadImage x2
+
+## API / Partner Nodes - Image Edit / Magnific  (`api_partner_nodes_image_edit__magnific`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: MagnificImageRelightNode)
+- when to use: Use to relight an image using Magnific.
+- example request: "build an image workflow using Magnific"
+- description: API image relighting via Magnific. 1 source image + 1 lighting reference image -> 1 relit image output. Applies the lighting conditions from the reference onto the source image.
+- member workflows:
+    - api_magnific_image_relight
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+    - output: SaveImage
+    - other operations: MagnificImageRelightNode
+- paired/multiple required: LoadImage x2
+
+## API / Partner Nodes - Image Edit / Seedream  (`api_partner_nodes_image_edit__seedream`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: ByteDanceSeedreamNodeV2)
+- when to use: Use to edit an existing image using Seedream.
+- example request: "build an image workflow using Seedream"
+- description: API / cloud image editing via Seedream 5.0 lite. 2 image inputs -> 1 image output. Processes and generates content using ComfyUI workflows.
+- member workflows:
+    - api_bytedance_seedream_5_0_lite_image_edit
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+    - output: SaveImage
+    - other operations: ByteDanceSeedreamNodeV2
+- paired/multiple required: LoadImage x2
 
 
 # API / Partner Nodes - Text to Video  (`api_partner_nodes_text_to_video`)  -  5 workflow(s), 5 model(s)
@@ -777,7 +775,7 @@
 - execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2V2)
 - when to use: Use to generate an image from a text prompt using Nano-Banana.
 - example request: "build an image workflow using Nano-Banana"
-- description: API / cloud generation via Nano Banana 2. text input -> 1 image output. Processes and generates content using ComfyUI workflows. | Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows.
+- description: API / cloud generation via Nano Banana 2. text input -> 1 image output. | API / cloud generation via Nano Banana 2. text input -> 1 image output. Processes and generates content using ComfyUI workflows.
 - member workflows:
     - NanoBanana2_text_to_image
     - api_t2i_nanoBananaPro

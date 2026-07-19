@@ -248,6 +248,17 @@ def append_to_index(
         t["name"] for t in entry.get("templates", []) if "name" in t
     }
 
+    # Preserve authored descriptions across re-registration: capture them from
+    # the entries we are about to replace, then backfill any template in the new
+    # entry that did not carry one. (workflow_templates.json no longer exists, so
+    # index.json is the sole home for custom-template descriptions.)
+    old_desc: dict[str, str] = {}
+    for e in index:
+        for t in e.get("templates", []):
+            n, d = t.get("name"), (t.get("description") or "").strip()
+            if n and d:
+                old_desc[n] = d
+
     # Remove any existing entries whose templates overlap with the new names
     # so we avoid duplicates.
     index = [
@@ -257,6 +268,11 @@ def append_to_index(
             t.get("name") in new_names for t in e.get("templates", [])
         )
     ]
+
+    for t in entry.get("templates", []):
+        n = t.get("name")
+        if n and not (t.get("description") or "").strip() and n in old_desc:
+            t["description"] = old_desc[n]
 
     index.append(entry)
 
@@ -322,13 +338,17 @@ def parse_workflow(
     workflow: dict[str, Any],
     *,
     name: str = "",
+    description: str | None = None,
     update_index: bool = True,
     index_path: Path | str | None = None,
 ) -> dict[str, Any]:
     """Parse a raw ComfyUI workflow dict and return an *index.json*-compatible entry.
 
-    Only the keys used by the agent are emitted: ``name``, ``models``, and
-    ``io`` (with ``inputs`` / ``outputs`` sub-lists).
+    Emits ``name``, ``models``, and ``io`` (with ``inputs`` / ``outputs``
+    sub-lists), plus an optional ``description`` — the authored one-line catalog
+    text, the persistent home for custom-template descriptions now that the flat
+    ``workflow_templates.json`` catalog is retired. When *description* is omitted,
+    :func:`append_to_index` preserves any description already on the entry.
 
     Parameters
     ----------
@@ -389,13 +409,13 @@ def parse_workflow(
     io_outputs.sort(key=lambda x: x["nodeId"])
 
     # ------------------------------------------------------------------ assemble
-    template: dict[str, Any] = {
-        "name": name or "workflow",
-        "models": _extract_models(workflow),
-        "io": {
-            "inputs": io_inputs,
-            "outputs": io_outputs,
-        },
+    template: dict[str, Any] = {"name": name or "workflow"}
+    if description and description.strip():
+        template["description"] = description.strip()
+    template["models"] = _extract_models(workflow)
+    template["io"] = {
+        "inputs": io_inputs,
+        "outputs": io_outputs,
     }
 
     entry: dict[str, Any] = {

@@ -101,7 +101,7 @@ Outputs are written to `workflow_recipes/output/`:
 | `--cluster-on` | `category` | grouping basis: `category` (canonical taxonomy), `description`, or `structural` |
 | `--similarity-threshold` | `0.25` desc / `0.55` struct | merge clusters while avg similarity >= this (unused for `category`) |
 | `--object-info-cache` | `workflow_recipes/object_info_cache.json` | read/written cache |
-| `--templates-descriptions` | `config/workflow_templates.json` | flat name->description map enriching workflows the index.json files do not describe |
+| `--templates-descriptions` | `None` | optional flat name->description map enriching workflows the index.json files do not describe (unused by default; descriptions live in index.json) |
 | `--host` / `--port` | `127.0.0.1` / `8188` | ComfyUI for `/object_info` |
 | `--no-fetch` | off | never contact ComfyUI; cache only (offline) |
 | `--weight-classes` | `0.40` | weight of the node-class signal |
@@ -235,14 +235,15 @@ per node class actually used in the corpus:
 }
 ```
 
-### Description sources (index.json + workflow_templates.json)
+### Description sources (index.json)
 
-Authoritative descriptions come from two files, merged by `load_descriptions`:
-
-- each folder's `index.json` - the official catalog gives a human **category**
-  and **description** per workflow (custom index carries names only);
-- `config/workflow_templates.json` - a flat `name -> description` map that fills
-  the custom workflows the indexes do not describe.
+Authoritative descriptions come from each folder's `index.json`, read by
+`load_descriptions`: the official catalog gives a human **category** and
+**description** per workflow, and the custom `index.json` carries a
+**description** per template alongside its name/models/io (the flat
+`config/workflow_templates.json` catalog is retired — the optional
+`--templates-descriptions` enrichment arg remains for ad-hoc use but is unused
+by default).
 
 Together these cover most of the corpus; the rest get a description synthesized
 from intent + structure. This metadata is attached per member (`category`,

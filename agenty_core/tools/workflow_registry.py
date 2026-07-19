@@ -2,10 +2,10 @@
 
 In-process equivalents of ``scripts/add_workflow.ps1`` and
 ``scripts/remove_workflow.ps1``. They parse a ComfyUI workflow JSON into the
-custom-templates ``index.json``, keep ``config/workflow_templates.json`` (the
-``{name: description}`` catalog surfaced by ``get_workflow_catalog``) in sync,
-and — on removal — delete the matching ``skills/<kebab>`` directory. No
-PowerShell or subprocess is involved.
+custom-templates ``index.json`` — the sole catalog surfaced by
+``get_workflow_catalog`` (name, models, io, and description) — and, on removal,
+delete the matching ``skills/<kebab>`` directory. No PowerShell or subprocess is
+involved.
 """
 
 from __future__ import annotations
@@ -15,7 +15,6 @@ import shutil
 from pathlib import Path
 
 from agenty_core._compat import tool
-from agenty_core.paths import corpus_root as _corpus_root
 from agenty_core.utils.workflow_parser import (
     _custom_index_path,
     _project_root,
@@ -25,14 +24,6 @@ from agenty_core.utils.workflow_parser import (
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
-
-def _catalog_path() -> Path:
-    """Path to config/workflow_templates.json (the {name: description} catalog).
-
-    The catalog is part of the canonical corpus (shared across apps), so it
-    resolves against corpus_root(), not the per-app project_root()."""
-    return _corpus_root() / "config" / "workflow_templates.json"
-
 
 def _name_in_index(name: str, index_path: Path) -> bool:
     """Return True if a template called *name* already exists in *index_path*."""
@@ -50,20 +41,6 @@ def _name_in_index(name: str, index_path: Path) -> bool:
     return False
 
 
-def _load_catalog(path: Path) -> dict:
-    if path.exists():
-        raw = path.read_text(encoding="utf-8").strip()
-        return json.loads(raw) if raw else {}
-    return {}
-
-
-def _write_catalog(path: Path, obj: dict) -> None:
-    """Write the catalog preserving its on-disk style: 4-space indent, literal
-    unicode (ensure_ascii=False), UTF-8 (no BOM), trailing newline."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(obj, indent=4, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
 # ── Tools ────────────────────────────────────────────────────────────────────
 
 @tool
@@ -79,10 +56,9 @@ def register_workflow_template(workflow_file: str, index_path: str = "") -> str:
       2. Copies the (converted) workflow JSON into the custom-templates directory
          as ``<name>.json`` so ``get_workflow_template`` can load it later.
       3. Parses it and appends/updates its entry (name, models, io) in the
-         custom-templates ``index.json``.
-      4. Adds the template name — the workflow file's stem — as a key in
-         ``config/workflow_templates.json`` (the catalog) with an empty
-         description, so it appears in ``get_workflow_catalog()``.
+         custom-templates ``index.json`` — which is also where its catalog
+         ``description`` lives, so it appears in ``get_workflow_catalog()`` (the
+         flat ``config/workflow_templates.json`` catalog is retired).
 
     The template name is always the file stem (e.g. ``my_flow`` for
     ``my_flow.json``). Registering a name that already exists is refused, exactly
@@ -157,15 +133,6 @@ def register_workflow_template(workflow_file: str, index_path: str = "") -> str:
             index_path=index_path or None,
         )
 
-        # Keep config/workflow_templates.json in sync.
-        catalog_path = _catalog_path()
-        catalog = _load_catalog(catalog_path)
-        catalog_updated = False
-        if name not in catalog:
-            catalog[name] = ""
-            _write_catalog(catalog_path, catalog)
-            catalog_updated = True
-
         return json.dumps(
             {
                 "registered": name,
@@ -173,18 +140,11 @@ def register_workflow_template(workflow_file: str, index_path: str = "") -> str:
                 "copied_to": str(dest),
                 "converted_from_graph_format": converted,
                 "entry": entry,
-                "catalog_updated": catalog_updated,
-                "catalog_path": str(catalog_path),
                 "message": (
                     f"Registered '{name}'"
                     + (" (converted graph→API format)" if converted else "")
-                    + f". Copied workflow to {dest}. "
-                    + (
-                        "Added to catalog with an empty description — set a description in "
-                        "config/workflow_templates.json so get_workflow_catalog() describes it."
-                        if catalog_updated
-                        else "Catalog entry already existed."
-                    )
+                    + f". Copied workflow to {dest}. Set a 'description' on the "
+                    "template's index.json entry so get_workflow_catalog() describes it."
                 ),
             },
             ensure_ascii=False,
@@ -199,9 +159,9 @@ def unregister_workflow_template(name: str, index_path: str = "") -> str:
 
     In-process equivalent of ``scripts/remove_workflow.ps1``. It:
       1. Removes every template named *name* from the custom-templates
-         ``index.json`` (dropping a group that becomes empty).
-      2. Removes the *name* key from ``config/workflow_templates.json``.
-      3. Deletes the matching skill directory ``skills/<kebab>`` where ``<kebab>``
+         ``index.json`` (dropping a group that becomes empty) — which also drops
+         it from ``get_workflow_catalog()``.
+      2. Deletes the matching skill directory ``skills/<kebab>`` where ``<kebab>``
          is *name* lowercased with underscores turned into hyphens.
 
     Args:
@@ -219,15 +179,6 @@ def unregister_workflow_template(name: str, index_path: str = "") -> str:
         root = _project_root()
         idx_written = workflow_remove(name, index_path=index_path or None)
 
-        # Remove the catalog key.
-        catalog_path = _catalog_path()
-        catalog = _load_catalog(catalog_path)
-        catalog_updated = False
-        if name in catalog:
-            del catalog[name]
-            _write_catalog(catalog_path, catalog)
-            catalog_updated = True
-
         # Remove the skill directory (kebab-case derived from the name).
         kebab = name.lower().replace("_", "-")
         skill_dir = root / "skills" / kebab
@@ -240,13 +191,10 @@ def unregister_workflow_template(name: str, index_path: str = "") -> str:
             {
                 "removed": name,
                 "index_path": str(idx_written),
-                "catalog_updated": catalog_updated,
-                "catalog_path": str(catalog_path),
                 "skill_dir": str(skill_dir),
                 "skill_dir_removed": skill_removed,
                 "message": (
                     f"Unregistered '{name}'. Index updated; "
-                    f"catalog {'updated' if catalog_updated else 'unchanged'}; "
                     f"skill dir {'removed' if skill_removed else 'not found'}."
                 ),
             },
