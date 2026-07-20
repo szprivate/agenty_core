@@ -1284,7 +1284,13 @@ def get_logs(keyword: str = "", max_lines: int = 100) -> str:
     of each other) are treated as a single event so a multi-frame
     traceback comes back as one block.
 
-    Returns the literal string "None" when no errors are found.
+    Interruptions/cancellations (``ProcessingInterrupted``/``Task cancelled``,
+    ``Global interrupt``, ``execution_interrupted``) are NOT errors — they are a
+    deliberate stop of the queue, so they are skipped here and the most recent
+    *real* error is reported instead. This stops a benign stop from being read as
+    a fault the agent then tries to repair.
+
+    Returns the literal string "None" when no (real) errors are found.
 
     Args:
         keyword: Optional further filter — restrict to errors whose marker
@@ -1329,30 +1335,62 @@ def get_logs(keyword: str = "", max_lines: int = 100) -> str:
         if not matches:
             return "None"
 
-        # Cluster only the LATEST event: walk backwards from the last match
-        # collecting earlier matches while gaps stay within 20 lines.
+        # Cluster matches into discrete error events (runs within 20 lines).
         CLUSTER_GAP = 20
-        last_event: list[int] = [matches[-1]]
-        for idx in reversed(matches[:-1]):
-            if last_event[-1] - idx <= CLUSTER_GAP:
-                last_event.append(idx)
+        events: list[list[int]] = []
+        for idx in matches:  # ascending
+            if events and idx - events[-1][-1] <= CLUSTER_GAP:
+                events[-1].append(idx)
             else:
-                break
-        last_event.reverse()
+                events.append([idx])
 
-        # Expand ±5 lines of context.
-        first = max(0, last_event[0] - 5)
-        last = min(len(items) - 1, last_event[-1] + 5)
-        selected = list(range(first, last + 1))
+        # A cancellation / interruption is NOT a workflow error. Stopping the queue
+        # while a node is running logs "ProcessingInterrupted: Task cancelled" (API
+        # nodes) / "Global interrupt" / "!!! Exception during processing !!! Task
+        # cancelled", which trips the generic Error/Exception markers above. Left
+        # as-is, get_logs returns that as "the most recent error" and the agent
+        # tries to REPAIR a workflow that was merely stopped. Skip interruption
+        # events and report the most recent REAL error instead (or "None").
+        _INTERRUPT_SIGNS = (
+            "processinginterrupted", "interruptprocessingexception",
+            "task cancelled", "task canceled", "global interrupt",
+            "execution_interrupted", "keyboardinterrupt",
+        )
+        _EXC_RE = _re.compile(r"([A-Za-z_][\w.]*(?:Error|Exception|Interrupted))\s*:")
 
-        if len(selected) > max_lines:
-            selected = selected[-max_lines:]
+        def _block_lines(ev: list[int]) -> list[str]:
+            first = max(0, ev[0] - 5)
+            last = min(len(items) - 1, ev[-1] + 5)
+            sel = list(range(first, last + 1))
+            if len(sel) > max_lines:
+                sel = sel[-max_lines:]
+            return [
+                f"{items[i][0]} {items[i][1]}".strip() if items[i][0] else items[i][1]
+                for i in sel
+            ]
 
-        lines = [
-            f"{items[i][0]} {items[i][1]}".strip() if items[i][0] else items[i][1]
-            for i in selected
-        ]
-        return json.dumps({"lines": lines, "count": len(lines)})
+        def _is_benign_interrupt(block: list[str]) -> bool:
+            """A block is a benign interruption only if it carries an interrupt sign
+            AND names no genuine (non-interrupt) exception class — so a real error
+            that merely landed in the same 20-line cluster still surfaces."""
+            if not any(s in " ".join(block).lower() for s in _INTERRUPT_SIGNS):
+                return False
+            for line in block:
+                for m in _EXC_RE.finditer(line):
+                    cls = m.group(1).lower()
+                    if "interrupt" in cls or "cancel" in line.lower():
+                        continue  # the interrupt exception itself
+                    return False  # a genuine exception (KeyError, RuntimeError, …)
+            return True
+
+        for ev in reversed(events):  # newest → oldest
+            block = _block_lines(ev)
+            if _is_benign_interrupt(block):
+                continue  # benign stop — not an error; keep looking for a real one
+            return json.dumps({"lines": block, "count": len(block)})
+
+        # Every recent error-marker event was an interruption — no real error.
+        return "None"
     except Exception as e:
         return json.dumps({"error": str(e)})
 
