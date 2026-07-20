@@ -45,21 +45,44 @@ def _has_outputs(entry) -> bool:
     return False
 
 
+def _exception_is_interrupt(exc_type: str, message: str) -> bool:
+    """True when a node exception is really a cancellation, not a workflow fault.
+
+    Interrupting the queue mid-run doesn't always surface as the top-level
+    ``execution_interrupted`` event: a node that's actively working raises an
+    interrupt EXCEPTION instead, reported as a normal ``execution_error``. Core
+    nodes raise ``InterruptProcessingException``; the API nodes (OpenAI/Kling/…)
+    raise ``comfy_api_nodes…ProcessingInterrupted: "Task cancelled"``. Both carry
+    "interrupt" in the exception type; match the API-node "task cancelled" message
+    too. Recognising these keeps a deliberate stop out of the repair/heal loop.
+    """
+    et = (exc_type or "").lower()
+    m = (message or "").lower()
+    if "interrupt" in et:                       # InterruptProcessingException, ProcessingInterrupted
+        return True
+    return "task cancelled" in m or "task canceled" in m
+
+
 def _status_is_interrupt(status_info: dict) -> bool:
     """True when a history ``status_str == "error"`` is actually an interruption.
 
     When the user or agent stops the queue, ComfyUI marks the prompt's status as
-    ``error`` but records the stop as an ``execution_interrupted`` (or cancelled)
-    entry in the status ``messages`` array — it is NOT a workflow execution fault.
-    Distinguishing the two keeps a deliberate stop from being fed into the
-    repair/heal loop as if the graph were broken.
+    ``error`` but the stop shows up in the status ``messages`` array — either as an
+    ``execution_interrupted`` entry, or as an ``execution_error`` carrying an
+    interrupt/"Task cancelled" exception (API nodes). Neither is a workflow fault,
+    so distinguishing them keeps a deliberate stop out of the repair/heal loop.
     """
     for msg in (status_info.get("messages") or []):
         # messages are ``[event_type, data]`` pairs.
-        if isinstance(msg, (list, tuple)) and msg:
-            et = str(msg[0]).lower()
-            if "interrupt" in et or "cancel" in et:
-                return True
+        if not isinstance(msg, (list, tuple)) or not msg:
+            continue
+        et = str(msg[0]).lower()
+        if "interrupt" in et or "cancel" in et:
+            return True
+        data = msg[1] if len(msg) > 1 and isinstance(msg[1], dict) else {}
+        if _exception_is_interrupt(data.get("exception_type", ""),
+                                   data.get("exception_message", "")):
+            return True
     return False
 
 
@@ -323,15 +346,24 @@ async def stream_comfyui_job(
 
                 elif msg_type == "execution_error":
                     err_msg = data.get("exception_message", "Unknown error")
+                    exc_type = data.get("exception_type", "")
                     node_type = data.get("node_type", "?")
                     node_id = data.get("node_id", "?")
+                    # A cancellation surfaced as a node exception (API nodes raise
+                    # ProcessingInterrupted "Task cancelled" when the queue is
+                    # stopped mid-run) is a deliberate stop, not a workflow fault —
+                    # flag it so the executor skips it instead of repairing it.
+                    if _exception_is_interrupt(exc_type, err_msg):
+                        yield "🛑 Execution interrupted"
+                        yield {"interrupted": True, "error": "Execution interrupted"}
+                        return
                     yield f"❌ Error in {node_type} (node {node_id}): {err_msg}"
                     yield {
                         "error": "ComfyUI execution failed",
                         "details": {
                             "node_id": node_id,
                             "node_type": node_type,
-                            "exception_type": data.get("exception_type", ""),
+                            "exception_type": exc_type,
                             "exception_message": err_msg,
                             "traceback": data.get("traceback", []),
                         },
