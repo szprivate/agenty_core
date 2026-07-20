@@ -74,6 +74,73 @@ def reset_patch_workflow_guard() -> None:
     _patch_last_workflow_path = None
 
 
+def _server_validate(workflow: dict) -> dict:
+    """Server-side validate a workflow WITHOUT disturbing other ComfyUI jobs.
+
+    ComfyUI validates a prompt only by *submitting* it to ``/prompt`` — which then
+    QUEUES and RUNS it (there is no dry-run). For an API/partner node that means a
+    real API call, and the only way to stop the run is a GLOBAL ``/interrupt``
+    (ComfyUI has no per-prompt interrupt). Historically this validation submitted
+    the graph and blanket-interrupted / cleared the queue, which:
+
+      * executed the workflow's API nodes just to validate them (→ "Task cancelled"),
+      * killed whatever ELSE was running — e.g. the executor's real render — which
+        the executor then reported as a failure and tried to *heal*, re-validating
+        and interrupting again: an endless submit→interrupt→heal loop.
+
+    This helper makes validation side-effect-free for other jobs:
+
+      * If ComfyUI is BUSY (anything running), SKIP server validation and return
+        ``{}`` — never risk a live render; local validation still ran.
+      * Otherwise submit, delete our own prompt by id, and ``/interrupt`` ONLY when
+        we re-confirm OUR validation prompt is the sole running job. Never a blanket
+        interrupt of someone else's render, never ``{"clear": True}``.
+
+    Returns a ``server_errors`` dict (empty when valid or skipped).
+    """
+    server_errors: dict = {}
+    try:
+        _vc = get_client()
+        # Don't touch ComfyUI while a real job is running — rely on local checks.
+        try:
+            if (_vc.get("/queue").get("queue_running") or []):
+                return {}
+        except Exception:
+            pass
+        _vpayload: dict = {"prompt": workflow}
+        if _vc.api_key:  # API/partner nodes 401 without the key, even to validate
+            _vpayload["extra_data"] = {"api_key_comfy_org": _vc.api_key}
+        result = _vc.post("/prompt", json_data=_vpayload)
+        if isinstance(result, dict):
+            if "error" in result:
+                server_errors = {
+                    "error": result.get("error"),
+                    "node_errors": result.get("node_errors", {}),
+                }
+            elif "prompt_id" in result:
+                _vpid = result["prompt_id"]
+                try:
+                    _vc.post("/queue", json_data={"delete": [_vpid]})
+                    _running = _vc.get("/queue").get("queue_running") or []
+                    # Interrupt ONLY when our validation prompt is the SOLE running
+                    # job — never blanket-kill a render that started meanwhile.
+                    if (len(_running) == 1 and isinstance(_running[0], (list, tuple))
+                            and len(_running[0]) > 1 and _running[0][1] == _vpid):
+                        _vc.post("/interrupt", json_data={})
+                except Exception:
+                    pass
+    except Exception as e:
+        err_str = str(e)
+        if hasattr(e, "response"):
+            try:
+                server_errors = e.response.json()
+            except Exception:
+                server_errors = {"error": err_str}
+        else:
+            server_errors = {"error": err_str}
+    return server_errors
+
+
 def clear_tool_caches() -> None:
     """Reset all session-level tool-response caches.
 
@@ -2962,43 +3029,10 @@ def update_workflow(
                         f"non-existent node '{src_id}'."
                     )
 
-    try:
-        _vc = get_client()
-        _vpayload: dict = {"prompt": workflow}
-        if _vc.api_key:  # API/partner nodes 401 without the key, even to validate
-            _vpayload["extra_data"] = {"api_key_comfy_org": _vc.api_key}
-        result = _vc.post("/prompt", json_data=_vpayload)
-        if isinstance(result, dict):
-            if "error" in result:
-                server_errors = {
-                    "error": result.get("error"),
-                    "node_errors": result.get("node_errors", {}),
-                }
-            elif "prompt_id" in result:
-                # Cancel ONLY our validation prompt. A blanket /interrupt kills
-                # whatever is currently RUNNING (e.g. a real render the executor
-                # queued — observed mid-render kills), and {"clear": True} drops
-                # every pending item. Delete our pending entry by id; interrupt
-                # only if our own prompt already started running.
-                try:
-                    _vpid = result["prompt_id"]
-                    get_client().post("/queue", json_data={"delete": [_vpid]})
-                    _q = get_client().get("/queue")
-                    _running = _q.get("queue_running") or []
-                    if any(isinstance(_it, (list, tuple)) and len(_it) > 1 and _it[1] == _vpid
-                           for _it in _running):
-                        get_client().post("/interrupt", json_data={})
-                except Exception:
-                    pass
-    except Exception as e:
-        err_str = str(e)
-        if hasattr(e, "response"):
-            try:
-                server_errors = e.response.json()
-            except Exception:
-                server_errors = {"error": err_str}
-        else:
-            server_errors = {"error": err_str}
+    # Side-effect-free server validation (skips while ComfyUI is busy; never a
+    # blanket interrupt / queue clear that would kill a real render). See
+    # _server_validate.
+    server_errors = _server_validate(workflow)
 
     is_valid = len(local_errors) == 0 and len(server_errors) == 0
     all_errors = node_errors + local_errors
@@ -3494,43 +3528,10 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
                         f"non-existent node '{src_id}'."
                     )
 
-    try:
-        _vc = get_client()
-        _vpayload: dict = {"prompt": workflow}
-        if _vc.api_key:  # API/partner nodes 401 without the key, even to validate
-            _vpayload["extra_data"] = {"api_key_comfy_org": _vc.api_key}
-        result = _vc.post("/prompt", json_data=_vpayload)
-        if isinstance(result, dict):
-            if "error" in result:
-                server_errors = {
-                    "error": result.get("error"),
-                    "node_errors": result.get("node_errors", {}),
-                }
-            elif "prompt_id" in result:
-                # Cancel ONLY our validation prompt. A blanket /interrupt kills
-                # whatever is currently RUNNING (e.g. a real render the executor
-                # queued — observed mid-render kills), and {"clear": True} drops
-                # every pending item. Delete our pending entry by id; interrupt
-                # only if our own prompt already started running.
-                try:
-                    _vpid = result["prompt_id"]
-                    get_client().post("/queue", json_data={"delete": [_vpid]})
-                    _q = get_client().get("/queue")
-                    _running = _q.get("queue_running") or []
-                    if any(isinstance(_it, (list, tuple)) and len(_it) > 1 and _it[1] == _vpid
-                           for _it in _running):
-                        get_client().post("/interrupt", json_data={})
-                except Exception:
-                    pass
-    except Exception as e:
-        err_str = str(e)
-        if hasattr(e, "response"):
-            try:
-                server_errors = e.response.json()
-            except Exception:
-                server_errors = {"error": err_str}
-        else:
-            server_errors = {"error": err_str}
+    # Side-effect-free server validation (skips while ComfyUI is busy; never a
+    # blanket interrupt / queue clear that would kill a real render). See
+    # _server_validate.
+    server_errors = _server_validate(workflow)
 
     # Save AFTER hardening so the file the executor submits reflects every
     # deterministic fix (reroutes bypassed, images rebound, combos snapped,
@@ -3771,36 +3772,9 @@ def validate_workflow(workflow_path: str) -> str:
                         f"non-existent node '{src_id}'."
                     )
 
-    # Server-side validation
-    server_errors: dict = {}
-    try:
-        _vc = get_client()
-        _vpayload: dict = {"prompt": workflow}
-        if _vc.api_key:  # API/partner nodes 401 without the key, even to validate
-            _vpayload["extra_data"] = {"api_key_comfy_org": _vc.api_key}
-        result = _vc.post("/prompt", json_data=_vpayload)
-        if isinstance(result, dict):
-            if "error" in result:
-                server_errors = {
-                    "error": result.get("error"),
-                    "node_errors": result.get("node_errors", {}),
-                }
-            elif "prompt_id" in result:
-                # Accepted and queued – interrupt immediately to prevent execution.
-                try:
-                    get_client().post("/interrupt", json_data={})
-                    get_client().post("/queue", json_data={"clear": True})
-                except Exception:
-                    pass
-    except Exception as e:
-        err_str = str(e)
-        if hasattr(e, "response"):
-            try:
-                server_errors = e.response.json()
-            except Exception:
-                server_errors = {"error": err_str}
-        else:
-            server_errors = {"error": err_str}
+    # Server-side validation (side-effect-free — never interrupts/clears other
+    # jobs; skips entirely while ComfyUI is busy). See _server_validate.
+    server_errors: dict = _server_validate(workflow)
 
     is_valid = len(local_errors) == 0 and len(server_errors) == 0
 
