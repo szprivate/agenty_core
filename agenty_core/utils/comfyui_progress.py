@@ -45,6 +45,24 @@ def _has_outputs(entry) -> bool:
     return False
 
 
+def _status_is_interrupt(status_info: dict) -> bool:
+    """True when a history ``status_str == "error"`` is actually an interruption.
+
+    When the user or agent stops the queue, ComfyUI marks the prompt's status as
+    ``error`` but records the stop as an ``execution_interrupted`` (or cancelled)
+    entry in the status ``messages`` array — it is NOT a workflow execution fault.
+    Distinguishing the two keeps a deliberate stop from being fed into the
+    repair/heal loop as if the graph were broken.
+    """
+    for msg in (status_info.get("messages") or []):
+        # messages are ``[event_type, data]`` pairs.
+        if isinstance(msg, (list, tuple)) and msg:
+            et = str(msg[0]).lower()
+            if "interrupt" in et or "cancel" in et:
+                return True
+    return False
+
+
 def _check_history(client, prompt_id: str):
     """Inline check of /history/{prompt_id}.  Returns terminal dict or None.
 
@@ -66,6 +84,8 @@ def _check_history(client, prompt_id: str):
     entry = raw[prompt_id]
     status_info = entry.get("status", {})
     if status_info.get("status_str") == "error":
+        if _status_is_interrupt(status_info):
+            return {"interrupted": True, "error": "Execution interrupted"}
         return {"error": "ComfyUI job failed", "details": _strip_history(raw)}
     if status_info.get("completed") and _has_outputs(entry):
         return {"history": _strip_history(raw)}
@@ -320,7 +340,9 @@ async def stream_comfyui_job(
 
                 elif msg_type == "execution_interrupted":
                     yield "🛑 Execution interrupted"
-                    yield {"error": "Execution interrupted"}
+                    # NOT a workflow fault — flag it so the executor skips it
+                    # instead of recording an error and firing the repair/heal loop.
+                    yield {"interrupted": True, "error": "Execution interrupted"}
                     return
 
             # Hard timeout
