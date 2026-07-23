@@ -14,6 +14,13 @@ def run_script(command: str, timeout: int = 120) -> str:
     Use this to execute skill scripts (e.g. Python scripts under skills/).
     Works on both Windows and Unix.
 
+    Pass a **single-line** command. A multi-line command — including an inline
+    ``python -c "..."`` whose quoted body contains real newlines — is parsed by
+    ``cmd.exe`` on Windows line-by-line and silently does nothing (exit 0, empty
+    output), so never inline a multi-line script here. To run a script, write it to
+    a file first and invoke ``python <file>``; to PUT a local file to a URL, use the
+    dedicated ``upload_file_to_url`` tool instead of a hand-written PUT snippet.
+
     Args:
         command: The full command to run (e.g. 'python ./skills/image-downsize/scripts/downsize.py ...').
         timeout: Maximum seconds to wait for the command to finish (default 120).
