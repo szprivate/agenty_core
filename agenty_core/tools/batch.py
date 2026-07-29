@@ -49,9 +49,15 @@ def _load_config() -> dict:
 
 
 def _jobs_root() -> Path:
-    cfg = _load_config()
-    wd = cfg.get("output_workflows_dir", "./output_workflows/")
-    root = (_project_root() / wd).resolve() / "batch_jobs"
+    """Where batch-job bookkeeping lives — always inside the app, never ComfyUI.
+
+    Deliberately NOT derived from ``output_workflows_dir`` any more. That setting
+    now points into ComfyUI's user directory so generated workflows appear in its
+    workflow browser, and job state is not something anyone wants listed there.
+    It is also blank by default, which would have resolved this to the app root.
+    ``output_workflows/`` is gitignored, so job state still stays out of git.
+    """
+    root = (_project_root() / "output_workflows").resolve() / "batch_jobs"
     root.mkdir(parents=True, exist_ok=True)
     return root
 

@@ -129,3 +129,70 @@ def get_client() -> ComfyUIClient:
     if _client is None:
         _client = ComfyUIClient()
     return _client
+
+
+# ── ComfyUI directory resolution ───────────────────────────────────────────────
+# /system_stats echoes the server's argv, which is fixed for the life of that
+# process, so the parsed directories are memoised. Callers that write generated
+# artifacts use these to keep output inside the user's ComfyUI install rather
+# than inside an agent checkout, where it would dirty the repo (blocking the
+# startup updater) and be invisible to ComfyUI's own browsers.
+
+_DIR_CACHE_LOADED = False
+_COMFY_USER_DIR: Path | None = None
+_COMFY_OUTPUT_DIR: Path | None = None
+
+
+def reset_comfyui_dir_cache() -> None:
+    """Forget the cached directories (call when ComfyUI is restarted)."""
+    global _DIR_CACHE_LOADED, _COMFY_USER_DIR, _COMFY_OUTPUT_DIR  # noqa: PLW0603
+    _DIR_CACHE_LOADED = False
+    _COMFY_USER_DIR = None
+    _COMFY_OUTPUT_DIR = None
+
+
+def _load_comfyui_dirs() -> None:
+    global _DIR_CACHE_LOADED, _COMFY_USER_DIR, _COMFY_OUTPUT_DIR  # noqa: PLW0603
+    if _DIR_CACHE_LOADED:
+        return
+    try:
+        stats = get_client().get("/system_stats")
+        argv = stats.get("system", {}).get("argv", []) if isinstance(stats, dict) else []
+        usr = parse_argv_dir_flag(argv, "--user-directory")
+        if usr:
+            _COMFY_USER_DIR = Path(usr).resolve()
+        out = parse_argv_dir_flag(argv, "--output-directory")
+        if out:
+            _COMFY_OUTPUT_DIR = Path(out).resolve()
+    except Exception:  # noqa: BLE001 — ComfyUI being down is a fallback, not an error
+        pass
+    _DIR_CACHE_LOADED = True
+
+
+def comfyui_user_dir() -> Path | None:
+    """ComfyUI's ``--user-directory``, or None when it can't be determined."""
+    _load_comfyui_dirs()
+    return _COMFY_USER_DIR
+
+
+def comfyui_output_dir() -> Path | None:
+    """ComfyUI's ``--output-directory``, or None when it can't be determined."""
+    _load_comfyui_dirs()
+    return _COMFY_OUTPUT_DIR
+
+
+def comfyui_agent_workflows_dir() -> Path | None:
+    """Where agent-generated workflows belong: ``<user>/default/workflows/agentY/``.
+
+    ComfyUI's workflow browser reads ``<user-directory>/default/workflows`` — note
+    the ``default`` profile segment. Writing to ``<user-directory>/workflows`` (as
+    an earlier version did) creates a folder the browser never shows. The
+    ``agentY`` subfolder keeps generated graphs browsable without mixing them into
+    hand-made ones.
+
+    Returns None when ComfyUI isn't reachable, so callers can fall back.
+    """
+    user = comfyui_user_dir()
+    if user is None:
+        return None
+    return user / "default" / "workflows" / "agentY"

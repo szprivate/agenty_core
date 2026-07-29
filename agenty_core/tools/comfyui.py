@@ -231,10 +231,31 @@ def _official_templates_dir() -> Path:
 
 
 def _workflows_dir() -> Path:
-    """Return the directory where generated/patched workflow JSON files are saved."""
+    """Return the directory where generated/patched workflow JSON files are saved.
+
+    These belong to the *user's ComfyUI install*, not to an agent checkout: they
+    are workflows they will want to open, and writing them inside the repo both
+    dirties it (which used to block the startup updater) and hides them from
+    ComfyUI's workflow browser. So the default target is
+    ``<user-directory>/default/workflows/agentY/``.
+
+    ``output_workflows_dir`` in settings still wins when set to an ABSOLUTE path,
+    for anyone who wants them elsewhere. The relative default is used only as a
+    fallback for when ComfyUI can't be reached (nothing can run then anyway, but
+    assembly tools still need somewhere to write).
+    """
     cfg = _load_config()
-    wd = cfg.get("output_workflows_dir", "./output_workflows/")
-    return (_project_root() / wd).resolve()
+    wd = str(cfg.get("output_workflows_dir", "") or "").strip()
+    if wd and Path(wd).is_absolute():
+        return Path(wd).resolve()
+    try:
+        from agenty_core.utils.comfyui_client import comfyui_agent_workflows_dir
+        target = comfyui_agent_workflows_dir()
+        if target is not None:
+            return target
+    except Exception:  # noqa: BLE001 — fall through to the in-repo fallback
+        pass
+    return (_project_root() / (wd or "./output_workflows/")).resolve()
 
 
 def _load_index() -> list:
