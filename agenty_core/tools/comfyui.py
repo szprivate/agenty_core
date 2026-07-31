@@ -2629,6 +2629,111 @@ def get_workflow_recipe(task: str, model: str = "") -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Tools: Live canvas selection
+# ═══════════════════════════════════════════════════════════════════════════════
+# The selection lives in the browser, so both tools below are a round trip
+# through the agentY-comfyuiConnect extension: it relays the request to the open
+# ComfyUI page over the websocket and answers from there (see that repo's
+# /agent/canvas_selection and /agent/set_node_params routes). Nothing is cached
+# anywhere — each call reads the graph as it stands at that moment.
+
+def _canvas_bridge_error(exc: Exception) -> str:
+    """Turn a failed /agent/* call into an actionable message.
+
+    The two things that actually go wrong are ComfyUI not running and the
+    extension not being installed (or being an older build without these
+    routes); both surface as opaque HTTP/connection errors otherwise.
+    """
+    status = getattr(getattr(exc, "response", None), "status_code", None)
+    if status == 404:
+        return ("the agentY-comfyuiConnect extension is not installed in this ComfyUI, "
+                "or predates the canvas-selection routes — install/update it under "
+                "<ComfyUI>/custom_nodes/ and restart ComfyUI.")
+    return f"could not reach ComfyUI ({exc}). Is it running?"
+
+
+@tool
+def get_canvas_selection() -> str:
+    """Read the nodes the user has selected on the live ComfyUI canvas.
+
+    Use whenever the user talks about their canvas deictically — "this node",
+    "the prompt I have selected", "what did I just pick", "change these settings"
+    — instead of guessing from a saved workflow file. Returns each selected node
+    with its id, class type, title and current widget values, read from the open
+    browser page at the moment of the call (nothing is cached, so it reflects
+    edits the user made seconds ago). Pair it with ``set_canvas_node_params`` to
+    write a value back.
+
+    Requires ComfyUI open in a browser (a background tab is fine) with the
+    agentY-comfyuiConnect extension installed.
+
+    Returns JSON: ``{status, count, nodes: [{id, type, title, mode, widgets}],
+    workflow}``. ``mode`` is 0 normally, 2 muted, 4 bypassed — a muted or
+    bypassed node takes no part in the next run.
+    """
+    try:
+        r = get_client().get("/agent/canvas_selection")
+    except Exception as e:  # noqa: BLE001
+        return json.dumps({"status": "error", "error": _canvas_bridge_error(e)})
+    if not isinstance(r, dict):
+        return json.dumps({"status": "error", "error": f"unexpected response: {r!r}"})
+    if not r.get("ok"):
+        return json.dumps({"status": "error", "error": r.get("error", "unknown error")})
+    nodes = r.get("nodes") or []
+    out = {"status": "ok", "count": len(nodes), "nodes": nodes}
+    if r.get("workflow"):
+        out["workflow"] = r["workflow"]
+    if not nodes:
+        out["hint"] = ("Nothing is selected on the canvas — ask the user to click the "
+                       "node(s) they mean.")
+    return json.dumps(out)
+
+
+@tool
+def set_canvas_node_params(node_id: str, params: dict) -> str:
+    """Write widget values onto a node of the live ComfyUI canvas.
+
+    Use when the user asks you to change something on a node they are pointing at
+    — "rewrite this prompt", "set steps to 30", "bump the CFG". Call
+    ``get_canvas_selection`` first to get the node id and see the current values.
+    The edit lands on the open graph instantly: no file to save, no browser
+    refresh, no re-queue. It does NOT run the graph — the user queues it when
+    they are ready.
+
+    Args:
+        node_id: Node id as reported by ``get_canvas_selection``.
+        params: Mapping of widget name -> new value, e.g.
+            ``{"text": "a rainy neon street"}`` or ``{"steps": 30, "cfg": 6.5}``.
+            Only include the widgets you are changing.
+
+    Returns JSON: ``{status, node, applied, unknown}``. ``unknown`` lists widget
+    names that node does not have — check them against ``get_canvas_selection``
+    rather than retrying blindly.
+    """
+    if not isinstance(params, dict) or not params:
+        return json.dumps({"status": "error",
+                           "error": "params must be a non-empty {widget: value} mapping."})
+    try:
+        r = get_client().post("/agent/set_node_params",
+                              json_data={"node_id": str(node_id), "params": params})
+    except Exception as e:  # noqa: BLE001
+        return json.dumps({"status": "error", "error": _canvas_bridge_error(e)})
+    if not isinstance(r, dict):
+        return json.dumps({"status": "error", "error": f"unexpected response: {r!r}"})
+    applied, unknown = r.get("applied") or [], r.get("unknown") or []
+    if not r.get("ok") and not applied:
+        return json.dumps({"status": "error",
+                           "error": r.get("error") or "nothing was changed",
+                           "unknown": unknown})
+    out = {"status": "applied", "node_id": str(node_id),
+           "node": r.get("node", ""), "applied": applied}
+    if unknown:
+        out["unknown"] = unknown
+        out["warning"] = (f"widget(s) {unknown} are not on that node — they were ignored.")
+    return json.dumps(out)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Tools: Workflow modification
 # ═══════════════════════════════════════════════════════════════════════════════
 
