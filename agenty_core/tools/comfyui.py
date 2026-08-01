@@ -289,34 +289,52 @@ def _load_index() -> list:
 
 def _official_index() -> list:
     """Flat list of official (Comfy-Org) template descriptors from the official
-    ``index.json``. Used by the fuzzy fallback so a near-miss / hallucinated name
-    can resolve to an official template (which _fetch_template can load by name),
-    not just the custom ones. Cached for the process lifetime."""
+    ``index.json`` files. Used by the fuzzy fallback so a near-miss / hallucinated
+    name can resolve to an official template (which _fetch_template can load by
+    name), not just the custom ones. Cached for the process lifetime.
+
+    The official corpus is two mirrors — ``blueprints/`` and ``templates/`` — each
+    carrying upstream's own index, so every index.json under the root is read.
+    """
     global _official_index_cache
     if _official_index_cache is not None:
         return _official_index_cache
     flat: list[dict] = []
-    index_path = _official_templates_dir() / "index.json"
-    if index_path.exists():
+
+    def _walk(o):
+        if isinstance(o, dict):
+            if isinstance(o.get("name"), str):
+                flat.append(o)
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, list):
+            for x in o:
+                _walk(x)
+
+    root = _official_templates_dir()
+    for index_path in sorted(root.glob("**/index.json")):
         try:
             with open(index_path, encoding="utf-8") as f:
-                raw = json.load(f)
-
-            def _walk(o):
-                if isinstance(o, dict):
-                    if isinstance(o.get("name"), str):
-                        flat.append(o)
-                    for v in o.values():
-                        _walk(v)
-                elif isinstance(o, list):
-                    for x in o:
-                        _walk(x)
-
-            _walk(raw)
+                _walk(json.load(f))
         except Exception:
-            pass
+            continue
     _official_index_cache = flat
     return flat
+
+
+def _find_template_file(base: Path, name: str) -> Path | None:
+    """Resolve template *name* to a file under *base*, or None.
+
+    The official corpus is split into ``blueprints/`` and ``templates/`` mirrors,
+    so a flat lookup no longer finds everything. Flat is tried first — it is the
+    common case and stays cheap — then a walk. Sorted, so the winner is
+    deterministic if a name ever appears in both mirrors.
+    """
+    for candidate in (base / f"{name}.json", base / name):
+        if candidate.exists():
+            return candidate
+    hits = sorted(base.glob(f"**/{name}.json"))
+    return hits[0] if hits else None
 
 
 def _fetch_template(name: str) -> dict | None:
@@ -332,12 +350,10 @@ def _fetch_template(name: str) -> dict | None:
     # Custom templates take precedence; fall back to the official directory so
     # official templates load too (previously they were "not found").
     for base in (_custom_templates_dir(), _official_templates_dir()):
-        for candidate in (base / f"{name}.json", base / name):
-            if candidate.exists():
-                with open(candidate, encoding="utf-8") as f:
-                    data = json.load(f)
-                break
-        if data is not None:
+        found = _find_template_file(base, name)
+        if found is not None:
+            with open(found, encoding="utf-8") as f:
+                data = json.load(f)
             break
 
     if data is not None:
@@ -2096,8 +2112,8 @@ def _synthesize_catalog_descriptions(names: list) -> dict:
     ic = IntentClassifier()
     dirs = [_custom_templates_dir(), _official_templates_dir()]
     for name in names:
-        path = next((Path(d) / f"{name}.json" for d in dirs
-                     if (Path(d) / f"{name}.json").exists()), None)
+        path = next((f for f in (_find_template_file(Path(d), name) for d in dirs)
+                     if f is not None), None)
         if path is None:
             continue
         try:
