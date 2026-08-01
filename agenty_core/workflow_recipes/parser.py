@@ -55,16 +55,23 @@ def load_object_info(
     host: str = "127.0.0.1",
     port: int = 8188,
     allow_fetch: bool = True,
+    refresh: bool = False,
     log=print,
 ) -> Dict[str, Any]:
     """Return the /object_info mapping (class_type -> signature).
 
-    Prefers an on-disk cache so reruns work offline. If the cache is missing and
-    a live ComfyUI instance is reachable, fetches and writes the cache. On any
-    failure returns an empty dict - parsing still works from UI edge types, and
-    unresolved classes are flagged downstream.
+    Prefers an on-disk cache so reruns work offline. If the cache is missing (or
+    *refresh* is set) and a live ComfyUI instance is reachable, fetches and
+    writes the cache. On any failure returns an empty dict - parsing still works
+    from UI edge types, and unresolved classes are flagged downstream.
+
+    A cache never expires on its own, so signatures for nodes installed since it
+    was written are simply absent — templates using them then parse without a
+    schema. Pass *refresh* after installing nodes or updating ComfyUI.
     """
-    if cache_path and os.path.exists(cache_path):
+    if refresh and allow_fetch:
+        log("[object_info] refresh requested; ignoring any cache")
+    elif cache_path and os.path.exists(cache_path):
         try:
             with open(cache_path, "r", encoding="utf-8-sig") as f:
                 data = json.load(f)
@@ -81,7 +88,10 @@ def load_object_info(
     try:
         import urllib.request
 
-        with urllib.request.urlopen(url, timeout=5) as resp:  # noqa: S310 - local tool
+        # 60s, not 5: /object_info is ~3 MB on an install with the partner-API
+        # nodes, and a 5s ceiling made a reachable ComfyUI look offline — which
+        # fails silently into "running without signatures".
+        with urllib.request.urlopen(url, timeout=60) as resp:  # noqa: S310 - local tool
             data = json.load(resp)
         log(f"[object_info] fetched {len(data)} classes from {url}")
         if cache_path:
@@ -578,13 +588,15 @@ class Corpus:
         host: str = "127.0.0.1",
         port: int = 8188,
         allow_fetch: bool = True,
+        refresh_object_info: bool = False,
         templates_descriptions: Optional[str] = None,
         log=print,
     ) -> "Corpus":
         """Load object_info (cache or live), catalog descriptions, then parse
         every workflow under each {source_label: folder} mapping."""
         object_info = load_object_info(
-            object_info_cache, host=host, port=port, allow_fetch=allow_fetch, log=log
+            object_info_cache, host=host, port=port, allow_fetch=allow_fetch,
+            refresh=refresh_object_info, log=log,
         )
         descriptions = load_descriptions(folders, templates_descriptions, log=log)
         graphs = cls._parse_folders(folders, object_info, descriptions, log=log)

@@ -1177,22 +1177,21 @@
           "unresolved_nodes": [
             "FluxResolutionNode",
             "Get Image Size",
+            "ImageCrop+",
+            "ImageRemoveAlpha+",
+            "ImageRemoveBackground+",
             "LayerUtility: ColorImage V2",
             "MarkdownNote",
             "Note",
             "Paste By Mask",
             "PrimitiveNode",
+            "RemBGSession+",
             "Reroute",
-            "SaveText"
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "ImageBatchMulti",
-            "ImageCrop+",
-            "ImageRemoveAlpha+",
-            "ImageRemoveBackground+",
             "ImageResizeKJv2",
-            "RemBGSession+",
-            "SimpleMath+",
             "SomethingToString"
           ]
         },
@@ -3135,6 +3134,7 @@
           "source": "official",
           "uses_api_nodes": true,
           "api_node_classes": [
+            "GeminiNodeV2",
             "OpenRouterLLMNode"
           ],
           "member_files": [
@@ -3261,9 +3261,7 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "GeminiNodeV2",
-            "MarkdownNote",
-            "SaveText"
+            "MarkdownNote"
           ],
           "custom_nodes": []
         },
@@ -4248,11 +4246,10 @@
           },
           "unresolved_nodes": [
             "AILab_QwenVL",
+            "ImageRemoveAlpha+",
             "Note"
           ],
-          "custom_nodes": [
-            "ImageRemoveAlpha+"
-          ]
+          "custom_nodes": []
         },
         {
           "id": "api_partner_nodes_image_edit__z_image",
@@ -4775,11 +4772,10 @@
           },
           "unresolved_nodes": [
             "AILab_QwenVL",
+            "ImageRemoveAlpha+",
             "Note"
           ],
-          "custom_nodes": [
-            "ImageRemoveAlpha+"
-          ]
+          "custom_nodes": []
         }
       ]
     },
@@ -5447,8 +5443,7 @@
           "unresolved_nodes": [
             "MarkdownNote",
             "Note",
-            "PrimitiveNode",
-            "TextEncodeMageFlowEdit"
+            "PrimitiveNode"
           ],
           "custom_nodes": [
             "bEpic_imageSave",
@@ -10920,19 +10915,19 @@
             "uncategorized": 19
           },
           "unresolved_nodes": [
+            "Image Load",
             "LayerUtility: If ",
             "MarkdownNote",
             "Note",
-            "Reroute"
-          ],
-          "custom_nodes": [
-            "Image Load",
-            "ImpactCompare",
-            "QwenMultiangleCameraNode",
+            "Reroute",
             "SeedVR2LoadDiTModel",
             "SeedVR2LoadVAEModel",
             "SeedVR2VideoUpscaler",
             "SimpleMath+"
+          ],
+          "custom_nodes": [
+            "ImpactCompare",
+            "QwenMultiangleCameraNode"
           ]
         },
         {
@@ -11715,10 +11710,7 @@
             "MarkdownNote",
             "Note",
             "PrimitiveNode",
-            "Reroute",
-            "TextEncodeBooguEdit",
-            "TextEncodeJoyImageEdit",
-            "TextEncodeMageFlowEdit"
+            "Reroute"
           ],
           "custom_nodes": []
         },
@@ -15356,7 +15348,6 @@
             "uncategorized": 0
           },
           "unresolved_nodes": [
-            "BerniniConditioning",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -17466,8 +17457,7 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "MarkdownNote",
-            "TextEncodeBooguEdit"
+            "MarkdownNote"
           ],
           "custom_nodes": []
         },
@@ -17945,15 +17935,22 @@
             "GrokVideoReferenceNode",
             "HappyHorseReferenceVideoApi",
             "HappyHorseTextToVideoApi",
+            "HeyGenAvatarVideoNode",
+            "HeyGenCreateAvatarNode",
             "KlingStartEndFrameNode",
             "KlingVideoNode",
             "LumaConceptsNode",
+            "LumaRay32ExtendVideoNode",
+            "LumaRay32TextToVideoNode",
             "LumaVideoNode",
+            "MinimaxHailuo03ReferenceNode",
+            "MinimaxHailuo03TextToVideoNode",
             "MinimaxHailuoVideoNode",
             "MinimaxTextToVideoNode",
             "OpenAIGPTImageNodeV2",
             "PixverseTemplateNode",
             "PixverseTextToVideoNode",
+            "SyncTalkingImageNode",
             "Vidu2ReferenceVideoNode",
             "Vidu2TextToVideoNode",
             "Vidu3TextToVideoNode",
@@ -18769,20 +18766,12 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "HeyGenAvatarVideoNode",
-            "HeyGenCreateAvatarNode",
-            "LumaRay32ExtendVideoNode",
-            "LumaRay32TextToVideoNode",
             "MarkdownNote",
-            "MinimaxHailuo03ReferenceNode",
-            "MinimaxHailuo03TextToVideoNode",
             "Note",
             "Reroute",
-            "SaveText",
-            "SyncTalkingImageNode"
+            "SimpleMath+"
           ],
           "custom_nodes": [
-            "SimpleMath+",
             "VHS_VideoCombine"
           ]
         },
@@ -18984,7 +18973,8 @@
           "uses_api_nodes": true,
           "api_node_classes": [
             "GeminiImage2Node",
-            "GeminiNanoBanana2"
+            "GeminiNanoBanana2",
+            "HeyGenTalkingPhotoNode"
           ],
           "member_files": [
             "api_heygen_talking_photo",
@@ -19428,23 +19418,22 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "HeyGenTalkingPhotoNode",
+            "Image Crop Location",
             "LayerUtility: ColorImage V2",
             "MarkdownNote",
+            "MaskBoundingBox+",
+            "MaskPreview+",
             "PrimitiveNode",
-            "Reroute"
+            "Reroute",
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "BiRefNetRMBG",
             "ColorToMask",
-            "Image Crop Location",
             "ImageBatchMulti",
             "ImagePadForOutpaintMasked",
             "ImageResizeKJv2",
-            "MaskBoundingBox+",
-            "MaskPreview+",
             "SaveImageWithAlpha",
-            "SimpleMath+",
             "VHS_VideoCombine"
           ]
         },
@@ -19613,7 +19602,9 @@
           "execution": "api",
           "source": "official",
           "uses_api_nodes": true,
-          "api_node_classes": [],
+          "api_node_classes": [
+            "GeminiVideoOmni"
+          ],
           "member_files": [
             "api_google_gemini_omni_flash_t2v"
           ],
@@ -19799,7 +19790,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "GeminiVideoOmni",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -24417,12 +24407,12 @@
             "IPAdapterUnifiedLoader",
             "IPAdapterWeights",
             "MarkdownNote",
-            "PrepImageForClipVision"
+            "PrepImageForClipVision",
+            "Upscale Model Loader"
           ],
           "custom_nodes": [
             "GetImageSizeAndCount",
             "ImageBatchMulti",
-            "Upscale Model Loader",
             "VHS_VideoCombine"
           ]
         },
@@ -25209,7 +25199,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "BerniniConditioning",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -28071,8 +28060,12 @@
             "DepthAnything_V2",
             "DownloadAndLoadDepthAnythingV2Model",
             "ImageConstant",
+            "ImageResize+",
+            "Int",
             "MarkdownNote",
-            "TextBox1"
+            "MaskBlur+",
+            "TextBox1",
+            "easy mathInt"
           ],
           "custom_nodes": [
             "CannyEdgePreprocessor",
@@ -28080,12 +28073,9 @@
             "DiffusionModelSelector",
             "GrowMaskWithBlur",
             "INTConstant",
-            "ImageResize+",
             "ImageResizeKJv2",
-            "Int",
             "LoadSAM3Model",
             "LoadWanVideoT5TextEncoder",
-            "MaskBlur+",
             "SAM3Propagate",
             "SAM3VideoOutput",
             "SAM3VideoSegmentation",
@@ -28104,8 +28094,7 @@
             "WanVideoVACEModelSelect",
             "WanVideoVAELoader",
             "bEpicReformat",
-            "bepicVaceKeyframeReplacer",
-            "easy mathInt"
+            "bepicVaceKeyframeReplacer"
           ]
         },
         {
@@ -28995,14 +28984,13 @@
             "OnnxDetectionModelLoader",
             "PoseDetectionVitPoseToDWPose",
             "RenderNLFPoses",
-            "SCAIL2ColoredMask"
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "DWPreprocessor",
             "ImageResizeKJv2",
             "LoadNLFModel",
             "NLFPredict",
-            "SimpleMath+",
             "WanVideoAddSCAILPoseEmbeds",
             "WanVideoAddSCAILReferenceEmbeds",
             "WanVideoClipVisionEncode",
@@ -32554,7 +32542,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "BerniniConditioning",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -33251,7 +33238,6 @@
             "uncategorized": 0
           },
           "unresolved_nodes": [
-            "BerniniConditioning",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -33527,6 +33513,9 @@
           "api_node_classes": [
             "BeebleSwitchXVideoEdit",
             "BriaRemoveVideoBackground",
+            "BriaTransparentVideoBackground",
+            "BriaVideoGreenScreen",
+            "BriaVideoReplaceBackground",
             "ByteDance2ReferenceNode",
             "ByteDanceSeedreamNode",
             "GeminiImage2Node",
@@ -33534,9 +33523,15 @@
             "GrokVideoEditNode",
             "GrokVideoExtendNode",
             "HappyHorseVideoEditApi",
+            "HeyGenVideoTranslateNode",
             "KlingOmniProEditVideoNode",
             "KlingStartEndFrameNode",
+            "LumaRay32ExtendVideoNode",
+            "LumaRay32VideoEditNode",
             "MinimaxHailuoVideoNode",
+            "RunwayAleph2KeyframeNode",
+            "RunwayAleph2PromptImageNode",
+            "RunwayAleph2VideoToVideoNode",
             "ViduExtendVideoNode"
           ],
           "member_files": [
@@ -34249,29 +34244,20 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "BriaTransparentVideoBackground",
-            "BriaVideoGreenScreen",
-            "BriaVideoReplaceBackground",
             "Get Image Size",
-            "HeyGenVideoTranslateNode",
+            "ImageRemoveAlpha+",
             "JWImageResizeByShorterSide",
             "LayerUtility: ColorImage V2",
-            "LumaRay32ExtendVideoNode",
-            "LumaRay32VideoEditNode",
             "MarkdownNote",
             "Note",
             "Paste By Mask",
             "Reroute",
-            "RunwayAleph2KeyframeNode",
-            "RunwayAleph2PromptImageNode",
-            "RunwayAleph2VideoToVideoNode"
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "GetImagesFromBatchIndexed",
             "ImageBatchMulti",
-            "ImageRemoveAlpha+",
             "ImageResizeKJv2",
-            "SimpleMath+",
             "VHS_LoadImagePath",
             "VHS_VideoCombine"
           ]
@@ -34500,6 +34486,7 @@
           "api_node_classes": [
             "ByteDance2ReferenceNode",
             "GeminiNode",
+            "GeminiVideoOmni",
             "OpenAIGPTImageNodeV2"
           ],
           "member_files": [
@@ -34741,7 +34728,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "GeminiVideoOmni",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -34887,7 +34873,9 @@
           "execution": "api",
           "source": "official",
           "uses_api_nodes": true,
-          "api_node_classes": [],
+          "api_node_classes": [
+            "SyncLipSyncNode"
+          ],
           "member_files": [
             "api_sync_so_lip_sync_video"
           ],
@@ -35031,9 +35019,7 @@
             "pure": false,
             "coverage": 0
           },
-          "unresolved_nodes": [
-            "SyncLipSyncNode"
-          ],
+          "unresolved_nodes": [],
           "custom_nodes": []
         },
         {
@@ -37103,13 +37089,13 @@
             "coverage": 0
           },
           "unresolved_nodes": [
+            "ImageResize+",
             "LayerUtility: ColorImage V2",
-            "MarkdownNote"
+            "MarkdownNote",
+            "SimpleMath+"
           ],
           "custom_nodes": [
-            "ImageResize+",
             "ReverseImageBatch",
-            "SimpleMath+",
             "VHS_DuplicateImages",
             "VHS_LoadVideo",
             "VHS_VideoCombine"
@@ -38532,6 +38518,8 @@
             "GeminiNanoBanana2",
             "HappyHorseImageToVideoApi",
             "KlingOmniProImageToVideoNode",
+            "LumaRay32ExtendVideoNode",
+            "LumaRay32ImageToVideoNode",
             "MinimaxImageToVideoNode",
             "PixverseImageToVideoNode",
             "PixverseTemplateNode",
@@ -38873,8 +38861,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "LumaRay32ExtendVideoNode",
-            "LumaRay32ImageToVideoNode",
             "MarkdownNote",
             "PrimitiveNode"
           ],
@@ -39362,12 +39348,12 @@
             "Note",
             "PrimitiveNode",
             "Reroute",
-            "StringToInt"
+            "StringToInt",
+            "Text Multiline"
           ],
           "custom_nodes": [
             "ImageBatchMulti",
             "SomethingToString",
-            "Text Multiline",
             "VHS_VideoCombine"
           ]
         },
@@ -39667,7 +39653,9 @@
           "execution": "api",
           "source": "official",
           "uses_api_nodes": true,
-          "api_node_classes": [],
+          "api_node_classes": [
+            "GeminiVideoOmni"
+          ],
           "member_files": [
             "api_google_gemini_omni_flash_i2v"
           ],
@@ -39876,7 +39864,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "GeminiVideoOmni",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -41412,19 +41399,19 @@
             "CM_IntToFloat",
             "DepthAnything_V2",
             "DownloadAndLoadDepthAnythingV2Model",
+            "ImageRemoveAlpha+",
+            "ImageRemoveBackground+",
+            "ImageResize+",
             "MarkdownNote",
             "Note",
-            "Reroute"
+            "RemBGSession+",
+            "Reroute",
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "GetImageRangeFromBatch",
             "ImageBatchMulti",
-            "ImageRemoveAlpha+",
-            "ImageRemoveBackground+",
-            "ImageResize+",
             "ImageResizeKJv2",
-            "RemBGSession+",
-            "SimpleMath+",
             "VHS_SelectEveryNthImage"
           ]
         }
@@ -41882,6 +41869,7 @@
           "uses_api_nodes": true,
           "api_node_classes": [
             "GeminiNode",
+            "IdeogramPImage",
             "IdeogramV3",
             "IdeogramV4"
           ],
@@ -42042,9 +42030,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "BuildJsonPromptIdeogram",
-            "CreateBoundingBoxes",
-            "IdeogramPImage",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -46958,11 +46943,11 @@
             "uncategorized": 3
           },
           "unresolved_nodes": [
+            "ImageResize+",
             "MarkdownNote"
           ],
           "custom_nodes": [
-            "AIO_Preprocessor",
-            "ImageResize+"
+            "AIO_Preprocessor"
           ]
         },
         {
@@ -48245,10 +48230,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "AnimaLLLiteApply",
-            "DA3Inference",
-            "DA3Render",
-            "LoadDA3Model",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -50478,9 +50459,6 @@
             "uncategorized": 1
           },
           "unresolved_nodes": [
-            "DA3Inference",
-            "DA3Render",
-            "LoadDA3Model",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -52398,19 +52376,14 @@
           "unresolved_nodes": [
             "LayerUtility: If ",
             "MarkdownNote",
-            "SeedVR2Conditioning",
-            "SeedVR2PostProcessing",
-            "SeedVR2Preprocess",
-            "SeedVR2TemporalChunk",
-            "SeedVR2TemporalMerge"
-          ],
-          "custom_nodes": [
-            "BOOLConstant",
-            "ImpactCompare",
             "SeedVR2LoadDiTModel",
             "SeedVR2LoadVAEModel",
             "SeedVR2VideoUpscaler",
             "SimpleMath+"
+          ],
+          "custom_nodes": [
+            "BOOLConstant",
+            "ImpactCompare"
           ]
         },
         {
@@ -53095,16 +53068,16 @@
             "MarkdownNote",
             "Note",
             "PrimitiveNode",
-            "Reroute"
+            "Reroute",
+            "SeedVR2LoadDiTModel",
+            "SeedVR2LoadVAEModel",
+            "SeedVR2VideoUpscaler",
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "GrowMaskWithBlur",
             "ImageResizeKJv2",
             "ImpactCompare",
-            "SeedVR2LoadDiTModel",
-            "SeedVR2LoadVAEModel",
-            "SeedVR2VideoUpscaler",
-            "SimpleMath+",
             "UltimateSDUpscale"
           ]
         },
@@ -54122,10 +54095,10 @@
             "coverage": 0
           },
           "unresolved_nodes": [
+            "ImageResize+",
             "MarkdownNote"
           ],
           "custom_nodes": [
-            "ImageResize+",
             "WanVideoDecode",
             "WanVideoEmptyEmbeds",
             "WanVideoEncode",
@@ -54955,7 +54928,8 @@
             "ByteDanceFirstLastFrameNode",
             "GeminiImage2Node",
             "GeminiNanoBanana2V2",
-            "GeminiNode"
+            "GeminiNode",
+            "MinimaxHailuo03FirstLastFrameNode"
           ],
           "member_files": [
             "api_minimax_h3_flf2v",
@@ -55178,7 +55152,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "MinimaxHailuo03FirstLastFrameNode",
             "Note"
           ],
           "custom_nodes": []
@@ -56735,6 +56708,7 @@
           "source": "official",
           "uses_api_nodes": true,
           "api_node_classes": [
+            "ByteDanceSeedAudio",
             "ElevenLabsAudioIsolation",
             "ElevenLabsInstantVoiceClone",
             "ElevenLabsSpeechToSpeech",
@@ -56742,6 +56716,7 @@
             "ElevenLabsTextToSoundEffects",
             "ElevenLabsTextToSpeech",
             "ElevenLabsVoiceSelector",
+            "HeyGenTextToSpeechNode",
             "SoniloTextToMusic",
             "SoniloVideoToMusic"
           ],
@@ -57070,11 +57045,8 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "ByteDanceSeedAudio",
-            "HeyGenTextToSpeechNode",
             "MarkdownNote",
-            "Note",
-            "SaveAudioAdvanced"
+            "Note"
           ],
           "custom_nodes": []
         },
@@ -62204,9 +62176,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "DA3Inference",
-            "DA3Render",
-            "LoadDA3Model",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -64197,14 +64166,14 @@
           "unresolved_nodes": [
             "AILab_QwenVL",
             "MarkdownNote",
-            "Note"
+            "Note",
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "ImageBatchMulti",
             "ImageResizeKJv2",
             "ImageUpscaleWithModelBatched",
             "ImpactStringSelector",
-            "SimpleMath+",
             "VHS_VideoCombine"
           ]
         },
@@ -67472,7 +67441,6 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "AnimaLLLiteApply",
             "MarkdownNote"
           ],
           "custom_nodes": []
@@ -70614,12 +70582,12 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "Reroute"
+            "Reroute",
+            "SimpleMath+"
           ],
           "custom_nodes": [
             "ImageBatchMulti",
-            "ImageResizeKJv2",
-            "SimpleMath+"
+            "ImageResizeKJv2"
           ]
         },
         {
@@ -71200,10 +71168,10 @@
           },
           "unresolved_nodes": [
             "FluxResolutionNode",
+            "ImageResize+",
             "MarkdownNote"
           ],
           "custom_nodes": [
-            "ImageResize+",
             "ImageResizeKJv2"
           ]
         }
@@ -71359,10 +71327,11 @@
             "coverage": 2,
             "uncategorized": 1
           },
-          "unresolved_nodes": [],
-          "custom_nodes": [
-            "ImageResizeKJv2",
+          "unresolved_nodes": [
             "easy saveText"
+          ],
+          "custom_nodes": [
+            "ImageResizeKJv2"
           ]
         },
         {
@@ -72360,11 +72329,11 @@
             "coverage": 0
           },
           "unresolved_nodes": [
-            "MarkdownNote"
+            "ImageResize+",
+            "MarkdownNote",
+            "SimpleMath+"
           ],
           "custom_nodes": [
-            "ImageResize+",
-            "SimpleMath+",
             "VHS_SelectImages",
             "WanVideoDecode",
             "WanVideoEmptyEmbeds",
@@ -73193,9 +73162,7 @@
             "coverage": 2,
             "uncategorized": 0
           },
-          "unresolved_nodes": [
-            "SCAIL2ColoredMask"
-          ],
+          "unresolved_nodes": [],
           "custom_nodes": []
         },
         {

@@ -2,8 +2,8 @@
   "generated_from": {
     "workflow_count": 699,
     "node_class_count": 702,
-    "custom_classes": 112,
-    "unresolved_classes": 129
+    "custom_classes": 93,
+    "unresolved_classes": 106
   },
   "nodes": [
     {
@@ -285,14 +285,33 @@
       "class": "AnimaLLLiteApply",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "end_percent",
+          "image",
+          "model",
+          "model_patch",
+          "start_percent",
+          "strength"
+        ],
+        "optional": [
+          "mask"
+        ],
+        "types": {
+          "model": "MODEL",
+          "model_patch": "MODEL_PATCH",
+          "image": "IMAGE",
+          "strength": "FLOAT",
+          "start_percent": "FLOAT",
+          "end_percent": "FLOAT",
+          "mask": "MASK"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "MODEL"
+      ],
       "used_in_type_ids": [
         "image_edit_with_controlnet__anima",
         "inpaint_outpaint__wan"
@@ -770,14 +789,43 @@
       "class": "BerniniConditioning",
       "role": "conditioning_op",
       "role_description": "conditioning combine / edit",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "batch_size",
+          "height",
+          "length",
+          "negative",
+          "positive",
+          "vae",
+          "width"
+        ],
+        "optional": [
+          "ref_max_size",
+          "reference_images",
+          "reference_video",
+          "source_video"
+        ],
+        "types": {
+          "positive": "CONDITIONING",
+          "negative": "CONDITIONING",
+          "vae": "VAE",
+          "width": "INT",
+          "height": "INT",
+          "length": "INT",
+          "batch_size": "INT",
+          "source_video": "IMAGE",
+          "reference_video": "IMAGE",
+          "reference_images": "COMFY_AUTOGROW_V3",
+          "ref_max_size": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "CONDITIONING",
+        "CONDITIONING",
+        "LATENT"
+      ],
       "used_in_type_ids": [
         "image_edit__bernini",
         "image_to_video__bernini",
@@ -832,11 +880,13 @@
           "invert_output",
           "mask_blur",
           "mask_offset",
-          "refine_foreground"
+          "refine_foreground",
+          "sensitivity"
         ],
         "types": {
           "image": "IMAGE",
           "model": "COMBO",
+          "sensitivity": "FLOAT",
           "mask_blur": "INT",
           "mask_offset": "INT",
           "invert_output": "BOOLEAN",
@@ -987,14 +1037,23 @@
       "class": "BriaTransparentVideoBackground",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "seed",
+          "video"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "video": "VIDEO",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE",
+        "MASK"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -1004,14 +1063,24 @@
       "class": "BriaVideoGreenScreen",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "green_shade",
+          "seed",
+          "video"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "video": "VIDEO",
+          "green_shade": "COMBO",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -1021,14 +1090,27 @@
       "class": "BriaVideoReplaceBackground",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "seed",
+          "video"
+        ],
+        "optional": [
+          "background_image",
+          "background_video"
+        ],
+        "types": {
+          "video": "VIDEO",
+          "seed": "INT",
+          "background_image": "IMAGE",
+          "background_video": "VIDEO"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -1038,14 +1120,34 @@
       "class": "BuildJsonPromptIdeogram",
       "role": "api_node",
       "role_description": "external API generation node",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "aesthetics",
+          "background",
+          "color_palette",
+          "element",
+          "high_level_description",
+          "lighting",
+          "medium",
+          "style"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "element": "ARRAY",
+          "high_level_description": "STRING",
+          "background": "STRING",
+          "style": "COMFY_DYNAMICCOMBO_V3",
+          "aesthetics": "STRING",
+          "lighting": "STRING",
+          "medium": "STRING",
+          "color_palette": "COLORS"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "DICT"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_image__ideogram"
       ],
@@ -1287,14 +1389,35 @@
       "class": "ByteDanceSeedAudio",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "loudness_rate",
+          "pitch_rate",
+          "reference_mode",
+          "sample_rate",
+          "seed",
+          "speech_rate",
+          "text_prompt"
+        ],
+        "optional": [
+          "model"
+        ],
+        "types": {
+          "text_prompt": "STRING",
+          "reference_mode": "COMFY_DYNAMICCOMBO_V3",
+          "sample_rate": "COMBO",
+          "speech_rate": "INT",
+          "loudness_rate": "INT",
+          "pitch_rate": "INT",
+          "seed": "INT",
+          "model": "COMBO"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "AUDIO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__generic"
       ],
@@ -1392,12 +1515,15 @@
           "seed",
           "watermark"
         ],
-        "optional": [],
+        "optional": [
+          "thinking"
+        ],
         "types": {
           "prompt": "STRING",
           "model": "COMFY_DYNAMICCOMBO_V3",
           "seed": "INT",
-          "watermark": "BOOLEAN"
+          "watermark": "BOOLEAN",
+          "thinking": "BOOLEAN"
         }
       },
       "outputs": [
@@ -2227,7 +2353,9 @@
         }
       },
       "outputs": [
-        "INT"
+        "INT",
+        "COLOR",
+        "FLOAT"
       ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic",
@@ -2578,14 +2706,33 @@
       "class": "CreateBoundingBoxes",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "editor_state",
+          "height",
+          "width"
+        ],
+        "optional": [
+          "background",
+          "bboxes",
+          "last_incoming"
+        ],
+        "types": {
+          "width": "INT",
+          "height": "INT",
+          "editor_state": "BOUNDING_BOXES",
+          "background": "IMAGE",
+          "bboxes": "BOUNDING_BOX,ARRAY,STRING",
+          "last_incoming": "BOUNDING_BOXES"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE",
+        "BOUNDING_BOX",
+        "ARRAY"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_image__ideogram"
       ],
@@ -2640,12 +2787,14 @@
           "images"
         ],
         "optional": [
-          "audio"
+          "audio",
+          "bit_depth"
         ],
         "types": {
           "images": "IMAGE",
           "fps": "FLOAT",
-          "audio": "AUDIO"
+          "audio": "AUDIO",
+          "bit_depth": "INT"
         }
       },
       "outputs": [
@@ -2796,14 +2945,28 @@
       "class": "DA3Inference",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "da3_model",
+          "image",
+          "mode",
+          "resize_method",
+          "resolution"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "da3_model": "DA3_MODEL",
+          "image": "IMAGE",
+          "resolution": "INT",
+          "resize_method": "COMBO",
+          "mode": "COMFY_DYNAMICCOMBO_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "DA3_GEOMETRY"
+      ],
       "used_in_type_ids": [
         "image_edit_with_controlnet__anima",
         "preprocessors_estimation__depth_anything",
@@ -2815,14 +2978,22 @@
       "class": "DA3Render",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "da3_geometry",
+          "output"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "da3_geometry": "DA3_GEOMETRY",
+          "output": "COMFY_DYNAMICCOMBO_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "image_edit_with_controlnet__anima",
         "preprocessors_estimation__depth_anything",
@@ -4538,11 +4709,14 @@
           "image",
           "mask"
         ],
-        "optional": [],
+        "optional": [
+          "seed"
+        ],
         "types": {
           "image": "IMAGE",
           "mask": "MASK",
-          "dilate_pixels": "INT"
+          "dilate_pixels": "INT",
+          "seed": "INT"
         }
       },
       "outputs": [
@@ -5198,14 +5372,18 @@
           "seed"
         ],
         "optional": [
-          "system_prompt"
+          "system_prompt",
+          "temperature",
+          "top_p"
         ],
         "types": {
           "prompt": "STRING",
           "model": "COMFY_DYNAMICCOMBO_V3",
           "seed": "INT",
           "response_modalities": "COMBO",
-          "system_prompt": "STRING"
+          "system_prompt": "STRING",
+          "temperature": "FLOAT",
+          "top_p": "FLOAT"
         }
       },
       "outputs": [
@@ -5279,14 +5457,27 @@
       "class": "GeminiNodeV2",
       "role": "api_node",
       "role_description": "external API generation node",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "model",
+          "prompt",
+          "seed"
+        ],
+        "optional": [
+          "system_prompt"
+        ],
+        "types": {
+          "prompt": "STRING",
+          "model": "COMFY_DYNAMICCOMBO_V3",
+          "seed": "INT",
+          "system_prompt": "STRING"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__gemini"
       ],
@@ -5296,14 +5487,23 @@
       "class": "GeminiVideoOmni",
       "role": "api_node",
       "role_description": "external API generation node",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "model",
+          "seed"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "model": "COMFY_DYNAMICCOMBO_V3",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO",
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_image_to_video__gemini",
         "api_partner_nodes_text_to_video__gemini",
@@ -5581,7 +5781,8 @@
       "outputs": [
         "IMAGE",
         "AUDIO",
-        "FLOAT"
+        "FLOAT",
+        "INT"
       ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__generic",
@@ -6019,14 +6220,33 @@
       "class": "HeyGenAvatarVideoNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "engine",
+          "speech"
+        ],
+        "optional": [
+          "aspect_ratio",
+          "background_color",
+          "custom_avatar_id",
+          "resolution",
+          "seed"
+        ],
+        "types": {
+          "engine": "COMFY_DYNAMICCOMBO_V3",
+          "speech": "COMFY_DYNAMICCOMBO_V3",
+          "custom_avatar_id": "STRING",
+          "resolution": "COMBO",
+          "aspect_ratio": "COMBO",
+          "background_color": "STRING",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic"
       ],
@@ -6036,14 +6256,21 @@
       "class": "HeyGenCreateAvatarNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "source"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "source": "COMFY_DYNAMICCOMBO_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "STRING",
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic"
       ],
@@ -6053,14 +6280,31 @@
       "class": "HeyGenTalkingPhotoNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "image",
+          "speech"
+        ],
+        "optional": [
+          "aspect_ratio",
+          "expressiveness",
+          "resolution",
+          "seed"
+        ],
+        "types": {
+          "image": "IMAGE",
+          "speech": "COMFY_DYNAMICCOMBO_V3",
+          "resolution": "COMBO",
+          "aspect_ratio": "COMBO",
+          "expressiveness": "COMBO",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__anima"
       ],
@@ -6070,14 +6314,31 @@
       "class": "HeyGenTextToSpeechNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "text",
+          "voice"
+        ],
+        "optional": [
+          "custom_voice_id",
+          "seed",
+          "speed",
+          "ssml"
+        ],
+        "types": {
+          "text": "STRING",
+          "voice": "COMBO",
+          "custom_voice_id": "STRING",
+          "speed": "FLOAT",
+          "ssml": "BOOLEAN",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "AUDIO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__generic"
       ],
@@ -6087,14 +6348,31 @@
       "class": "HeyGenVideoTranslateNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "mode",
+          "output_language",
+          "video"
+        ],
+        "optional": [
+          "seed",
+          "speaker_count",
+          "translate_audio_only"
+        ],
+        "types": {
+          "video": "VIDEO",
+          "output_language": "COMBO",
+          "mode": "COMBO",
+          "translate_audio_only": "BOOLEAN",
+          "speaker_count": "INT",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -6532,14 +6810,32 @@
       "class": "IdeogramPImage",
       "role": "api_node",
       "role_description": "external API generation node",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "aspect_ratio",
+          "prompt",
+          "prompt_upsampling",
+          "quality",
+          "resolution"
+        ],
+        "optional": [
+          "seed"
+        ],
+        "types": {
+          "prompt": "STRING",
+          "quality": "COMBO",
+          "resolution": "COMBO",
+          "aspect_ratio": "COMBO",
+          "prompt_upsampling": "COMBO",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE",
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_image__ideogram"
       ],
@@ -6622,29 +6918,14 @@
       "class": "Image Crop Location",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "bottom",
-          "image",
-          "left",
-          "right",
-          "top"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "image": "IMAGE",
-          "top": "INT",
-          "left": "INT",
-          "right": "INT",
-          "bottom": "INT"
-        }
+        "types": {}
       },
-      "outputs": [
-        "IMAGE",
-        "CROP_DATA"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__anima"
       ],
@@ -6654,27 +6935,14 @@
       "class": "Image Load",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "RGBA",
-          "image_path"
-        ],
-        "optional": [
-          "filename_text_extension"
-        ],
-        "types": {
-          "image_path": "STRING",
-          "RGBA": "COMBO",
-          "filename_text_extension": "COMBO"
-        }
+        "required": [],
+        "optional": [],
+        "types": {}
       },
-      "outputs": [
-        "IMAGE",
-        "MASK",
-        "STRING"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "image_edit__qwen_image"
       ],
@@ -7016,32 +7284,14 @@
       "class": "ImageCrop+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "height",
-          "image",
-          "position",
-          "width",
-          "x_offset",
-          "y_offset"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "image": "IMAGE",
-          "width": "INT",
-          "height": "INT",
-          "position": "COMBO",
-          "x_offset": "INT",
-          "y_offset": "INT"
-        }
+        "types": {}
       },
-      "outputs": [
-        "IMAGE",
-        "INT",
-        "INT"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__generic"
       ],
@@ -7365,20 +7615,14 @@
       "class": "ImageRemoveAlpha+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "image"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "image": "IMAGE"
-        }
+        "types": {}
       },
-      "outputs": [
-        "IMAGE"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__wan",
@@ -7392,23 +7636,14 @@
       "class": "ImageRemoveBackground+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "image",
-          "rembg_session"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "rembg_session": "REMBG_SESSION",
-          "image": "IMAGE"
-        }
+        "types": {}
       },
-      "outputs": [
-        "IMAGE",
-        "MASK"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_to_video__wan_vace"
@@ -7419,34 +7654,14 @@
       "class": "ImageResize+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "condition",
-          "height",
-          "image",
-          "interpolation",
-          "method",
-          "multiple_of",
-          "width"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "image": "IMAGE",
-          "width": "INT",
-          "height": "INT",
-          "interpolation": "COMBO",
-          "method": "COMBO",
-          "condition": "COMBO",
-          "multiple_of": "INT"
-        }
+        "types": {}
       },
-      "outputs": [
-        "IMAGE",
-        "INT",
-        "INT"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit_with_controlnet__wan_2_2",
         "api_partner_nodes_image_to_video__wan_vace",
@@ -7947,20 +8162,14 @@
       "class": "Int",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "Number"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "Number": "STRING"
-        }
+        "types": {}
       },
-      "outputs": [
-        "INT"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "video_to_video__wan_vace"
       ],
@@ -8960,7 +9169,7 @@
         ],
         "types": {
           "model": "MODEL",
-          "preview_rate": "INT",
+          "preview_rate": "FLOAT,INT",
           "latent_upscale_model": "LATENT_UPSCALE_MODEL",
           "vae": "VAE"
         }
@@ -9433,7 +9642,7 @@
         "optional": [],
         "types": {
           "frames_number": "INT",
-          "frame_rate": "INT",
+          "frame_rate": "FLOAT,INT",
           "batch_size": "INT",
           "audio_vae": "VAE"
         }
@@ -10193,14 +10402,22 @@
       "class": "LoadDA3Model",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "model_name",
+          "weight_dtype"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "model_name": "COMBO",
+          "weight_dtype": "COMBO"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "DA3_MODEL"
+      ],
       "used_in_type_ids": [
         "image_edit_with_controlnet__anima",
         "preprocessors_estimation__depth_anything",
@@ -10928,14 +11145,29 @@
       "class": "LumaRay32ExtendVideoNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "direction",
+          "prompt",
+          "resolution",
+          "seed",
+          "source_generation_id"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "source_generation_id": "STRING",
+          "direction": "COMFY_DYNAMICCOMBO_V3",
+          "prompt": "STRING",
+          "resolution": "COMBO",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO",
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_image_to_video__generic",
         "api_partner_nodes_text_to_video__generic",
@@ -10947,14 +11179,32 @@
       "class": "LumaRay32ImageToVideoNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "loop",
+          "prompt",
+          "resolution",
+          "seed"
+        ],
+        "optional": [
+          "end_frame",
+          "start_frame"
+        ],
+        "types": {
+          "prompt": "STRING",
+          "resolution": "COMBO",
+          "loop": "BOOLEAN",
+          "seed": "INT",
+          "start_frame": "IMAGE",
+          "end_frame": "IMAGE"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO",
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_image_to_video__generic"
       ],
@@ -10964,14 +11214,31 @@
       "class": "LumaRay32TextToVideoNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "aspect_ratio",
+          "duration",
+          "loop",
+          "prompt",
+          "resolution",
+          "seed"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "prompt": "STRING",
+          "aspect_ratio": "COMBO",
+          "resolution": "COMBO",
+          "duration": "COMBO",
+          "loop": "BOOLEAN",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO",
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic"
       ],
@@ -10981,14 +11248,29 @@
       "class": "LumaRay32VideoEditNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "prompt",
+          "resolution",
+          "seed",
+          "strength",
+          "video"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "video": "VIDEO",
+          "prompt": "STRING",
+          "resolution": "COMBO",
+          "strength": "COMBO",
+          "seed": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO",
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -11421,24 +11703,14 @@
       "class": "MaskBlur+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "amount",
-          "device",
-          "mask"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "mask": "MASK",
-          "amount": "INT",
-          "device": "COMBO"
-        }
+        "types": {}
       },
-      "outputs": [
-        "MASK"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "video_to_video__wan_vace"
       ],
@@ -11448,32 +11720,14 @@
       "class": "MaskBoundingBox+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "blur",
-          "mask",
-          "padding"
-        ],
-        "optional": [
-          "image_optional"
-        ],
-        "types": {
-          "mask": "MASK",
-          "padding": "INT",
-          "blur": "INT",
-          "image_optional": "IMAGE"
-        }
+        "required": [],
+        "optional": [],
+        "types": {}
       },
-      "outputs": [
-        "MASK",
-        "IMAGE",
-        "INT",
-        "INT",
-        "INT",
-        "INT"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__anima"
       ],
@@ -11526,7 +11780,9 @@
           "mask": "MASK"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "MASK"
+      ],
       "used_in_type_ids": [
         "image_edit__sam3",
         "image_edit_with_controlnet__z_image",
@@ -11549,16 +11805,12 @@
       "class": "MaskPreview+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "mask"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "mask": "MASK"
-        }
+        "types": {}
       },
       "outputs": [],
       "used_in_type_ids": [
@@ -11839,14 +12091,29 @@
       "class": "MinimaxHailuo03FirstLastFrameNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "first_frame",
+          "model",
+          "seed",
+          "watermark"
+        ],
+        "optional": [
+          "last_frame"
+        ],
+        "types": {
+          "model": "COMFY_DYNAMICCOMBO_V3",
+          "first_frame": "IMAGE",
+          "seed": "INT",
+          "watermark": "BOOLEAN",
+          "last_frame": "IMAGE"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_first_last_frame_to_video__anima"
       ],
@@ -11856,14 +12123,24 @@
       "class": "MinimaxHailuo03ReferenceNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "model",
+          "seed",
+          "watermark"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "model": "COMFY_DYNAMICCOMBO_V3",
+          "seed": "INT",
+          "watermark": "BOOLEAN"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic"
       ],
@@ -11873,14 +12150,24 @@
       "class": "MinimaxHailuo03TextToVideoNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "model",
+          "seed",
+          "watermark"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "model": "COMFY_DYNAMICCOMBO_V3",
+          "seed": "INT",
+          "watermark": "BOOLEAN"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic"
       ],
@@ -13247,7 +13534,9 @@
           "images": "IMAGE"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "3d__moge",
         "3d__triposplat",
@@ -14481,22 +14770,14 @@
       "class": "RemBGSession+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "model",
-          "providers"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "model": "COMBO",
-          "providers": "COMBO"
-        }
+        "types": {}
       },
-      "outputs": [
-        "REMBG_SESSION"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_to_video__wan_vace"
@@ -14516,8 +14797,8 @@
         ],
         "optional": [],
         "types": {
-          "image": "IMAGE",
-          "bg_removal_model": "BACKGROUND_REMOVAL"
+          "bg_removal_model": "BACKGROUND_REMOVAL",
+          "image": "IMAGE"
         }
       },
       "outputs": [
@@ -14850,12 +15131,14 @@
       "inputs": {
         "required": [
           "aspect_ratio",
-          "megapixels"
+          "megapixels",
+          "multiple"
         ],
         "optional": [],
         "types": {
           "aspect_ratio": "COMBO",
-          "megapixels": "FLOAT"
+          "megapixels": "FLOAT",
+          "multiple": "INT"
         }
       },
       "outputs": [
@@ -15254,14 +15537,25 @@
       "class": "RunwayAleph2KeyframeNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "image",
+          "timing"
+        ],
+        "optional": [
+          "keyframes"
+        ],
+        "types": {
+          "image": "IMAGE",
+          "timing": "COMFY_DYNAMICCOMBO_V3",
+          "keyframes": "RUNWAY_ALEPH2_KEYFRAME"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "RUNWAY_ALEPH2_KEYFRAME"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -15271,14 +15565,25 @@
       "class": "RunwayAleph2PromptImageNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "image",
+          "position"
+        ],
+        "optional": [
+          "prompt_images"
+        ],
+        "types": {
+          "image": "IMAGE",
+          "position": "COMFY_DYNAMICCOMBO_V3",
+          "prompt_images": "RUNWAY_ALEPH2_PROMPT_IMAGE"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "RUNWAY_ALEPH2_PROMPT_IMAGE"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -15288,14 +15593,31 @@
       "class": "RunwayAleph2VideoToVideoNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "prompt",
+          "public_figure_threshold",
+          "seed",
+          "video"
+        ],
+        "optional": [
+          "keyframes",
+          "prompt_images"
+        ],
+        "types": {
+          "prompt": "STRING",
+          "video": "VIDEO",
+          "seed": "INT",
+          "public_figure_threshold": "COMBO",
+          "keyframes": "RUNWAY_ALEPH2_KEYFRAME",
+          "prompt_images": "RUNWAY_ALEPH2_PROMPT_IMAGE"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -15557,14 +15879,30 @@
       "class": "SCAIL2ColoredMask",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "driving_track_data",
+          "object_indices",
+          "replacement_mode",
+          "sort_by"
+        ],
+        "optional": [
+          "ref_track_data"
+        ],
+        "types": {
+          "driving_track_data": "SAM3_TRACK_DATA",
+          "object_indices": "STRING",
+          "sort_by": "COMBO",
+          "replacement_mode": "BOOLEAN",
+          "ref_track_data": "SAM3_TRACK_DATA,MASK"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE",
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "character__scail",
         "video_to_video__wan"
@@ -15583,6 +15921,7 @@
           "draw_face",
           "draw_feet",
           "draw_hands",
+          "draw_head",
           "face_point_size",
           "keypoints",
           "score_threshold",
@@ -15597,7 +15936,8 @@
           "draw_feet": "BOOLEAN",
           "stick_width": "INT",
           "face_point_size": "INT",
-          "score_threshold": "FLOAT"
+          "score_threshold": "FLOAT",
+          "draw_head": "BOOLEAN"
         }
       },
       "outputs": [
@@ -15982,7 +16322,9 @@
           "method": "COMBO"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "image_to_video__wan",
         "text_to_video__wan",
@@ -15994,14 +16336,24 @@
       "class": "SaveAudioAdvanced",
       "role": "save_output",
       "role_description": "save / preview / combine output",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "audio",
+          "filename_prefix",
+          "format"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "audio": "AUDIO",
+          "filename_prefix": "STRING",
+          "format": "COMFY_DYNAMICCOMBO_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "AUDIO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__generic"
       ],
@@ -16026,7 +16378,9 @@
           "quality": "COMBO"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "AUDIO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__ace_step",
         "api_partner_nodes_audio__generic",
@@ -16057,7 +16411,9 @@
           "quality": "COMBO"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "AUDIO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__generic"
       ],
@@ -16076,7 +16432,7 @@
         ],
         "optional": [],
         "types": {
-          "mesh": "MESH,FILE_3D_GLB,FILE_3D_GLTF,FILE_3D_OBJ,FILE_3D_FBX,FILE_3D_STL,FILE_3D_USDZ,FILE_3D",
+          "mesh": "MESH,FILE_3D_GLB,FILE_3D_GLTF,FILE_3D_OBJ,FILE_3D_FBX,FILE_3D_STL,FILE_3D_USDZ,FILE_3D_PLY,FILE_3D_SPLAT,FILE_3D_SPZ,FILE_3D_KSPLAT,FILE_3D_SPLAT_ANY,FILE_3D_POINT_CLOUD_ANY,FILE_3D",
           "filename_prefix": "STRING"
         }
       },
@@ -16108,7 +16464,9 @@
           "filename_prefix": "STRING"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_3d__generic",
         "api_partner_nodes_3d__hunyuan3d",
@@ -16221,7 +16579,9 @@
           "format": "COMFY_DYNAMICCOMBO_V3"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__nano_banana",
@@ -16279,7 +16639,9 @@
           "filename_prefix": "STRING"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "SVG"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit_with_controlnet__generic",
@@ -16291,14 +16653,24 @@
       "class": "SaveText",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "filename_prefix",
+          "format",
+          "text"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "text": "STRING",
+          "filename_prefix": "STRING",
+          "format": "COMBO"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "STRING"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__gemini",
         "api_partner_nodes_image_edit__generic",
@@ -16327,7 +16699,9 @@
           "codec": "COMBO"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "3d__triposplat",
         "api_partner_nodes_audio__generic",
@@ -16413,7 +16787,9 @@
           "crf": "FLOAT"
         }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__generic"
       ],
@@ -16458,14 +16834,23 @@
       "class": "SeedVR2Conditioning",
       "role": "conditioning_op",
       "role_description": "conditioning combine / edit",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "model",
+          "vae_conditioning"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "model": "MODEL",
+          "vae_conditioning": "LATENT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "CONDITIONING",
+        "CONDITIONING"
+      ],
       "used_in_type_ids": [
         "upscale__generic"
       ],
@@ -16475,35 +16860,14 @@
       "class": "SeedVR2LoadDiTModel",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "device",
-          "model"
-        ],
-        "optional": [
-          "attention_mode",
-          "blocks_to_swap",
-          "cache_model",
-          "offload_device",
-          "swap_io_components",
-          "torch_compile_args"
-        ],
-        "types": {
-          "model": "COMBO",
-          "device": "COMBO",
-          "blocks_to_swap": "INT",
-          "swap_io_components": "BOOLEAN",
-          "offload_device": "COMBO",
-          "cache_model": "BOOLEAN",
-          "attention_mode": "COMBO",
-          "torch_compile_args": "TORCH_COMPILE_ARGS"
-        }
+        "required": [],
+        "optional": [],
+        "types": {}
       },
-      "outputs": [
-        "SEEDVR2_DIT"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "image_edit__qwen_image",
         "upscale__generic",
@@ -16515,43 +16879,14 @@
       "class": "SeedVR2LoadVAEModel",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "device",
-          "model"
-        ],
-        "optional": [
-          "cache_model",
-          "decode_tile_overlap",
-          "decode_tile_size",
-          "decode_tiled",
-          "encode_tile_overlap",
-          "encode_tile_size",
-          "encode_tiled",
-          "offload_device",
-          "tile_debug",
-          "torch_compile_args"
-        ],
-        "types": {
-          "model": "COMBO",
-          "device": "COMBO",
-          "encode_tiled": "BOOLEAN",
-          "encode_tile_size": "INT",
-          "encode_tile_overlap": "INT",
-          "decode_tiled": "BOOLEAN",
-          "decode_tile_size": "INT",
-          "decode_tile_overlap": "INT",
-          "tile_debug": "COMBO",
-          "offload_device": "COMBO",
-          "cache_model": "BOOLEAN",
-          "torch_compile_args": "TORCH_COMPILE_ARGS"
-        }
+        "required": [],
+        "optional": [],
+        "types": {}
       },
-      "outputs": [
-        "SEEDVR2_VAE"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "image_edit__qwen_image",
         "upscale__generic",
@@ -16563,14 +16898,24 @@
       "class": "SeedVR2PostProcessing",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "color_correction_method",
+          "images",
+          "original_resized_images"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "images": "IMAGE",
+          "original_resized_images": "IMAGE",
+          "color_correction_method": "COMBO"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "upscale__generic"
       ],
@@ -16580,14 +16925,20 @@
       "class": "SeedVR2Preprocess",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "resized_images"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "resized_images": "IMAGE"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "IMAGE"
+      ],
       "used_in_type_ids": [
         "upscale__generic"
       ],
@@ -16597,14 +16948,25 @@
       "class": "SeedVR2TemporalChunk",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "chunking_mode",
+          "latent",
+          "temporal_overlap"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "latent": "LATENT",
+          "temporal_overlap": "INT",
+          "chunking_mode": "COMFY_DYNAMICCOMBO_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "LATENT",
+        "INT"
+      ],
       "used_in_type_ids": [
         "upscale__generic"
       ],
@@ -16614,14 +16976,22 @@
       "class": "SeedVR2TemporalMerge",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "latents",
+          "temporal_overlap"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "latents": "LATENT",
+          "temporal_overlap": "INT"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "LATENT"
+      ],
       "used_in_type_ids": [
         "upscale__generic"
       ],
@@ -16631,49 +17001,14 @@
       "class": "SeedVR2VideoUpscaler",
       "role": "upscale",
       "role_description": "upscale / resize",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "batch_size",
-          "color_correction",
-          "dit",
-          "image",
-          "max_resolution",
-          "resolution",
-          "seed",
-          "uniform_batch_size",
-          "vae"
-        ],
-        "optional": [
-          "enable_debug",
-          "input_noise_scale",
-          "latent_noise_scale",
-          "offload_device",
-          "prepend_frames",
-          "temporal_overlap"
-        ],
-        "types": {
-          "image": "IMAGE",
-          "dit": "SEEDVR2_DIT",
-          "vae": "SEEDVR2_VAE",
-          "seed": "INT",
-          "resolution": "INT",
-          "max_resolution": "INT",
-          "batch_size": "INT",
-          "uniform_batch_size": "BOOLEAN",
-          "color_correction": "COMBO",
-          "temporal_overlap": "INT",
-          "prepend_frames": "INT",
-          "input_noise_scale": "FLOAT",
-          "latent_noise_scale": "FLOAT",
-          "offload_device": "COMBO",
-          "enable_debug": "BOOLEAN"
-        }
+        "required": [],
+        "optional": [],
+        "types": {}
       },
-      "outputs": [
-        "IMAGE"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "image_edit__qwen_image",
         "upscale__generic",
@@ -16745,28 +17080,14 @@
       "class": "SimpleMath+",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "value"
-        ],
-        "optional": [
-          "a",
-          "b",
-          "c"
-        ],
-        "types": {
-          "value": "STRING",
-          "a": "*",
-          "b": "*",
-          "c": "*"
-        }
+        "required": [],
+        "optional": [],
+        "types": {}
       },
-      "outputs": [
-        "INT",
-        "FLOAT"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_character__generic",
         "api_partner_nodes_image_edit__generic",
@@ -16983,7 +17304,7 @@
         }
       },
       "outputs": [
-        "FILE_3D"
+        "FILE_3D_SPLAT_ANY"
       ],
       "used_in_type_ids": [
         "3d__triposplat"
@@ -17303,14 +17624,26 @@
       "class": "SyncLipSyncNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "audio",
+          "model",
+          "seed",
+          "video"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "video": "VIDEO",
+          "audio": "AUDIO",
+          "seed": "INT",
+          "model": "COMFY_DYNAMICCOMBO_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_video_to_video__anima"
       ],
@@ -17320,14 +17653,28 @@
       "class": "SyncTalkingImageNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "audio",
+          "image",
+          "model",
+          "prompt",
+          "seed"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "image": "IMAGE",
+          "audio": "AUDIO",
+          "prompt": "STRING",
+          "seed": "INT",
+          "model": "COMFY_DYNAMICCOMBO_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "VIDEO"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic"
       ],
@@ -17525,20 +17872,14 @@
       "class": "Text Multiline",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "text"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "text": "STRING"
-        }
+        "types": {}
       },
-      "outputs": [
-        "STRING"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "api_partner_nodes_image_to_video__kling"
       ],
@@ -17646,14 +17987,29 @@
       "class": "TextEncodeBooguEdit",
       "role": "text_encode",
       "role_description": "prompt text encoding",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "clip",
+          "images",
+          "negative_prompt",
+          "prompt",
+          "vae"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "clip": "CLIP",
+          "prompt": "STRING",
+          "negative_prompt": "STRING",
+          "vae": "VAE",
+          "images": "COMFY_AUTOGROW_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "CONDITIONING",
+        "CONDITIONING"
+      ],
       "used_in_type_ids": [
         "image_edit__generic",
         "image_edit__wan"
@@ -17664,14 +18020,27 @@
       "class": "TextEncodeJoyImageEdit",
       "role": "text_encode",
       "role_description": "prompt text encoding",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "clip",
+          "prompt"
+        ],
+        "optional": [
+          "images",
+          "vae"
+        ],
+        "types": {
+          "clip": "CLIP",
+          "prompt": "STRING",
+          "vae": "VAE",
+          "images": "COMFY_AUTOGROW_V3"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "CONDITIONING"
+      ],
       "used_in_type_ids": [
         "image_edit__generic"
       ],
@@ -17681,14 +18050,37 @@
       "class": "TextEncodeMageFlowEdit",
       "role": "text_encode",
       "role_description": "prompt text encoding",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
-        "optional": [],
-        "types": {}
+        "required": [
+          "batch_size",
+          "clip",
+          "height",
+          "images",
+          "negative_prompt",
+          "prompt",
+          "width"
+        ],
+        "optional": [
+          "vae"
+        ],
+        "types": {
+          "clip": "CLIP",
+          "prompt": "STRING",
+          "negative_prompt": "STRING",
+          "images": "COMFY_AUTOGROW_V3",
+          "width": "INT",
+          "height": "INT",
+          "batch_size": "INT",
+          "vae": "VAE"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "CONDITIONING",
+        "CONDITIONING",
+        "LATENT"
+      ],
       "used_in_type_ids": [
         "image_edit__generic",
         "text_to_image__generic"
@@ -18635,6 +19027,7 @@
           "pbr",
           "texture",
           "texture_alignment",
+          "texture_prompt",
           "texture_quality",
           "texture_seed"
         ],
@@ -18644,7 +19037,8 @@
           "pbr": "BOOLEAN",
           "texture_seed": "INT",
           "texture_quality": "COMBO",
-          "texture_alignment": "COMBO"
+          "texture_alignment": "COMBO",
+          "texture_prompt": "STRING"
         }
       },
       "outputs": [
@@ -18899,21 +19293,14 @@
       "class": "Upscale Model Loader",
       "role": "upscale",
       "role_description": "upscale / resize",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "model_name"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "model_name": "COMBO"
-        }
+        "types": {}
       },
-      "outputs": [
-        "UPSCALE_MODEL",
-        "STRING"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "image_to_video__anima"
       ],
@@ -21400,13 +21787,19 @@
           "pose_start",
           "pose_strength",
           "positive",
+          "previous_frame_count",
           "vae",
+          "video_frame_offset",
           "width"
         ],
         "optional": [
           "clip_vision_output",
           "pose_video",
-          "reference_image"
+          "pose_video_mask",
+          "previous_frames",
+          "reference_image",
+          "reference_image_mask",
+          "replacement_mode"
         ],
         "types": {
           "positive": "CONDITIONING",
@@ -21419,15 +21812,22 @@
           "pose_strength": "FLOAT",
           "pose_start": "FLOAT",
           "pose_end": "FLOAT",
-          "clip_vision_output": "CLIP_VISION_OUTPUT",
+          "video_frame_offset": "INT",
+          "previous_frame_count": "INT",
+          "pose_video": "IMAGE",
+          "pose_video_mask": "IMAGE",
+          "replacement_mode": "BOOLEAN",
           "reference_image": "IMAGE",
-          "pose_video": "IMAGE"
+          "reference_image_mask": "IMAGE",
+          "clip_vision_output": "CLIP_VISION_OUTPUT",
+          "previous_frames": "IMAGE"
         }
       },
       "outputs": [
         "CONDITIONING",
         "CONDITIONING",
-        "LATENT"
+        "LATENT",
+        "INT"
       ],
       "used_in_type_ids": [
         "character__scail",
@@ -23114,13 +23514,17 @@
           "clamp",
           "image",
           "input_colorspace",
-          "output_colorspace"
+          "ocio_config",
+          "output_colorspace",
+          "output_view"
         ],
         "optional": [],
         "types": {
           "image": "IMAGE",
+          "ocio_config": "COMBO",
           "input_colorspace": "COMBO",
           "output_colorspace": "COMBO",
+          "output_view": "COMBO",
           "clamp": "BOOLEAN"
         }
       },
@@ -23144,6 +23548,7 @@
           "load_sequence"
         ],
         "optional": [
+          "fps",
           "frame_end",
           "frame_start"
         ],
@@ -23151,13 +23556,15 @@
           "image_path": "STRING",
           "load_sequence": "BOOLEAN",
           "frame_start": "INT",
-          "frame_end": "INT"
+          "frame_end": "INT",
+          "fps": "FLOAT"
         }
       },
       "outputs": [
         "IMAGE",
         "MASK",
-        "INT"
+        "INT",
+        "FLOAT"
       ],
       "used_in_type_ids": [
         "text_to_image__generic"
@@ -23168,24 +23575,14 @@
       "class": "easy mathInt",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "a",
-          "b",
-          "operation"
-        ],
+        "required": [],
         "optional": [],
-        "types": {
-          "a": "INT",
-          "b": "INT",
-          "operation": "COMBO"
-        }
+        "types": {}
       },
-      "outputs": [
-        "INT"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "video_to_video__wan_vace"
       ],
@@ -23195,32 +23592,14 @@
       "class": "easy saveText",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": true,
+      "resolved": false,
+      "is_custom": false,
       "inputs": {
-        "required": [
-          "file_extension",
-          "file_name",
-          "output_file_path",
-          "overwrite",
-          "text"
-        ],
-        "optional": [
-          "image"
-        ],
-        "types": {
-          "text": "STRING",
-          "output_file_path": "STRING",
-          "file_name": "STRING",
-          "file_extension": "COMBO",
-          "overwrite": "BOOLEAN",
-          "image": "IMAGE"
-        }
+        "required": [],
+        "optional": [],
+        "types": {}
       },
-      "outputs": [
-        "STRING",
-        "IMAGE"
-      ],
+      "outputs": [],
       "used_in_type_ids": [
         "text_tools__gemini"
       ],

@@ -56,6 +56,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--port", type=int, default=8188, help="ComfyUI port for object_info")
     p.add_argument("--no-fetch", action="store_true",
                    help="never contact ComfyUI; use cache only (offline)")
+    p.add_argument("--refresh-object-info", action="store_true",
+                   help="re-fetch /object_info from a running ComfyUI instead of "
+                        "reusing the cache; needed after installing nodes or "
+                        "updating ComfyUI, since the cache never expires on its own")
     return p
 
 
@@ -91,6 +95,7 @@ def run(args) -> Dict:
         host=args.host,
         port=args.port,
         allow_fetch=not args.no_fetch,
+        refresh_object_info=args.refresh_object_info,
         templates_descriptions=args.templates_descriptions,
     )
     graphs = corpus.graphs

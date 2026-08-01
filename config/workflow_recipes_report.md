@@ -81,7 +81,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: PreviewImage, ImageCrop, ImageStitch, SimpleMath+, GrokImageEditNode, SaveImage, ImageBatchMulti, ImageCrop+, LoadImage, BatchImagesNode, GeminiImage2Node, MarkdownNote
-- unresolved nodes: FluxResolutionNode, Get Image Size, LayerUtility: ColorImage V2, MarkdownNote, Note, Paste By Mask, PrimitiveNode, Reroute, SaveText
+- unresolved nodes: FluxResolutionNode, Get Image Size, ImageCrop+, ImageRemoveAlpha+, ImageRemoveBackground+, LayerUtility: ColorImage V2, MarkdownNote, Note, Paste By Mask, PrimitiveNode, RemBGSession+, Reroute, SimpleMath+
 
 ## API / Partner Nodes - Image Edit / Nano-Banana  (`api_partner_nodes_image_edit__nano_banana`)  -  8 workflow(s)  -  source: mixed
 - execution: api (API nodes: GeminiImage2Node, GeminiImageNode, GeminiInputFiles, GeminiNanoBanana2, GeminiNanoBanana2V2, GeminiNode)
@@ -173,7 +173,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: MarkdownNote, Note, Reroute
 
 ## API / Partner Nodes - Image Edit / Gemini  (`api_partner_nodes_image_edit__gemini`)  -  2 workflow(s)  -  source: official
-- execution: api (API nodes: OpenRouterLLMNode)
+- execution: api (API nodes: GeminiNodeV2, OpenRouterLLMNode)
 - when to use: Use to produce an image using Gemini.
 - example request: "build an image workflow using Gemini"
 - description: Experience Google's multimodal AI with Gemini's reasoning capabilities. | Select a model from OpenRouter's curated list (Claude, GPT, Gemini, etc.). Generate a text response with optional media uploads for vision-capable models.
@@ -183,7 +183,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - inputs: LoadImage
 - optional roles: GeminiNodeV2, MarkdownNote, OpenRouterLLMNode, SaveText
-- unresolved nodes: GeminiNodeV2, MarkdownNote, SaveText
+- unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Image Edit / Magnific  (`api_partner_nodes_image_edit__magnific`)  -  2 workflow(s)  -  source: mixed
 - execution: api (API nodes: MagnificImageRelightNode, MagnificImageStyleTransferNode)
@@ -243,7 +243,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImage (x2)
     - other operations: AILab_QwenVL, GrokImageNode, ImageCompare, ImageRemoveAlpha+, ImageScaleBy, ImageScaleToTotalPixels, ImageUpscaleWithModel, ModelSamplingAuraFlow, Note, PreviewAny, StringConcatenate (x2)
 - paired/multiple required: CLIPTextEncode x2, SaveImage x2
-- unresolved nodes: AILab_QwenVL, Note
+- unresolved nodes: AILab_QwenVL, ImageRemoveAlpha+, Note
 
 ## API / Partner Nodes - Image Edit / Z-Image  (`api_partner_nodes_image_edit__z_image`)  -  1 workflow(s)  -  source: official
 - execution: api (API nodes: GrokImageNode)
@@ -262,7 +262,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImage (x2)
     - other operations: AILab_QwenVL, GrokImageNode, ImageCompare, ImageRemoveAlpha+, ImageScaleBy, ImageScaleToTotalPixels, ImageUpscaleWithModel, ModelSamplingAuraFlow, Note, PreviewAny, StringConcatenate (x2)
 - paired/multiple required: CLIPTextEncode x2, SaveImage x2
-- unresolved nodes: AILab_QwenVL, Note
+- unresolved nodes: AILab_QwenVL, ImageRemoveAlpha+, Note
 
 
 # Text to Image  (`text_to_image`)  -  73 workflow(s), 12 model(s)
@@ -299,7 +299,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: Note, MarkdownNote, CLIPTextEncode, CheckpointLoaderSimple, KSamplerAdvanced, BasicScheduler, BetaSamplingScheduler, CFGGuider, CFGNorm, CLIPLoader, ChromaRadianceOptions, ConditioningZeroOut
-- unresolved nodes: MarkdownNote, Note, PrimitiveNode, TextEncodeMageFlowEdit
+- unresolved nodes: MarkdownNote, Note, PrimitiveNode
 
 ## Text to Image / Qwen Image  (`text_to_image__qwen_image`)  -  11 workflow(s)  -  source: official
 - execution: local
@@ -556,7 +556,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - model loading: CLIPLoader, UNETLoader, VAELoader
     - decoding: VAEDecode
 - optional roles: TextEncodeQwenImageEditPlus, CFGNorm, ImageScaleToTotalPixels, KSampler, ModelSamplingAuraFlow, PreviewImage, SaveImage, VAEEncode, CLIPTextEncode, MarkdownNote, ReferenceLatent, EmptyQwenImageLayeredLatentImage
-- unresolved nodes: LayerUtility: If , MarkdownNote, Note, Reroute
+- unresolved nodes: Image Load, LayerUtility: If , MarkdownNote, Note, Reroute, SeedVR2LoadDiTModel, SeedVR2LoadVAEModel, SeedVR2VideoUpscaler, SimpleMath+
 
 ## Image Edit / Generic  (`image_edit__generic`)  -  12 workflow(s)  -  source: official
 - execution: local
@@ -581,7 +581,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - decoding: VAEDecode
     - other operations: MarkdownNote
 - optional roles: ReferenceLatent, CLIPTextEncode, CLIPVisionEncode, EmptyHiDreamO1LatentImage, ImageScaleToTotalPixels, RegexReplace, TextEncodeJoyImageEdit, VAEEncode, unCLIPConditioning, BasicScheduler, CFGGuider, CFGNorm
-- unresolved nodes: MarkdownNote, Note, PrimitiveNode, Reroute, TextEncodeBooguEdit, TextEncodeJoyImageEdit, TextEncodeMageFlowEdit
+- unresolved nodes: MarkdownNote, Note, PrimitiveNode, Reroute
 
 ## Image Edit / Flux 2 Klein  (`image_edit__flux_2_klein`)  -  7 workflow(s)  -  source: mixed
 - execution: local
@@ -719,7 +719,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - decoding: VAEDecode
     - other operations: ComfySwitchNode (x5), CustomCombo, MarkdownNote, PreviewAny, PrimitiveBoolean, PrimitiveFloat (x2), PrimitiveInt (x5), PrimitiveStringMultiline, RegexExtract, StringConcatenate, StringReplace
 - paired/multiple required: CLIPTextEncode x2, LoraLoaderModelOnly x2, SamplerCustom x2, UNETLoader x2
-- unresolved nodes: BerniniConditioning, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## Image Edit / Flux Krea  (`image_edit__flux_krea`)  -  1 workflow(s)  -  source: official
 - execution: local
@@ -806,7 +806,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImageAdvanced
     - other operations: GetImageSize, ImageCompare, MarkdownNote (x3), ModelSamplingAuraFlow, ResizeImageMaskNode
 - paired/multiple required: MarkdownNote x3
-- unresolved nodes: MarkdownNote, TextEncodeBooguEdit
+- unresolved nodes: MarkdownNote
 
 ## Image Edit / WAN 2.2  (`image_edit__wan_2_2`)  -  1 workflow(s)  -  source: official
 - execution: local
@@ -829,7 +829,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 # API / Partner Nodes - Text to Video  (`api_partner_nodes_text_to_video`)  -  52 workflow(s), 8 model(s)
 
 ## API / Partner Nodes - Text to Video / Generic  (`api_partner_nodes_text_to_video__generic`)  -  36 workflow(s)  -  source: mixed
-- execution: api (API nodes: ByteDance2ReferenceNode, ByteDance2TextToVideoNode, ByteDanceCreateImageAsset, ByteDanceCreateVideoAsset, ByteDanceSeedreamNode, ByteDanceTextToVideoNode, GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode, GrokVideoNode, GrokVideoReferenceNode, HappyHorseReferenceVideoApi, HappyHorseTextToVideoApi, KlingStartEndFrameNode, KlingVideoNode, LumaConceptsNode, LumaVideoNode, MinimaxHailuoVideoNode, MinimaxTextToVideoNode, OpenAIGPTImageNodeV2, PixverseTemplateNode, PixverseTextToVideoNode, Vidu2ReferenceVideoNode, Vidu2TextToVideoNode, Vidu3TextToVideoNode, ViduReferenceVideoNode, ViduStartEndToVideoNode, ViduTextToVideoNode)
+- execution: api (API nodes: ByteDance2ReferenceNode, ByteDance2TextToVideoNode, ByteDanceCreateImageAsset, ByteDanceCreateVideoAsset, ByteDanceSeedreamNode, ByteDanceTextToVideoNode, GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode, GrokVideoNode, GrokVideoReferenceNode, HappyHorseReferenceVideoApi, HappyHorseTextToVideoApi, HeyGenAvatarVideoNode, HeyGenCreateAvatarNode, KlingStartEndFrameNode, KlingVideoNode, LumaConceptsNode, LumaRay32ExtendVideoNode, LumaRay32TextToVideoNode, LumaVideoNode, MinimaxHailuo03ReferenceNode, MinimaxHailuo03TextToVideoNode, MinimaxHailuoVideoNode, MinimaxTextToVideoNode, OpenAIGPTImageNodeV2, PixverseTemplateNode, PixverseTextToVideoNode, SyncTalkingImageNode, Vidu2ReferenceVideoNode, Vidu2TextToVideoNode, Vidu3TextToVideoNode, ViduReferenceVideoNode, ViduStartEndToVideoNode, ViduTextToVideoNode)
 - when to use: Use to generate a video.
 - example request: "build a video workflow"
 - description: API text-to-video via Seedance 2.0 (ByteDance). Text prompt only -> 1 video output. Generates high-quality video from a text description using the Seedance 2.0 model. | Create an AI avatar video from a text prompt or uploaded image using HeyGen's avatar generation technology, outputting a single talking-head video. You can save the avatar ID for reuse in future videos. Ideal for personalized digital presenters, social media content creation, and multilingual video production without recording talent. | Create complete audio-visual stories from text with synchronized voices, music, and sound effects. | Create smooth video transitions between defined start and end frames with natural motion interpolation and consistent visual quality. | Generate a reference-based video from a single input image using Seedance 2.0, producing native 4K output with 10-bit color depth and clean fine detail retention. The workflow takes 1 image and outputs 1 video. Ideal for high-resolution motion graphics, cinematic VFX shots requiring downstream grading, and professional video production where 4K finishing is essential. | Generate a talking-head video from a single face photo and an audio clip, with lips and lower-face motion precisely synchronized to the speech. This process outputs one video from one image and one audio input, keeping hands, products, and background completely unchanged. Ideal for product demos, e-commerce introductions, and marketing videos where a static product-holding photo is paired with a voiceover. | Generate a video with synchronized audio from a text prompt using HappyHorse 1.1, producing a single video output with dialogue, sound effects, and music baked in. Ideal for short episodic series, e-commerce commercials, and game cutscenes. | Generate an 8-panel storyboard from a simple text prompt, then use that storyboard as the foundation for Seedance 2.0. The storyboard provides a visual blueprint for the sequence, allowing you to guide the video with more control over the action, camera angles, composition, and overall storytelling. | Generate cinematic video from two reference images using Seedance 2.0 Mini, producing a single video output with AI-driven camera motion and consistent character generation. Ideal for storytelling, branded content, and short film creation where shot composition and visual continuity are essential. | Generate cinematic videos from reference images and text prompts. Preserve subject identity and composition while adding expressive motion with synchronized audio. Control camera movement and lighting through detailed prompts. | Generate cinematic videos from text prompts with Dreamina's Seedance 2.0 Mini, supporting AI camera controls and consistent character generation across scenes. This workflow takes only prompt input and produces 1 video output. Ideal for AI filmmaking, branded content creation, and multi-shot storytelling projects. | Generate cinematic videos from text prompts with synchronized audio, controlled camera motion, and stable visuals. Input text descriptions to output high-quality video sequences. | Generate cinematic-quality videos from text prompts using Luma Ray 3.2, with optional video extension by providing a generation ID from a previous run. Ideal for creating short film sequences, marketing content, and iterative video refinement. | Generate high-quality 1080p videos from text prompts with Vidu Q2 model | Generate high-quality 1080p videos from text prompts with adjustable movement amplitude and duration control using Vidu's advanced AI model. | Generate high-quality videos directly from text prompts using ByteDance's Seedance model. Supports multiple resolutions and aspect ratios with natural motion and cinematic quality. | Generate high-quality videos directly from text prompts. Explore MiniMax's advanced AI capabilities to create diverse visual narratives with professional CGI effects and stylistic elements to bring your descriptions to life. | Generate high-quality videos from text prompts with optional first-frame control using MiniMax Hailuo-02 model. Supports multiple resolutions (768P/1080P) and durations (6/10s) with intelligent prompt optimization. | Generate high-quality, realistic videos from text prompts with fluid motion and rich detail. Input text descriptions to produce dynamic videos with accurate semantic comprehension. | Generate video directly from text using the MiniMax H3 model, producing a 5-15 second clip with native stereo audio. Ideal for rapid concept visualization, short-form social media content, and pre-visualization for film or advertising projects. | Generate video from a reference image or set of multimodal inputs using MiniMax H3, which interprets text, images, video, and audio together to produce coherent 5-15 second clips with native stereo audio. Input up to 2 images for first/last frame control, or up to 9 images, 3 video clips, and 3 audio clips in Omni Reference mode, and output a single video in your chosen aspect ratio. Ideal for commercial content creation, character-driven storytelling, and rapid visual concept validation. | Generate video from reference images using HappyHorse 1.1, locking character and scene appearance while following a text prompt for motion. This workflow takes 2 input images (character reference and scene reference) and produces 1 video output. Ideal for short films, advertising, and game cutscenes requiring consistent character design and controllable narrative. | Generate videos that preserve subject characters from multiple reference images using text prompts. Input up to 9 reference images and a scene description to produce a 3-15 second video output. | Generate videos with accurate prompt interpretation and stunning video dynamics. | Generate videos with consistent subjects using multiple reference images (up to 7) for character and style continuity across the video sequence. | Generate videos with reference-based consistency for up to 3 subjects, maintaining character and style continuity across the video sequence with cinematic camera movements. | High-quality videos can be generated using simple prompts. | Input a text prompt or upload an image to generate a 1-16 second video with synchronized audio and automatic scene transitions. | Input text prompts or an initial image frame to generate up to 15-second videos with synchronized audio using the Grok model. | Swap products into a reference scene while preserving composition and lighting. Generates a final product image and an automatic video prompt for creating polished product videos. | Upload a blank billboard and overlay text. Generate a smooth zoom in shot revealing your message. | Upload a photo of your vehicle and generate a studio quality video of the vehicle from multiple angles. | Upload a reference image and generate a video using the Grok API, supporting up to 6 reference images for enhanced consistency. | Upload a reference video of a real person for identity verification. Use your own photo to validate and generate a personalized video output. | Upload an image and optional text prompt to generate a video with native audio, realistic motion, and high-quality output up to 720p resolution. | Upload two reference images and input a short text description. Generate a detailed Seedance 2.0-style prompt automatically with an LLM helper.
@@ -873,7 +873,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: RegexExtract, BatchImagesNode, ByteDanceSeedreamNode, LoadImage, SaveImage, SaveVideo, GeminiNode, GetVideoComponents, KlingStartEndFrameNode, MarkdownNote, SimpleMath+, GeminiImage2Node
-- unresolved nodes: HeyGenAvatarVideoNode, HeyGenCreateAvatarNode, LumaRay32ExtendVideoNode, LumaRay32TextToVideoNode, MarkdownNote, MinimaxHailuo03ReferenceNode, MinimaxHailuo03TextToVideoNode, Note, Reroute, SaveText, SyncTalkingImageNode
+- unresolved nodes: MarkdownNote, Note, Reroute, SimpleMath+
 
 ## API / Partner Nodes - Text to Video / Kling  (`api_partner_nodes_text_to_video__kling`)  -  6 workflow(s)  -  source: mixed
 - execution: api (API nodes: KlingAvatarNode, KlingOmniProTextToVideoNode, KlingTextToVideoWithAudio, KlingVideoNode)
@@ -893,7 +893,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Text to Video / Anima  (`api_partner_nodes_text_to_video__anima`)  -  3 workflow(s)  -  source: official
-- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2)
+- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2, HeyGenTalkingPhotoNode)
 - when to use: Use to generate an image using Anima.
 - example request: "build a video workflow using Anima"
 - description: Generate a talking-head video from a single photograph using HeyGen's Avatar IV engine, which produces a fully animated video with lip-synced speech, facial expressions, head movements, and automatic gestures. Ideal for creating digital avatars for presentations, virtual characters for interactive content, and personalized video messages from a single image. | Upload a single image to generate an animated sequence. The workflow creates a sprite sheet with multiple frames for use in games or animations. | Upload an image of your sprite and receive individual frames of idle, attack, walk and jump animations. 
@@ -904,7 +904,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - inputs: LoadImage
 - optional roles: PreviewImage, SimpleMath+, ImageCompositeMasked, ImageCrop, MaskPreview+, ImageResizeKJv2, SaveImage, ColorToMask, CropMask, ImageFromBatch, ImagePadForOutpaintMasked, InvertMask
-- unresolved nodes: HeyGenTalkingPhotoNode, LayerUtility: ColorImage V2, MarkdownNote, PrimitiveNode, Reroute
+- unresolved nodes: Image Crop Location, LayerUtility: ColorImage V2, MarkdownNote, MaskBoundingBox+, MaskPreview+, PrimitiveNode, Reroute, SimpleMath+
 
 ## API / Partner Nodes - Text to Video / WAN  (`api_partner_nodes_text_to_video__wan`)  -  3 workflow(s)  -  source: official
 - execution: api (API nodes: Wan2ReferenceVideoApi, Wan2TextToVideoApi, WanTextToVideoApi)
@@ -921,7 +921,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Text to Video / Gemini  (`api_partner_nodes_text_to_video__gemini`)  -  1 workflow(s)  -  source: official
-- execution: api
+- execution: api (API nodes: GeminiVideoOmni)
 - when to use: Use to generate a video from a text prompt using Gemini.
 - example request: "build a video workflow using Gemini"
 - description: Generate cinematic video from natural language prompts using Gemini Omni Flash, transforming text descriptions into a single video output with world-aware motion, lighting, and sound. Ideal for social media content creation, rapid video prototyping, and iterative visual storytelling with conversational editing.
@@ -931,7 +931,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveVideo
     - other operations: CustomCombo (x2), GeminiVideoOmni, MarkdownNote, PreviewAny, PrimitiveStringMultiline, StringConcatenate (x4)
 - paired/multiple required: CustomCombo x2
-- unresolved nodes: GeminiVideoOmni, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Text to Video / LTX-2  (`api_partner_nodes_text_to_video__ltx_2`)  -  1 workflow(s)  -  source: custom
 - execution: api (API nodes: LtxvApiTextToVideo)
@@ -1083,7 +1083,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - other operations: ADE_AnimateDiffSamplingSettings, ADE_LoadAnimateDiffModel, ADE_MultivalDynamic, ADE_UseEvolvedSampling
 - paired/multiple required: CLIPTextEncode x2, VHS_VideoCombine x2
 - optional roles: ImageScaleToTotalPixels, ImageStitch, RepeatImageBatch, ADE_AnimateDiffUniformContextOptions, ADE_ApplyAnimateDiffModel, FreeU_V2, IPAdapterBatch, MarkdownNote, ADE_AnimateDiffLoRALoader, ADE_ApplyAnimateDiffModelSimple, ADE_LoopedUniformContextOptions, AILab_QwenVL
-- unresolved nodes: ADE_AnimateDiffLoRALoader, ADE_AnimateDiffSamplingSettings, ADE_AnimateDiffUniformContextOptions, ADE_ApplyAnimateDiffModel, ADE_ApplyAnimateDiffModelSimple, ADE_LoadAnimateDiffModel, ADE_LoopedUniformContextOptions, ADE_MultivalDynamic, ADE_UseEvolvedSampling, AILab_QwenVL, FL_KsamplerPlus, FL_UpscaleModel, IPAdapterBatch, IPAdapterMS, IPAdapterModelLoader, IPAdapterUnifiedLoader, IPAdapterWeights, MarkdownNote, PrepImageForClipVision
+- unresolved nodes: ADE_AnimateDiffLoRALoader, ADE_AnimateDiffSamplingSettings, ADE_AnimateDiffUniformContextOptions, ADE_ApplyAnimateDiffModel, ADE_ApplyAnimateDiffModelSimple, ADE_LoadAnimateDiffModel, ADE_LoopedUniformContextOptions, ADE_MultivalDynamic, ADE_UseEvolvedSampling, AILab_QwenVL, FL_KsamplerPlus, FL_UpscaleModel, IPAdapterBatch, IPAdapterMS, IPAdapterModelLoader, IPAdapterUnifiedLoader, IPAdapterWeights, MarkdownNote, PrepImageForClipVision, Upscale Model Loader
 
 ## Image to Video / Bernini  (`image_to_video__bernini`)  -  1 workflow(s)  -  source: official
 - execution: local
@@ -1101,7 +1101,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImage
     - other operations: BatchImagesNode, ComfySwitchNode (x5), CustomCombo, GetImageSize, ImageCompare, MarkdownNote (x4), PreviewAny, PrimitiveBoolean, PrimitiveFloat (x2), PrimitiveInt (x5), PrimitiveStringMultiline, RegexExtract, ResizeImageMaskNode, StringConcatenate, StringReplace
 - paired/multiple required: MarkdownNote x4, CLIPTextEncode x2, LoadImage x2, LoraLoaderModelOnly x2, SamplerCustom x2, UNETLoader x2
-- unresolved nodes: BerniniConditioning, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## Image to Video / Hunyuan3D  (`image_to_video__hunyuan3d`)  -  1 workflow(s)  -  source: official
 - execution: local
@@ -1165,7 +1165,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: INTConstant, CLIPTextEncode, DiffusionModelLoaderKJ, DiffusionModelSelector, GetVideoComponents, ImageCompositeMasked, ImageResizeKJv2, KSamplerAdvanced, LoadImage, LoraLoaderModelOnly, MaskBlur+, ModelSamplingSD3
-- unresolved nodes: DepthAnything_V2, DownloadAndLoadDepthAnythingV2Model, ImageConstant, MarkdownNote, TextBox1
+- unresolved nodes: DepthAnything_V2, DownloadAndLoadDepthAnythingV2Model, ImageConstant, ImageResize+, Int, MarkdownNote, MaskBlur+, TextBox1, easy mathInt
 
 ## Video to Video / WAN  (`video_to_video__wan`)  -  5 workflow(s)  -  source: official
 - execution: local
@@ -1183,7 +1183,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveVideo
     - other operations: CLIPVisionLoader, CreateVideo, GetVideoComponents, MarkdownNote
 - optional roles: CLIPTextEncode, ImageFromBatch, LoraLoaderModelOnly, PreviewImage, SAM3_VideoTrack, BasicScheduler, CLIPLoader, CLIPVisionEncode, CheckpointLoaderSimple, ImageResizeKJv2, KSamplerSelect, ModelSamplingSD3
-- unresolved nodes: MarkdownNote, Note, OnnxDetectionModelLoader, PoseDetectionVitPoseToDWPose, RenderNLFPoses, SCAIL2ColoredMask
+- unresolved nodes: MarkdownNote, Note, OnnxDetectionModelLoader, PoseDetectionVitPoseToDWPose, RenderNLFPoses, SimpleMath+
 
 ## Video to Video / WAN 2.2  (`video_to_video__wan_2_2`)  -  4 workflow(s)  -  source: mixed
 - execution: local
@@ -1270,7 +1270,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveVideo
     - other operations: BatchImagesNode, ComfySwitchNode (x5), CreateVideo, CustomCombo, GetImageSize, GetVideoComponents (x2), MarkdownNote (x4), PreviewAny (x2), PrimitiveBoolean, PrimitiveFloat (x2), PrimitiveInt (x5), PrimitiveStringMultiline, RegexExtract, StringConcatenate, StringReplace, Video Slice
 - paired/multiple required: MarkdownNote x4, CLIPTextEncode x2, GetVideoComponents x2, LoraLoaderModelOnly x2, SamplerCustom x2, UNETLoader x2
-- unresolved nodes: BerniniConditioning, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## Video to Video / Depth Anything  (`video_to_video__depth_anything`)  -  1 workflow(s)  -  source: official
 - execution: local
@@ -1286,7 +1286,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - decoding: VAEDecode
     - other operations: ComfySwitchNode (x5), CreateVideo, CustomCombo, GetVideoComponents, MarkdownNote, PreviewAny, PrimitiveBoolean, PrimitiveFloat (x2), PrimitiveInt (x5), PrimitiveStringMultiline, RegexExtract, StringConcatenate, StringReplace
 - paired/multiple required: CLIPTextEncode x2, LoraLoaderModelOnly x2, SamplerCustom x2, UNETLoader x2
-- unresolved nodes: BerniniConditioning, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## Video to Video / SAM3  (`video_to_video__sam3`)  -  1 workflow(s)  -  source: official
 - execution: local
@@ -1308,7 +1308,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 # API / Partner Nodes - Video to Video  (`api_partner_nodes_video_to_video`)  -  33 workflow(s), 9 model(s)
 
 ## API / Partner Nodes - Video to Video / Generic  (`api_partner_nodes_video_to_video__generic`)  -  19 workflow(s)  -  source: mixed
-- execution: api (API nodes: BeebleSwitchXVideoEdit, BriaRemoveVideoBackground, ByteDance2ReferenceNode, ByteDanceSeedreamNode, GeminiImage2Node, GeminiNode, GrokVideoEditNode, GrokVideoExtendNode, HappyHorseVideoEditApi, KlingOmniProEditVideoNode, KlingStartEndFrameNode, MinimaxHailuoVideoNode, ViduExtendVideoNode)
+- execution: api (API nodes: BeebleSwitchXVideoEdit, BriaRemoveVideoBackground, BriaTransparentVideoBackground, BriaVideoGreenScreen, BriaVideoReplaceBackground, ByteDance2ReferenceNode, ByteDanceSeedreamNode, GeminiImage2Node, GeminiNode, GrokVideoEditNode, GrokVideoExtendNode, HappyHorseVideoEditApi, HeyGenVideoTranslateNode, KlingOmniProEditVideoNode, KlingStartEndFrameNode, LumaRay32ExtendVideoNode, LumaRay32VideoEditNode, MinimaxHailuoVideoNode, RunwayAleph2KeyframeNode, RunwayAleph2PromptImageNode, RunwayAleph2VideoToVideoNode, ViduExtendVideoNode)
 - when to use: Use to generate a video.
 - example request: "build a video workflow"
 - description: API reference-to-video via Seedance 2.0 (ByteDance). 1 reference image + 1 reference video -> 1 video output. Generates, edits, or extends video using multimodal references for subject consistency, video editing, and video extension. | Edit a video using text instructions and optional reference images for style transfer or local replacement. Takes a video and up to 5 reference images as input, outputs an edited video. | Edit videos using natural language commands with Luma Ray 3.2, processing one input video and generating an edited output based on your textual instructions.  | Extend any video to a custom aspect ratio. Convert vertical videos to horizontal format and vice versa. Includes an application mode for easy use. | Generate a single edited video that preserves original motion and timing while applying your chosen changes. Ideal for portrait and product relighting, consistent lighting across photo sets, and e-commerce apparel presentation. | Take a picture with your phone, upload it and generate a studio grade product video. | Translate video content into another language with full lip-sync using HeyGen Translate, which automatically transcribes speech, translates it, generates a cloned voice, and re-syncs mouth movements. Takes 1 input video and produces 1 output video. Ideal for localizing talking-head videos, dubbing multilingual presentations, and creating lip-synced content for global audiences. | Upload a short video and a text prompt describing the next scene. Generate a seamless video extension using Grok extend. | Upload a source video and a reference image, then provide a prompt describing the desired environment and lighting. Generate an edited video where masked regions follow your prompt and reference, while unmasked regions preserve the original pixels and motion, plus an alpha matte for compositing. | Upload a video and a background image. Detect the main subject and replace the original background with the provided image. Ideal for content creation, virtual production, and background cleanup in video projects. | Upload a video and generate its frames with a transparent background, outputting image and mask sequences along with a WebM video supporting an alpha channel. | Upload a video and use the Vidu Q2 model to extend it up to 7 seconds and enhance the resolution to 1080p. | Upload a video to edit. Input your desired modifications. Generate an edited video using the Grok API. | Upload a video to generate a green screen version with a transparent or solid background. | Upload a video to remove its background and replace it with your chosen color. Generate a video with the subject isolated and a new solid background. | Upload a video to remove the background. Generate a new video with a transparent or solid color background. | Upload your character and clothing items or accessories. Generate a fashion photograph base and use as a reference to 8x grid images, together with multi-KeyFrame Video Stitching 
@@ -1335,7 +1335,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: BatchImagesNode, ImageFromBatch, SimpleMath+, GetVideoComponents, ResizeAndPadImage, PreviewImage, SaveImage, SaveVideo, GeminiNode, ImageCrop, KlingStartEndFrameNode, AudioMerge
-- unresolved nodes: BriaTransparentVideoBackground, BriaVideoGreenScreen, BriaVideoReplaceBackground, Get Image Size, HeyGenVideoTranslateNode, JWImageResizeByShorterSide, LayerUtility: ColorImage V2, LumaRay32ExtendVideoNode, LumaRay32VideoEditNode, MarkdownNote, Note, Paste By Mask, Reroute, RunwayAleph2KeyframeNode, RunwayAleph2PromptImageNode, RunwayAleph2VideoToVideoNode
+- unresolved nodes: Get Image Size, ImageRemoveAlpha+, JWImageResizeByShorterSide, LayerUtility: ColorImage V2, MarkdownNote, Note, Paste By Mask, Reroute, SimpleMath+
 
 ## API / Partner Nodes - Video to Video / Kling  (`api_partner_nodes_video_to_video__kling`)  -  5 workflow(s)  -  source: mixed
 - execution: api (API nodes: KlingMotionControl, KlingOmniProEditVideoNode, KlingOmniProVideoToVideoNode)
@@ -1354,7 +1354,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: MarkdownNote, Note
 
 ## API / Partner Nodes - Video to Video / Gemini  (`api_partner_nodes_video_to_video__gemini`)  -  2 workflow(s)  -  source: official
-- execution: api (API nodes: ByteDance2ReferenceNode, GeminiNode, OpenAIGPTImageNodeV2)
+- execution: api (API nodes: ByteDance2ReferenceNode, GeminiNode, GeminiVideoOmni, OpenAIGPTImageNodeV2)
 - when to use: Use to generate a video using Gemini.
 - example request: "build a video workflow using Gemini"
 - description: A one click workflow to recreate an input video with your character. All you need to do is upload the video and your character. This workflow uses Google Gemini LLM to analyze the input video and reverse engineer a prompt. You can prompt for specific details to inject into this analysis. The workflow extracts the first frame of the video and swaps your character into it, sends this into Seedance 2.0 Reference-to-Video and generates | Edit videos with natural language using Gemini Omni Flash, transforming a single input video into one edited output based on your descriptive instructions. Specify the duration and aspect ratio in your prompt, and leverage Omni's world knowledge for intuitive edits like changing backgrounds or adding atmosphere. Ideal for quick social media remixes, cinematic scene adjustments, and iterative video refinements without technical prompts.
@@ -1366,7 +1366,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveVideo
     - other operations: PreviewAny, StringConcatenate
 - optional roles: CustomCombo, ByteDance2ReferenceNode, GeminiNode, GeminiVideoOmni, GetVideoComponents, ImageFromBatch, LoadImage, MarkdownNote, OpenAIGPTImageNodeV2, SaveImage, Video Slice
-- unresolved nodes: GeminiVideoOmni, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Video to Video / Topaz  (`api_partner_nodes_video_to_video__topaz`)  -  2 workflow(s)  -  source: official
 - execution: api (API nodes: TopazVideoEnhance, TopazVideoEnhanceV2)
@@ -1382,7 +1382,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - optional roles: TopazVideoEnhance, TopazVideoEnhanceV2
 
 ## API / Partner Nodes - Video to Video / Anima  (`api_partner_nodes_video_to_video__anima`)  -  1 workflow(s)  -  source: official
-- execution: api
+- execution: api (API nodes: SyncLipSyncNode)
 - when to use: Use to generate a video using Anima.
 - example request: "build a video workflow using Anima"
 - description: Synchronize a video's lip movements with a new audio track using the Sync Labs sync-3 model, which automatically adjusts the speaker's mouth to match your uploaded audio. This workflow takes 1 video and 1 audio input to produce 1 synced video output. Ideal for dubbing foreign-language content, correcting mismatched dialogue in video production, or animating a static portrait to speak.
@@ -1392,7 +1392,6 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - inputs: LoadVideo
     - output: SaveVideo
     - other operations: LoadAudio, RecordAudio, SyncLipSyncNode
-- unresolved nodes: SyncLipSyncNode
 
 ## API / Partner Nodes - Video to Video / WAN  (`api_partner_nodes_video_to_video__wan`)  -  1 workflow(s)  -  source: official
 - execution: api (API nodes: Wan2VideoEditApi)
@@ -1454,7 +1453,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveVideo, VHS_VideoCombine (x2)
     - other operations: BatchImagesNode (x2), CreateVideo, ImageBatch, ImageFromBatch (x4), ImageResize+, ImageToMask, LayerUtility: ColorImage V2 (x3), MarkdownNote, OpenAIChatNode, PreviewAny, PrimitiveInt (x2), ReverseImageBatch (x3), SimpleMath+, UNetTemporalAttentionMultiply, VHS_DuplicateImages (x3), WanVaceToVideo
 - paired/multiple required: ImageFromBatch x4, LayerUtility: ColorImage V2 x3, ReverseImageBatch x3, VHS_DuplicateImages x3, BatchImagesNode x2, CLIPTextEncode x2, VHS_VideoCombine x2
-- unresolved nodes: LayerUtility: ColorImage V2, MarkdownNote
+- unresolved nodes: ImageResize+, LayerUtility: ColorImage V2, MarkdownNote, SimpleMath+
 
 
 # API / Partner Nodes - 3D  (`api_partner_nodes_3d`)  -  28 workflow(s), 4 model(s)
@@ -1542,7 +1541,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 # API / Partner Nodes - Image to Video  (`api_partner_nodes_image_to_video`)  -  28 workflow(s), 9 model(s)
 
 ## API / Partner Nodes - Image to Video / Generic  (`api_partner_nodes_image_to_video__generic`)  -  13 workflow(s)  -  source: official
-- execution: api (API nodes: ByteDanceImageToVideoNode, GeminiImage2Node, GeminiNanoBanana2, HappyHorseImageToVideoApi, KlingOmniProImageToVideoNode, MinimaxImageToVideoNode, PixverseImageToVideoNode, PixverseTemplateNode, RunwayImageToVideoNodeGen4, Vidu2ImageToVideoNode, Vidu3ImageToVideoNode, ViduImageToVideoNode)
+- execution: api (API nodes: ByteDanceImageToVideoNode, GeminiImage2Node, GeminiNanoBanana2, HappyHorseImageToVideoApi, KlingOmniProImageToVideoNode, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, MinimaxImageToVideoNode, PixverseImageToVideoNode, PixverseTemplateNode, RunwayImageToVideoNodeGen4, Vidu2ImageToVideoNode, Vidu3ImageToVideoNode, ViduImageToVideoNode)
 - when to use: Use to generate a video from an input image.
 - example request: "build a video workflow"
 - description: Generate cinematic-quality videos from text prompts using Luma Ray 3.2, with support for extending previous generations by providing a generation ID. The workflow accepts 1 input image and produces 1 video output, enabling seamless iterative refinement. Ideal for creating short film sequences, marketing content, and professional video production. | Generate dynamic videos from images using Runway Gen4 Turbo. | Generate dynamic videos from static images with motion and effects using PixVerse. | Generate high-quality, fluid videos from images using HappyHorse-1.0-I2V with realistic dynamic rendering and accurate text and image semantic comprehension. | Generate refined videos from images and text with CGI integration using MiniMax. | Learn how to create a UGC video with your character and product in app mode. | Transform images into living characters with speech, motion, and synchronized sound effects. | Transform static images into dynamic 1080p videos with cinematic camera control, multi-subject consistency | Transform static images into dynamic 1080p videos with precise motion control and customizable movement amplitude using Vidu. | Transform static images into dynamic videos using ByteDance's Seedance model. Analyzes image structure and generates natural motion with consistent visual style and coherent video sequences. | Upload an image and provide a text prompt to generate a 1-16 second video with synchronized audio and intelligent scene transitions. | Upload your logo, texture and elements. Generate a video of the textured logo for an on brand asset.
@@ -1564,7 +1563,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - inputs: LoadImage
     - output: SaveVideo
 - optional roles: MarkdownNote, BatchImagesNode, ResizeAndPadImage, ByteDanceImageToVideoNode, GeminiImage2Node, GeminiNanoBanana2, HappyHorseImageToVideoApi, KlingOmniProImageToVideoNode, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, MinimaxImageToVideoNode, PixverseImageToVideoNode
-- unresolved nodes: LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, MarkdownNote, PrimitiveNode
+- unresolved nodes: MarkdownNote, PrimitiveNode
 
 ## API / Partner Nodes - Image to Video / Kling  (`api_partner_nodes_image_to_video__kling`)  -  6 workflow(s)  -  source: mixed
 - execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2, GeminiNode, KlingImageToVideoWithAudio, KlingOmniProImageToVideoNode, OpenAIChatConfig, OpenAIChatNode)
@@ -1581,7 +1580,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: RegexExtract, StringToInt, LoadImage, OpenAIChatConfig, OpenAIChatNode, Note, RegexReplace, ResizeAndPadImage, SaveImage, SomethingToString, BatchImagesNode, CLIPLoader
-- unresolved nodes: MarkdownNote, Note, PrimitiveNode, Reroute, StringToInt
+- unresolved nodes: MarkdownNote, Note, PrimitiveNode, Reroute, StringToInt, Text Multiline
 
 ## API / Partner Nodes - Image to Video / Anima  (`api_partner_nodes_image_to_video__anima`)  -  2 workflow(s)  -  source: official
 - execution: api (API nodes: HappyHorseImageToVideoApi, LumaConceptsNode, LumaImageToVideoNode)
@@ -1612,7 +1611,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Image to Video / Gemini  (`api_partner_nodes_image_to_video__gemini`)  -  1 workflow(s)  -  source: official
-- execution: api
+- execution: api (API nodes: GeminiVideoOmni)
 - when to use: Use to generate a video from an input image using Gemini.
 - example request: "build a video workflow using Gemini"
 - description: Generate a video from two images using Gemini Omni Flash, which interprets natural language prompts to control duration and aspect ratio. The workflow accepts 2 input images and produces 1 video output. Ideal for creating short brand clips, dynamic social media content, and iterative video edits through conversational prompting.
@@ -1623,7 +1622,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveVideo
     - other operations: CustomCombo (x2), GeminiVideoOmni, MarkdownNote, PreviewAny, PrimitiveStringMultiline, StringConcatenate (x4)
 - paired/multiple required: CustomCombo x2, LoadImage x2
-- unresolved nodes: GeminiVideoOmni, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Image to Video / LTX-2  (`api_partner_nodes_image_to_video__ltx_2`)  -  1 workflow(s)  -  source: custom
 - execution: api (API nodes: LtxvApiImageToVideo)
@@ -1678,7 +1677,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImage, SaveVideo (x2)
     - other operations: BatchImagesNode, CM_IntToFloat, CreateVideo, DepthAnything_V2, DownloadAndLoadDepthAnythingV2Model, GeminiImage2Node, GetImageRangeFromBatch, GetImageSize, GetVideoComponents, ImageBatchMulti, ImageCrop (x4), ImageFromBatch (x8), ImageRemoveAlpha+ (x5), ImageRemoveBackground+, ImageResize+, ImageResizeKJv2, KlingImage2VideoNode, MarkdownNote, Note, PrimitiveFloat, PrimitiveInt (x3), PrimitiveStringMultiline, RemBGSession+, Reroute (x4), ResizeAndPadImage, SimpleMath+ (x10), TrimVideoLatent (x4), VHS_SelectEveryNthImage, WanVaceToVideo (x4)
 - paired/multiple required: SimpleMath+ x10, CLIPTextEncode x8, ImageFromBatch x8, ImageRemoveAlpha+ x5, CLIPLoader x4, ImageCrop x4, KSampler x4, LoraLoaderModelOnly x4, TrimVideoLatent x4, UNETLoader x4, VAEDecode x4, VAELoader x4, WanVaceToVideo x4, SaveVideo x2
-- unresolved nodes: CM_IntToFloat, DepthAnything_V2, DownloadAndLoadDepthAnythingV2Model, MarkdownNote, Note, Reroute
+- unresolved nodes: CM_IntToFloat, DepthAnything_V2, DownloadAndLoadDepthAnythingV2Model, ImageRemoveAlpha+, ImageRemoveBackground+, ImageResize+, MarkdownNote, Note, RemBGSession+, Reroute, SimpleMath+
 
 
 # API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  27 workflow(s), 7 model(s)
@@ -1723,7 +1722,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - optional roles: GeminiImage2Node, GeminiNanoBanana2V2, SaveImage, SaveImageAdvanced
 
 ## API / Partner Nodes - Text to Image / Ideogram  (`api_partner_nodes_text_to_image__ideogram`)  -  3 workflow(s)  -  source: mixed
-- execution: api (API nodes: GeminiNode, IdeogramV3, IdeogramV4)
+- execution: api (API nodes: GeminiNode, IdeogramPImage, IdeogramV3, IdeogramV4)
 - when to use: Use to generate an image from a text prompt using Ideogram.
 - example request: "build an image workflow using Ideogram"
 - description: Generate images from text descriptions using Ideogram's fast P-Image model, which delivers quality comparable to leading image models at significantly lower cost and latency. One text prompt is accepted and one image is output, with controls for quality level and resolution. Ideal for rapid iteration in design workflows, high-volume content production, and cost-sensitive A/B testing of visual concepts. | Input a text prompt in structured JSON format. Generate a high-quality image with precise layout control, text rendering, and color palette support.
@@ -1734,7 +1733,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: BuildJsonPromptIdeogram, CreateBoundingBoxes, GeminiNode, IdeogramPImage, IdeogramV3, IdeogramV4, MarkdownNote, SaveImage, SaveImageAdvanced
-- unresolved nodes: BuildJsonPromptIdeogram, CreateBoundingBoxes, IdeogramPImage, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Text to Image / Kling  (`api_partner_nodes_text_to_image__kling`)  -  2 workflow(s)  -  source: official
 - execution: api (API nodes: KlingImageGenerationNode, KlingOmniProImageNode)
@@ -1983,7 +1982,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - decoding: VAEDecode
     - other operations: ModelSamplingAuraFlow
 - optional roles: MarkdownNote, ImageResize+, MaskPreview, PreviewImage, AIO_Preprocessor, BasicGuider, BasicScheduler, Canny, DifferentialDiffusion, DisableNoise, EmptySD3LatentImage, ImageCompare
-- unresolved nodes: MarkdownNote
+- unresolved nodes: ImageResize+, MarkdownNote
 
 ## Image Edit with ControlNet / Qwen Image  (`image_edit_with_controlnet__qwen_image`)  -  4 workflow(s)  -  source: official
 - execution: local
@@ -2026,7 +2025,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - other operations: AnimaLLLiteApply, ComfySwitchNode (x3), GetImageSize, ImageCompare, MarkdownNote, PrimitiveBoolean, PrimitiveFloat (x2), PrimitiveInt (x2), ResizeImageMaskNode
 - paired/multiple required: CLIPTextEncode x2
 - optional roles: Canny, DA3Inference, DA3Render, ImageInvert, LoadDA3Model
-- unresolved nodes: AnimaLLLiteApply, DA3Inference, DA3Render, LoadDA3Model, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## Image Edit with ControlNet / Generic  (`image_edit_with_controlnet__generic`)  -  2 workflow(s)  -  source: official
 - execution: local
@@ -2134,7 +2133,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - other operations: DA3Inference, DA3Render, LoadDA3Model
 - optional roles: MarkdownNote, GetVideoComponents, ImageCompare, LoadImage, PreviewImage, Video Slice
-- unresolved nodes: DA3Inference, DA3Render, LoadDA3Model, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 ## Preprocessors / Estimation / MediaPipe  (`preprocessors_estimation__mediapipe`)  -  3 workflow(s)  -  source: official
 - execution: local
@@ -2231,7 +2230,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: CLIPTextEncodeSDXL, MarkdownNote, BOOLConstant, BasicScheduler, CLIPLoader, CheckpointLoaderSimple, ColorTransfer, CreateVideo, EmptyLatentImage, GetVideoComponents, ImageCompare, ImageFromBatch
-- unresolved nodes: LayerUtility: If , MarkdownNote, SeedVR2Conditioning, SeedVR2PostProcessing, SeedVR2Preprocess, SeedVR2TemporalChunk, SeedVR2TemporalMerge
+- unresolved nodes: LayerUtility: If , MarkdownNote, SeedVR2LoadDiTModel, SeedVR2LoadVAEModel, SeedVR2VideoUpscaler, SimpleMath+
 
 ## Upscale / Z-Image  (`upscale__z_image`)  -  3 workflow(s)  -  source: official
 - execution: local
@@ -2250,7 +2249,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - other operations: ModelSamplingAuraFlow
 - paired/multiple required: CLIPTextEncode x2
 - optional roles: ImageCompare, LoraLoaderModelOnly, MarkdownNote, PreviewImage, SaveImage, BBoxDetect(FaceParsing), BBoxDetectorLoader(FaceParsing), BBoxListItemSelect(FaceParsing), CheckpointLoaderSimple, ConditioningZeroOut, EmptySD3LatentImage, FaceParse(FaceParsing)
-- unresolved nodes: BBoxDetect(FaceParsing), BBoxDetectorLoader(FaceParsing), BBoxListItemSelect(FaceParsing), FaceParse(FaceParsing), FaceParsingModelLoader(FaceParsing), FaceParsingProcessorLoader(FaceParsing), FaceParsingResultsParser(FaceParsing), ImageCropWithBBox(FaceParsing), ImageInsertWithBBox(FaceParsing), LayerUtility: If , MarkdownNote, Note, PrimitiveNode, Reroute
+- unresolved nodes: BBoxDetect(FaceParsing), BBoxDetectorLoader(FaceParsing), BBoxListItemSelect(FaceParsing), FaceParse(FaceParsing), FaceParsingModelLoader(FaceParsing), FaceParsingProcessorLoader(FaceParsing), FaceParsingResultsParser(FaceParsing), ImageCropWithBBox(FaceParsing), ImageInsertWithBBox(FaceParsing), LayerUtility: If , MarkdownNote, Note, PrimitiveNode, Reroute, SeedVR2LoadDiTModel, SeedVR2LoadVAEModel, SeedVR2VideoUpscaler, SimpleMath+
 
 ## Upscale / Flux  (`upscale__flux`)  -  2 workflow(s)  -  source: mixed
 - execution: local
@@ -2282,7 +2281,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveVideo (x2)
     - other operations: ComfyMathExpression (x2), CreateVideo (x2), GetImageSize (x2), GetVideoComponents (x3), ImageFromBatch, ImageResize+, ImageStitch, MarkdownNote (x4), PrimitiveInt (x2), ResizeImageMaskNode, ResolutionSelector, WanVideoDecode, WanVideoEmptyEmbeds, WanVideoEncode, WanVideoTorchCompileSettings
 - paired/multiple required: MarkdownNote x4, GetVideoComponents x3, CreateVideo x2, SaveVideo x2
-- unresolved nodes: MarkdownNote
+- unresolved nodes: ImageResize+, MarkdownNote
 
 
 # API / Partner Nodes - First / Last Frame to Video  (`api_partner_nodes_first_last_frame_to_video`)  -  15 workflow(s), 4 model(s)
@@ -2322,7 +2321,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: MarkdownNote, Note, PrimitiveNode, Reroute
 
 ## API / Partner Nodes - First / Last Frame to Video / Anima  (`api_partner_nodes_first_last_frame_to_video__anima`)  -  3 workflow(s)  -  source: official
-- execution: api (API nodes: ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode)
+- execution: api (API nodes: ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode, MinimaxHailuo03FirstLastFrameNode)
 - when to use: Use to generate a video interpolating between a first and last frame using Anima.
 - example request: "build a video workflow using Anima"
 - description: Generate a video from a first and last frame using MiniMax H3, producing a smooth animation between the two images. You provide 2 images, and the workflow outputs a single video clip. Ideal for creating seamless transitions in animation, visualizing before-and-after transformations, and generating consistent motion for character or scene sequences. | Upload a vector image of your logo, and prompt your desired texture. Generate a textured 3D first and last frame with automated prompting for the final animation. | Upload an image of a device or object to generate start and end frames. The workflow animates the transition to an exploded view and back, outputting a seamless video loop.
@@ -2334,7 +2333,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - inputs: LoadImage
     - output: SaveVideo
 - optional roles: GeminiImage2Node, SaveImage, ByteDanceFirstLastFrameNode, GeminiNanoBanana2V2, GetVideoComponents, Note, BatchImagesNode, CreateVideo, GeminiNode, MinimaxHailuo03FirstLastFrameNode
-- unresolved nodes: MinimaxHailuo03FirstLastFrameNode, Note
+- unresolved nodes: Note
 
 ## API / Partner Nodes - First / Last Frame to Video / WAN 2.2  (`api_partner_nodes_first_last_frame_to_video__wan_2_2`)  -  1 workflow(s)  -  source: official
 - execution: api (API nodes: GeminiImageNode, GeminiNode)
@@ -2430,7 +2429,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 # API / Partner Nodes - Audio  (`api_partner_nodes_audio`)  -  13 workflow(s), 3 model(s)
 
 ## API / Partner Nodes - Audio / Generic  (`api_partner_nodes_audio__generic`)  -  11 workflow(s)  -  source: official
-- execution: api (API nodes: ElevenLabsAudioIsolation, ElevenLabsInstantVoiceClone, ElevenLabsSpeechToSpeech, ElevenLabsTextToDialogue, ElevenLabsTextToSoundEffects, ElevenLabsTextToSpeech, ElevenLabsVoiceSelector, SoniloTextToMusic, SoniloVideoToMusic)
+- execution: api (API nodes: ByteDanceSeedAudio, ElevenLabsAudioIsolation, ElevenLabsInstantVoiceClone, ElevenLabsSpeechToSpeech, ElevenLabsTextToDialogue, ElevenLabsTextToSoundEffects, ElevenLabsTextToSpeech, ElevenLabsVoiceSelector, HeyGenTextToSpeechNode, SoniloTextToMusic, SoniloVideoToMusic)
 - when to use: Use to generate audio from a text prompt.
 - example request: "build an audio workflow"
 - description: Generate high-quality, production-ready music from text prompts. Input descriptive text to create original soundtracks with streaming playback and precise duration control. | Generate natural-sounding speech from text using HeyGen's advanced TTS engine, supporting a wide range of languages and accents with customizable voices. Input your text and select from numerous preset voices or clone a custom voice from a short audio sample. Ideal for creating voiceovers for videos, generating multilingual narration, and producing personalized audio content. | Generate synchronized soundtracks from video footage. Input a video to produce music that matches its pacing and emotional cues, outputting a perfectly timed audio file. | Input a text prompt to generate custom sound effects and ambient audio. | Input a text prompt to generate speech, dialogue, background music, and sound effects in one audio file. Describe voices, emotion, and scene details to create multi-speaker audio up to 2 minutes. | Input text and select a voice profile to generate a high-quality, emotionally expressive audio dialogue. | Input text to generate speech with ultra-realistic voices, or upload a voice sample to clone it for synthesis. | Upload a character image and write a text prompt to generate audio. The model derives the voice from your image, then produces speech, ambience, background music, and sound effects. | Upload a reference audio clip and write a text prompt to clone the voice into a new scene. Generate dialogue, background music, and sound effects with up to 3 reference voices. | Upload a source audio file to apply a new voice tone or clone a different voice, generating a modified audio output. | Upload an audio file containing background noise. Use the ElevenLabs API to isolate and output a clean voice track.
@@ -2449,7 +2448,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - (none resolved)
 - optional roles: AudioAdjustVolume, ElevenLabsVoiceSelector, LoadAudio, AudioMerge, ByteDanceSeedAudio, CreateVideo, ElevenLabsAudioIsolation, ElevenLabsInstantVoiceClone, ElevenLabsSpeechToSpeech, ElevenLabsTextToDialogue, ElevenLabsTextToSoundEffects, ElevenLabsTextToSpeech
-- unresolved nodes: ByteDanceSeedAudio, HeyGenTextToSpeechNode, MarkdownNote, Note, SaveAudioAdvanced
+- unresolved nodes: MarkdownNote, Note
 
 ## API / Partner Nodes - Audio / ACE-Step  (`api_partner_nodes_audio__ace_step`)  -  1 workflow(s)  -  source: official
 - execution: api (API nodes: GeminiNode)
@@ -2636,7 +2635,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: PreviewImage, SaveVideo
     - other operations: CreateVideo, DA3Inference, DA3Render, GetVideoComponents, LoadDA3Model, MarkdownNote (x2), Video Slice
 - paired/multiple required: MarkdownNote x2
-- unresolved nodes: DA3Inference, DA3Render, LoadDA3Model, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 
 # 3D  (`3d`)  -  11 workflow(s), 3 model(s)
@@ -2717,7 +2716,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - other operations: CreateVideo, ModelSamplingSD3 (x2), WanFirstLastFrameToVideo
 - paired/multiple required: CLIPTextEncode x2, KSamplerAdvanced x2, ModelSamplingSD3 x2, UNETLoader x2
 - optional roles: LoraLoaderModelOnly, KSampler, Note, AILab_QwenVL, ConditioningZeroOut, EmptySD3LatentImage, ImageBatchMulti, ImageResizeKJv2, ImageUpscaleWithModelBatched, ImpactStringSelector, ModelSamplingAuraFlow, PreviewImage
-- unresolved nodes: AILab_QwenVL, MarkdownNote, Note
+- unresolved nodes: AILab_QwenVL, MarkdownNote, Note, SimpleMath+
 
 ## First / Last Frame to Video / LTX-2  (`first_last_frame_to_video__ltx_2`)  -  3 workflow(s)  -  source: mixed
 - execution: local
@@ -2831,7 +2830,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImage
     - other operations: AnimaLLLiteApply, ComfySwitchNode (x3), ImageCompare, MarkdownNote (x3), MaskPreview, Painter, PrimitiveBoolean, PrimitiveFloat (x2), PrimitiveInt (x2), ResizeImageMaskNode
 - paired/multiple required: MarkdownNote x3, CLIPTextEncode x2
-- unresolved nodes: AnimaLLLiteApply, MarkdownNote
+- unresolved nodes: MarkdownNote
 
 
 # Video Inpaint  (`video_inpaint`)  -  7 workflow(s), 4 model(s)
@@ -2926,7 +2925,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - other operations: GeminiImage2Node (x2)
 - paired/multiple required: SaveImage x3, GeminiImage2Node x2
 - optional roles: SimpleMath+, PreviewImage, ImageCrop, ResizeAndPadImage, BatchImagesNode, ImageBatchMulti, ImageFromBatch, ImageResizeKJv2, ImageStitch
-- unresolved nodes: Reroute
+- unresolved nodes: Reroute, SimpleMath+
 
 ## API / Partner Nodes - Character / Nano-Banana  (`api_partner_nodes_character__nano_banana`)  -  2 workflow(s)  -  source: custom
 - execution: api (API nodes: GeminiImage2Node, GeminiNode)
@@ -2970,7 +2969,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - inputs: LoadImage
     - output: SaveImage
 - optional roles: MarkdownNote, EmptyImage, FluxResolutionNode, GeminiImage2Node, GeminiNanoBanana2, ImageCompare, ImageCompositeMasked, ImagePadForOutpaint, ImageResize+, ImageResizeKJv2, PreviewImage
-- unresolved nodes: FluxResolutionNode, MarkdownNote
+- unresolved nodes: FluxResolutionNode, ImageResize+, MarkdownNote
 
 
 # Text Tools  (`text_tools`)  -  5 workflow(s), 2 model(s)
@@ -2987,6 +2986,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - node clusters (required structure):
     - other operations: GeminiNode
 - optional roles: CreateVideo, GetVideoComponents, ImageResizeKJv2, LoadVideo, easy saveText
+- unresolved nodes: easy saveText
 
 ## Text Tools / Generic  (`text_tools__generic`)  -  2 workflow(s)  -  source: official
 - execution: hybrid (API nodes: GeminiNode)
@@ -3032,7 +3032,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImage (x2)
     - other operations: GeminiNode, GetImageSize (x4), ImageCompare, ImageResize+ (x2), MarkdownNote (x3), PreviewAny, PrimitiveInt (x6), SimpleMath+ (x4), VHS_SelectImages (x2), WanVideoDecode (x2), WanVideoEmptyEmbeds (x2), WanVideoEncode (x2), WanVideoTorchCompileSettings (x2)
 - paired/multiple required: SimpleMath+ x4, WanVideoLoraSelect x4, MarkdownNote x3, ImageResize+ x2, SaveImage x2, VHS_SelectImages x2, WanVideoDecode x2, WanVideoEmptyEmbeds x2, WanVideoEncode x2, WanVideoModelLoader x2, WanVideoSampler x2, WanVideoSetLoRAs x2, WanVideoTextEncodeCached x2, WanVideoTorchCompileSettings x2, WanVideoVAELoader x2
-- unresolved nodes: MarkdownNote
+- unresolved nodes: ImageResize+, MarkdownNote, SimpleMath+
 
 
 # Character  (`character`)  -  3 workflow(s), 2 model(s)
@@ -3054,7 +3054,6 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - other operations: CLIPVisionEncode, CLIPVisionLoader, ComfyMathExpression (x3), ComfySwitchNode (x3), GetImageSize, GetVideoComponents, ImageFromBatch, ModelSamplingSD3, PrimitiveBoolean (x2), PrimitiveFloat (x2), PrimitiveInt (x5), ResizeImageMaskNode, SAM3_VideoTrack (x2), SCAIL2ColoredMask, WanSCAILToVideo
 - paired/multiple required: CLIPTextEncode x4, LoraLoaderModelOnly x2, PreviewImage x2, SAM3_VideoTrack x2
 - optional roles: ColorTransfer
-- unresolved nodes: SCAIL2ColoredMask
 
 ## Character / Qwen Image  (`character__qwen_image`)  -  1 workflow(s)  -  source: official
 - execution: local

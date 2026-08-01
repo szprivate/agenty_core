@@ -403,13 +403,13 @@ _SEED_CONTROL_VALUES: frozenset[str] = frozenset({"fixed", "randomize", "increme
 _SEED_INPUT_NAMES: frozenset[str] = frozenset({"seed", "noise_seed"})
 
 
-def _schema_widget_names(schema: dict, linked_names: set[str]) -> list[str]:
-    """Return the ordered list of widget input names for a node schema.
+def _schema_widget_slots(schema: dict, linked_names: set[str]) -> list[tuple]:
+    """Ordered ``(input_name, spec)`` widget slots for a node schema.
 
     Mirrors the logic ComfyUI's frontend uses to assign widget_values entries
     to named inputs.
     """
-    names: list[str] = []
+    slots: list[tuple] = []
     for section in ("required", "optional"):
         for inp_name, inp_spec in schema.get(section, {}).items():
             if inp_name in linked_names:
@@ -417,8 +417,109 @@ def _schema_widget_names(schema: dict, linked_names: set[str]) -> list[str]:
             inp_type = inp_spec[0] if (isinstance(inp_spec, (list, tuple)) and inp_spec) else ""
             if isinstance(inp_type, str) and inp_type in _LINK_ONLY_TYPES:
                 continue
-            names.append(inp_name)
-    return names
+            slots.append((inp_name, inp_spec))
+    return slots
+
+
+def _schema_widget_names(schema: dict, linked_names: set[str]) -> list[str]:
+    """Ordered widget input names for a node schema (names only)."""
+    return [name for name, _spec in _schema_widget_slots(schema, linked_names)]
+
+
+def _fill_required_defaults(api_inputs: dict, schema: dict, linked_names: set) -> None:
+    """Give every required widget input still absent its schema default.
+
+    A template need not serialise a widget the author never touched —
+    api_kling_v3_flf2v ships five widget values and no ``seed`` — but /prompt
+    requires it all the same. ComfyUI's frontend materialises the default from
+    the schema, so do the same rather than submitting a graph that fails
+    validation on a value nobody chose. Only explicit ``default`` keys are used;
+    inventing one (say, the first COMBO option) would be a guess.
+    """
+    for name, spec in (schema.get("required") or {}).items():
+        if name in linked_names or _is_autogrow_spec(spec):
+            continue
+        typ = spec[0] if isinstance(spec, (list, tuple)) and spec else ""
+        if isinstance(typ, str) and typ in _LINK_ONLY_TYPES:
+            continue
+        opts = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
+        if name not in api_inputs and isinstance(opts, dict) and "default" in opts:
+            api_inputs[name] = opts["default"]
+        # The selected option of a dynamic combo brings its own required inputs;
+        # they are just as mandatory and just as often left unserialised.
+        subs = _dynamic_combo_suboptions(spec)
+        if subs is None or name not in api_inputs:
+            continue
+        chosen = next((o for o in (opts or {}).get("options") or []
+                       if isinstance(o, dict) and str(o.get("key")) == str(api_inputs[name])), None)
+        for sub, sub_spec in ((chosen or {}).get("inputs") or {}).get("required", {}).items():
+            key = f"{name}.{sub}"
+            sub_opts = sub_spec[1] if isinstance(sub_spec, (list, tuple)) and len(sub_spec) > 1 else None
+            if key not in api_inputs and isinstance(sub_opts, dict) and "default" in sub_opts:
+                api_inputs[key] = sub_opts["default"]
+
+
+def _map_widget_values(slots: list, widgets_values: list, linked_names: set) -> tuple:
+    """Assign ``widgets_values`` positionally to *slots*, ``(mapped, leftover)``.
+
+    *slots* is ``[(input_name, spec_or_None)]``. A seed widget swallows the
+    control value that follows it ("randomize"/"fixed"), and a dynamic combo
+    swallows the widgets its selected option contributes. ``leftover`` is the
+    values no slot claimed — non-empty means the slot list did not describe this
+    node, which is the caller's signal to try the other source.
+    """
+    mapped: dict = {}
+    i = 0
+    for name, spec in slots:
+        if i >= len(widgets_values):
+            break
+        val = widgets_values[i]
+        if name not in linked_names:
+            mapped[name] = val
+        i += 1
+        # A dynamic combo's selected option contributes its own widgets right
+        # after it. Without this every following value shifts by one per
+        # sub-input: the prompt lands in `seed`, the resolution in `watermark`,
+        # and the sub-inputs ComfyUI requires (model.prompt, model.resolution,
+        # model.duration) are never set, so /prompt rejects the graph.
+        subs = _dynamic_combo_suboptions(spec)
+        if subs is not None:
+            for sub in subs.get(str(val), []):
+                if i >= len(widgets_values):
+                    break
+                mapped[f"{name}.{sub}"] = widgets_values[i]
+                i += 1
+            continue
+        if (name in _SEED_INPUT_NAMES
+                and i < len(widgets_values)
+                and widgets_values[i] in _SEED_CONTROL_VALUES):
+            i += 1
+    return mapped, list(widgets_values[i:])
+
+
+def _dynamic_combo_suboptions(inp_spec) -> dict | None:
+    """``{option_key: [sub_input_name, ...]}`` for a V3 dynamic-combo input, else None.
+
+    A ``COMFY_DYNAMICCOMBO_V3`` input is one widget whose *selected option* pulls
+    in further widgets: picking "MiniMax H3" on a Minimax node adds prompt,
+    resolution and duration. The frontend serialises those as dotted inputs
+    (``model.prompt``), and they occupy the widget_values slots straight after
+    the combo's own value. Which sub-inputs appear depends on the value, so the
+    expansion cannot be read from the schema alone.
+    """
+    if not (isinstance(inp_spec, (list, tuple)) and len(inp_spec) >= 2):
+        return None
+    if inp_spec[0] != "COMFY_DYNAMICCOMBO_V3" or not isinstance(inp_spec[1], dict):
+        return None
+    out: dict = {}
+    for opt in inp_spec[1].get("options") or []:
+        if not isinstance(opt, dict):
+            continue
+        inner = opt.get("inputs") or {}
+        names = [n for section in ("required", "optional")
+                 for n in (inner.get(section) or {})]
+        out[str(opt.get("key"))] = names
+    return out
 
 
 def _flatten_subgraphs(workflow: dict) -> dict:
@@ -649,47 +750,51 @@ def _convert_graph_to_api(workflow: dict) -> dict:
         # __extra_widget_*). A linked input keeps its link; its widgets_values
         # slot is still consumed (the widget value is just the UI fallback).
         widgets_values: list = node.get("widgets_values", node.get("widget_values", []))
+        unmapped_widgets: list = []
         if isinstance(widgets_values, list) and widgets_values:
-            declared = [c.get("widget", {}).get("name") or c.get("name", "")
+            declared = [(c.get("widget", {}).get("name") or c.get("name", ""), None)
                         for c in node.get("inputs", [])
                         if isinstance(c, dict) and isinstance(c.get("widget"), dict)]
-            if declared:
-                wv_idx = 0
-                for name in declared:
-                    if wv_idx >= len(widgets_values):
-                        break
-                    val = widgets_values[wv_idx]
-                    if name not in linked_names:
-                        api_inputs[name] = val
-                    wv_idx += 1
-                    if (name in _SEED_INPUT_NAMES
-                            and wv_idx < len(widgets_values)
-                            and widgets_values[wv_idx] in _SEED_CONTROL_VALUES):
-                        wv_idx += 1
+            schema = object_info.get(class_type, {}).get("input", {}) if object_info else {}
+            schema_slots = _schema_widget_slots(schema, linked_names) if schema else []
+            # Prefer whichever slot list *explains every value*. Declarations are
+            # the better source when complete (they carry V3 dotted names the
+            # schema order can't reproduce), but a node inlined from a subgraph
+            # declares only its promoted widget while still carrying the full
+            # value list — trusting that dropped CLIPLoader.type, UNETLoader.
+            # weight_dtype, KSampler.sampler_name/scheduler/denoise and so on.
+            mapped, leftover = _map_widget_values(declared, widgets_values, linked_names)
+            if leftover and schema_slots:
+                # The declarations left values unexplained, so fall back to schema
+                # order. Measured over the whole corpus this is the rule that
+                # resolves the most nodes (456 templates convert with every
+                # required input set, against 378 for "switch only when the schema
+                # names more widgets" and 245 before any of this).
+                mapped, leftover = _map_widget_values(
+                    schema_slots, widgets_values, linked_names)
+            if not declared and not schema_slots:
+                api_inputs["__widgets_values"] = list(widgets_values)
             else:
-                schema = object_info.get(class_type, {}).get("input", {}) if object_info else {}
-                if schema:
-                    widget_names = _schema_widget_names(schema, linked_names)
-                    wv_idx = 0
-                    for name in widget_names:
-                        if wv_idx >= len(widgets_values):
-                            break
-                        val = widgets_values[wv_idx]
-                        api_inputs[name] = val
-                        wv_idx += 1
-                        if (name in _SEED_INPUT_NAMES
-                                and wv_idx < len(widgets_values)
-                                and widgets_values[wv_idx] in _SEED_CONTROL_VALUES):
-                            wv_idx += 1
-                    for extra_i, extra_val in enumerate(widgets_values[wv_idx:], start=wv_idx):
-                        api_inputs[f"__extra_widget_{extra_i}"] = extra_val
-                else:
-                    api_inputs["__widgets_values"] = list(widgets_values)
+                api_inputs.update(mapped)
+                # Values no slot claimed are a mapping failure, not node inputs.
+                # They used to be POSTed as __extra_widget_N keys; park them in
+                # _meta instead so they stay visible for debugging without being
+                # sent to /prompt as inputs the node never declared.
+                if leftover:
+                    unmapped_widgets = leftover
+
+        node_schema = object_info.get(class_type, {}).get("input", {}) if object_info else {}
+        if node_schema:
+            _fill_required_defaults(api_inputs, node_schema, linked_names)
 
         api_node: dict = {"class_type": class_type, "inputs": api_inputs}
         title = node.get("title", "")
-        if title:
-            api_node["_meta"] = {"title": title}
+        if title or unmapped_widgets:
+            api_node["_meta"] = {}
+            if title:
+                api_node["_meta"]["title"] = title
+            if unmapped_widgets:
+                api_node["_meta"]["unmapped_widgets"] = unmapped_widgets
         api_workflow[nid] = api_node
 
     return api_workflow
