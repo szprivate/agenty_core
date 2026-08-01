@@ -1300,5 +1300,69 @@
         "description": "Local generation via ComfyUI Model. text input → 1 image output. Processes and generates content using ComfyUI workflows."
       }
     ]
+  },
+  {
+    "templates": [
+      {
+        "name": "0193-spec-0160-renderLightChar-v006",
+        "models": [],
+        "io": {
+          "inputs": [
+            {
+              "nodeId": 4,
+              "nodeType": "VHS_LoadImagePath",
+              "file": "W:\\0193_Never_Stop_Dreaming_Spec\\02_build\\comfy\\sebastian.zilius\\output\\spec\\spec_0373\\images\\v001\\spec_0373_v001_startFrame_00084_.png",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 9,
+              "nodeType": "LoadVideo",
+              "file": "0193_spec_0160_renderLightChar_v006_png_h264.mp4",
+              "mediaType": "video"
+            }
+          ],
+          "outputs": [
+            {
+              "nodeId": 8,
+              "nodeType": "SaveVideo",
+              "file": "",
+              "mediaType": "video"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "templates": [
+      {
+        "name": "v2v_api_switchx_videoStyleTransfer",
+        "models": [],
+        "io": {
+          "inputs": [
+            {
+              "nodeId": 4,
+              "nodeType": "VHS_LoadImagePath",
+              "file": "W:\\0193_Never_Stop_Dreaming_Spec\\02_build\\comfy\\sebastian.zilius\\output\\spec\\spec_0373\\images\\v001\\spec_0373_v001_startFrame_00084_.png",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 9,
+              "nodeType": "LoadVideo",
+              "file": "0193_spec_0160_renderLightChar_v006_png_h264.mp4",
+              "mediaType": "video"
+            }
+          ],
+          "outputs": [
+            {
+              "nodeId": 8,
+              "nodeType": "SaveVideo",
+              "file": "",
+              "mediaType": "video"
+            }
+          ]
+        }
+      }
+    ]
   }
 ]

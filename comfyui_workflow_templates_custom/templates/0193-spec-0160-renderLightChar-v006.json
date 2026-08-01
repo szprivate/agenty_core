@@ -1,0 +1,58 @@
+{
+  "4": {
+    "inputs": {
+      "image": "W:\\0193_Never_Stop_Dreaming_Spec\\02_build\\comfy\\sebastian.zilius\\output\\spec\\spec_0373\\images\\v001\\spec_0373_v001_startFrame_00084_.png",
+      "custom_width": 0,
+      "custom_height": 0
+    },
+    "class_type": "VHS_LoadImagePath",
+    "_meta": {
+      "title": "Load Image (Path) 🎥🅥🅗🅢"
+    }
+  },
+  "7": {
+    "inputs": {
+      "prompt": "apply the look of the reference image to the video",
+      "alpha_mode": "auto",
+      "max_resolution": "1080p",
+      "seed": 99379866,
+      "video": [
+        "9",
+        0
+      ],
+      "reference_image": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "BeebleSwitchXVideoEdit",
+    "_meta": {
+      "title": "Beeble SwitchX Video Edit"
+    }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "video/ComfyUI",
+      "format": "auto",
+      "codec": "auto",
+      "video": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  },
+  "9": {
+    "inputs": {
+      "file": "0193_spec_0160_renderLightChar_v006_png_h264.mp4",
+      "video-preview": ""
+    },
+    "class_type": "LoadVideo",
+    "_meta": {
+      "title": "Load Video"
+    }
+  }
+}
