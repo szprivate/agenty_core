@@ -419,13 +419,22 @@ def _is_widget_spec(spec) -> bool:
 
 
 def _widget_options(spec) -> list:
-    """The selectable values for a COMBO-ish widget, else []."""
+    """The selectable values for a COMBO-ish widget, else [].
+
+    Covers both shapes. A plain COMBO lists its options as strings. A V3 dynamic
+    combo lists them as objects — ``{"key": "MiniMax H3", "inputs": {…}}`` — where
+    the key is the value the node accepts and the rest describes what choosing it
+    unfolds. Reading only the strings left every dynamic combo looking
+    unconstrained, which is 114 inputs, 89 of them on partner-API nodes, and they
+    are exactly the model selectors whose exact spelling cannot be guessed:
+    ``Flux.2 [pro]``, ``Nano Banana 2 (Gemini 3.1 Flash Image)``.
+    """
     typ = spec[0] if isinstance(spec, (list, tuple)) and spec else spec
     if isinstance(typ, list):
         return list(typ)
     meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
     if isinstance(meta, dict) and isinstance(meta.get("options"), list):
-        return [o for o in meta["options"] if not isinstance(o, dict)]
+        return [o.get("key") if isinstance(o, dict) else o for o in meta["options"]]
     return []
 
 
@@ -445,16 +454,42 @@ def _schema_widget_slots(schema: dict, linked_names: set[str]) -> list[tuple]:
 
     Mirrors the logic ComfyUI's frontend uses to assign widget_values entries
     to named inputs.
+
+    Note this excludes by ``_LINK_ONLY_TYPES`` rather than by ``_is_widget_spec``.
+    The two answer different questions and measurably disagree: alignment has to
+    mirror what the *frontend serialises*, which includes a value for some
+    custom-typed widgets (socketless display widgets and the like), while
+    ``_is_widget_spec`` answers "could a caller type a value here" for reporting
+    and defaulting. Using the strict rule for alignment costs 38 templates.
+
+    Whether a *wired-up* widget still occupies a slot depends on how the graph
+    was written: a seed driven by a primitive node sometimes keeps its last UI
+    value (and control string) in widgets_values and sometimes does not. Neither
+    answer is right everywhere — dropping the slot when the value is present
+    shifts everything after it (a KSampler came out with steps=561594583201063,
+    cfg="fixed", denoise="euler"), and consuming it when it is absent shifts them
+    the other way. So this returns the *excluding* variant and the caller tries
+    both, keeping whichever assigns values that fit their slots.
     """
     slots: list[tuple] = []
     for section in ("required", "optional"):
-        for inp_name, inp_spec in schema.get(section, {}).items():
-            if inp_name in linked_names:
+        for name, spec in (schema.get(section) or {}).items():
+            if name in linked_names:
                 continue
-            inp_type = inp_spec[0] if (isinstance(inp_spec, (list, tuple)) and inp_spec) else ""
-            if isinstance(inp_type, str) and inp_type in _LINK_ONLY_TYPES:
+            typ = spec[0] if isinstance(spec, (list, tuple)) and spec else ""
+            if isinstance(typ, str) and typ in _LINK_ONLY_TYPES:
                 continue
-            slots.append((inp_name, inp_spec))
+            # COMFY_MATCHTYPE_V3 takes whatever type is wired into it (switches,
+            # concatenators): a socket wearing a V3 name, never a widget.
+            if typ == "COMFY_MATCHTYPE_V3":
+                continue
+            meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
+            # forceInput promotes a widget-typed input to a socket-only one, so it
+            # has no widget and claims no slot — 104 inputs where letting it claim
+            # one would shift every value after it.
+            if isinstance(meta, dict) and meta.get("forceInput"):
+                continue
+            slots.append((name, spec))
     return slots
 
 
@@ -508,6 +543,45 @@ def _fill_required_defaults(api_inputs: dict, schema: dict, linked_names: set,
                 api_inputs[key] = sub_opts["default"]
 
 
+def _value_fits(spec, value) -> bool:
+    """Is *value* a plausible occupant of this widget slot?
+
+    Deliberately shallow — the point is to tell a *shifted* mapping from an
+    aligned one, and a shift shows up immediately as a sampler name landing in a
+    float or a control string landing in a combo.
+    """
+    if isinstance(value, list):            # a link, not a literal
+        return True
+    options = _widget_options(spec)
+    if options:
+        return str(value) in {str(o) for o in options}
+    typ = spec[0] if isinstance(spec, (list, tuple)) and spec else spec
+    if typ == "BOOLEAN":
+        return isinstance(value, bool)
+    if typ in ("INT", "FLOAT"):
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    if typ == "STRING":
+        return isinstance(value, str)
+    return True
+
+
+def _mapping_score(mapped: dict, slots: list) -> int:
+    """+1 per assignment that fits its slot, -1 per one that cannot.
+
+    Used to choose between two readings of the same widget list. Counting
+    leftovers cannot do it: the reading with more slots always consumes more
+    values, so it wins on leftovers even when every value it assigned is wrong.
+    """
+    specs = {name: spec for name, spec in slots}
+    score = 0
+    for name, value in mapped.items():
+        spec = specs.get(name)
+        if spec is None:
+            continue
+        score += 1 if _value_fits(spec, value) else -1
+    return score
+
+
 def _map_widget_values(slots: list, widgets_values: list, linked_names: set) -> tuple:
     """Assign ``widgets_values`` positionally to *slots*, ``(mapped, leftover)``.
 
@@ -539,7 +613,14 @@ def _map_widget_values(slots: list, widgets_values: list, linked_names: set) -> 
                 mapped[f"{name}.{sub}"] = widgets_values[i]
                 i += 1
             continue
-        if (name in _SEED_INPUT_NAMES
+        # A widget with control_after_generate is followed by its control value
+        # ("fixed"/"randomize"/…), which is UI state, not an input. The schema
+        # declares which widgets have one; the name list is the fallback for
+        # specs that predate the flag.
+        meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
+        has_control = (isinstance(meta, dict) and meta.get("control_after_generate")) \
+            or name in _SEED_INPUT_NAMES
+        if (has_control
                 and i < len(widgets_values)
                 and widgets_values[i] in _SEED_CONTROL_VALUES):
             i += 1
@@ -816,11 +897,21 @@ def _convert_graph_to_api(workflow: dict) -> dict:
             if leftover and schema_slots:
                 # The declarations left values unexplained, so fall back to schema
                 # order. Measured over the whole corpus this is the rule that
-                # resolves the most nodes (456 templates convert with every
-                # required input set, against 378 for "switch only when the schema
-                # names more widgets" and 245 before any of this).
-                mapped, leftover = _map_widget_values(
-                    schema_slots, widgets_values, linked_names)
+                # resolves the most nodes (against "switch only when the schema
+                # names more widgets" and "switch only when it leaves fewer
+                # leftovers", both of which scored ~80 templates worse).
+                #
+                # Wired-up widgets may or may not still hold a value, so try both
+                # readings and keep the one whose assignments actually fit their
+                # slots. Ties go to the excluding reading — fewer assumptions.
+                incl_slots = _schema_widget_slots(schema, set())
+                without_linked = _map_widget_values(schema_slots, widgets_values, linked_names)
+                with_linked = _map_widget_values(incl_slots, widgets_values, linked_names)
+                mapped, leftover = (
+                    with_linked
+                    if _mapping_score(with_linked[0], incl_slots)
+                    > _mapping_score(without_linked[0], schema_slots)
+                    else without_linked)
             if not declared and not schema_slots:
                 api_inputs["__widgets_values"] = list(widgets_values)
             else:
@@ -4002,6 +4093,108 @@ def remove_workflow_node(workflow_path: str, node_id: str) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @tool
+def _spec_for_input(schema: dict, inputs: dict, name: str):
+    """Schema spec for *name*, resolving V3 dotted sub-inputs.
+
+    ``model.resolution`` is not in the node's own input map — it belongs to
+    whichever option ``model`` currently holds, so the lookup has to go through
+    the value to find the spec.
+    """
+    if "." not in name:
+        return ((schema.get("required") or {}).get(name)
+                or (schema.get("optional") or {}).get(name))
+    head, sub = name.split(".", 1)
+    parent = ((schema.get("required") or {}).get(head)
+              or (schema.get("optional") or {}).get(head))
+    meta = parent[1] if isinstance(parent, (list, tuple)) and len(parent) > 1 else None
+    if not isinstance(meta, dict):
+        return None
+    chosen = str(inputs.get(head))
+    for opt in meta.get("options") or []:
+        if isinstance(opt, dict) and str(opt.get("key")) == chosen:
+            inner = opt.get("inputs") or {}
+            return ((inner.get("required") or {}).get(sub)
+                    or (inner.get("optional") or {}).get(sub))
+    return None
+
+
+def _suggest_option(value, options: list):
+    """Closest legal option to *value*, or None.
+
+    Exact-but-for-case first, then filename basename (model paths drift by
+    folder and separator), then fuzzy. "kling-v3-pro" → "kling-v3" is the shape
+    of mistake this catches; a semantically sensible invention like
+    "MiniMax-Hailuo-02" usually has no close match, and saying so is better than
+    snapping it to something arbitrary.
+    """
+    text = str(value)
+    lowered = {str(o).lower(): o for o in options}
+    if text.lower() in lowered:
+        return lowered[text.lower()]
+    base = Path(text.replace("\\", "/")).name.lower()
+    for opt in options:
+        if Path(str(opt).replace("\\", "/")).name.lower() == base:
+            return opt
+    import difflib  # noqa: PLC0415 - only needed on the error path
+    near = difflib.get_close_matches(text, [str(o) for o in options], n=1, cutoff=0.75)
+    return near[0] if near else None
+
+
+def _invalid_widget_values(workflow: dict, object_info: dict) -> list:
+    """Literal inputs whose value is not one the node accepts.
+
+    Presence was the only thing checked before, so a value that is merely wrong
+    — ``sampler_name="euler_supreme"``, ``model="MiniMax-Hailuo-02"`` — passed
+    local validation and failed at the server, or silently produced the wrong
+    thing. Enums whose options are not knowable offline (lazily loaded or
+    ``remote``) are skipped rather than guessed at.
+    """
+    out: list = []
+    for nid, node in workflow.items():
+        if not isinstance(node, dict):
+            continue
+        schema = (object_info.get(node.get("class_type")) or {}).get("input") or {}
+        if not schema:
+            continue
+        inputs = node.get("inputs")
+        if not isinstance(inputs, dict):
+            continue
+        for name, value in inputs.items():
+            if isinstance(value, list):        # a link, not a literal
+                continue
+            spec = _spec_for_input(schema, inputs, name)
+            if spec is None:
+                continue
+            meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
+            if isinstance(meta, dict) and meta.get("remote"):
+                continue                        # options come from an endpoint
+            options = _widget_options(spec)
+            if not options or str(value) in {str(o) for o in options}:
+                continue
+            entry = {
+                "node_id": str(nid),
+                "class_type": node.get("class_type"),
+                "input": name,
+                "value": value,
+            }
+            # Short enums (samplers, model makes, aspect ratios) are worth
+            # quoting whole — the exact spelling is the whole point. Long ones
+            # are asset lists: a node offering 400 checkpoints is telling you the
+            # file is not installed, and pasting all 400 in helps nobody.
+            if len(options) <= 12:
+                entry["options"] = list(options)
+            else:
+                import difflib  # noqa: PLC0415 - error path only
+                entry["options_count"] = len(options)
+                entry["closest_options"] = difflib.get_close_matches(
+                    str(value), [str(o) for o in options], n=5, cutoff=0.3)
+            suggestion = _suggest_option(value, options)
+            if suggestion is not None:
+                entry["did_you_mean"] = suggestion
+            out.append(entry)
+    return out
+
+
 def _missing_widget_facts(nid: str, cls: str, name: str, spec) -> dict:
     """Everything needed to choose a value for one missing widget, in one place.
 
@@ -4113,6 +4306,13 @@ def validate_workflow(workflow_path: str) -> str:
                         f"non-existent node '{src_id}'."
                     )
 
+    invalid_inputs = _invalid_widget_values(workflow, all_nodes)
+    for bad in invalid_inputs:
+        local_errors.append(
+            f"Node {bad['node_id']} ({bad['class_type']}): input '{bad['input']}' "
+            f"= {bad['value']!r} is not one of the accepted values."
+        )
+
     # Server-side validation (side-effect-free — never interrupts/clears other
     # jobs; skips entirely while ComfyUI is busy). See _server_validate.
     server_errors: dict = _server_validate(workflow)
@@ -4124,11 +4324,21 @@ def validate_workflow(workflow_path: str) -> str:
         "local_errors": local_errors,
         "server_errors": server_errors,
     }
+    # Everything needed to fix it, in the same response that reported it — so the
+    # repair is one update_workflow call, not a schema round trip per node
+    # followed by a guess.
     if missing_inputs:
-        # Everything needed to fix it, in the same response that reported it —
-        # so the repair is one update_workflow call, not a schema round trip
-        # per node followed by a guess.
         result["missing_inputs"] = missing_inputs
-        result["hint"] = ("Set each entry in missing_inputs with update_workflow "
-                          "(pick from 'options' where present), then re-validate.")
+    if invalid_inputs:
+        result["invalid_inputs"] = invalid_inputs
+    if missing_inputs or invalid_inputs:
+        parts = []
+        if missing_inputs:
+            parts.append("set each entry in missing_inputs")
+        if invalid_inputs:
+            parts.append("replace each invalid_inputs value with one of its "
+                         "'options' (never invent one — these are exact strings "
+                         "the node matches literally)")
+        result["hint"] = ("Use update_workflow to " + " and ".join(parts)
+                          + ", then re-validate.")
     return json.dumps(result)

@@ -191,6 +191,114 @@ class ConventionalDefaultsTest(unittest.TestCase):
         self.assertNotIn("task_id", inputs)
 
 
+class V3DynamicShapesTest(unittest.TestCase):
+    """The V3 shapes that do not look like ordinary widgets.
+
+    Each of these cost a real bug: dynamic-combo options are dicts (so reading
+    only strings made every model selector look unconstrained), MATCHTYPE takes
+    whatever is wired to it, and forceInput turns a widget-typed input into a
+    socket. The last two claim a widget slot if you let them, shifting every
+    value after.
+    """
+
+    def test_dynamic_combo_options_are_their_keys(self):
+        spec = ["COMFY_DYNAMICCOMBO_V3", {"options": [
+            {"key": "Flux.2 [pro]", "inputs": {}}, {"key": "Flux.2 [max]", "inputs": {}}]}]
+        self.assertEqual(C._widget_options(spec), ["Flux.2 [pro]", "Flux.2 [max]"])
+        self.assertTrue(C._value_fits(spec, "Flux.2 [pro]"))
+        self.assertFalse(C._value_fits(spec, "flux-2-pro"))
+
+    def test_matchtype_is_a_socket_and_claims_no_slot(self):
+        schema = {"required": {"input": ["COMFY_MATCHTYPE_V3", {}], "amount": ["INT", {}]}}
+        self.assertEqual([n for n, _ in C._schema_widget_slots(schema, set())], ["amount"])
+
+    def test_force_input_claims_no_slot(self):
+        schema = {"required": {"text": ["STRING", {"forceInput": True}],
+                               "steps": ["INT", {}]}}
+        self.assertEqual([n for n, _ in C._schema_widget_slots(schema, set())], ["steps"])
+
+    def test_control_after_generate_is_read_from_the_schema(self):
+        # Not named "seed", so the hardcoded name list would miss its control value.
+        slots = [("value", ["INT", {"control_after_generate": True}]), ("steps", ["INT", {}])]
+        mapped, leftover = C._map_widget_values(slots, [42, "randomize", 20], set())
+        self.assertEqual(mapped, {"value": 42, "steps": 20})
+        self.assertEqual(leftover, [])
+
+
+class InvalidValueTest(unittest.TestCase):
+    """Presence used to be the only check, so a merely *wrong* value sailed through."""
+
+    OI = {
+        "KSampler": {"input": {"required": {
+            "sampler_name": [["euler", "dpmpp_2m"], {}],
+            "scheduler": [["simple", "karras", "beta"], {}],
+            "steps": ["INT", {}]}}},
+        "MinimaxNode": {"input": {"required": {
+            "model": ["COMFY_DYNAMICCOMBO_V3", {"options": [
+                {"key": "MiniMax H3", "inputs": {"required": {
+                    "resolution": ["COMBO", {"options": ["2K"]}]}}}]}]}}},
+        "LazyCombo": {"input": {"required": {"pick": ["COMBO", {}]}}},
+        "RemoteCombo": {"input": {"required": {"pick": ["COMBO", {"remote": {"route": "/x"}}]}}},
+    }
+
+    def _bad(self, wf):
+        return C._invalid_widget_values(wf, self.OI)
+
+    def test_out_of_enum_value_is_flagged_with_its_options(self):
+        bad = self._bad({"1": {"class_type": "KSampler",
+                               "inputs": {"sampler_name": "euler_supreme"}}})
+        self.assertEqual(len(bad), 1)
+        self.assertEqual(bad[0]["input"], "sampler_name")
+        self.assertEqual(bad[0]["options"], ["euler", "dpmpp_2m"])
+
+    def test_near_miss_gets_a_suggestion(self):
+        bad = self._bad({"1": {"class_type": "KSampler", "inputs": {"scheduler": "karrass"}}})
+        self.assertEqual(bad[0]["did_you_mean"], "karras")
+
+    def test_an_invented_value_gets_no_suggestion(self):
+        bad = self._bad({"1": {"class_type": "KSampler",
+                               "inputs": {"sampler_name": "euler_supreme"}}})
+        self.assertNotIn("did_you_mean", bad[0])
+
+    def test_valid_values_and_links_are_left_alone(self):
+        self.assertEqual(self._bad({"1": {"class_type": "KSampler", "inputs": {
+            "sampler_name": "euler", "scheduler": "karras", "steps": ["2", 0]}}}), [])
+
+    def test_dotted_sub_input_is_resolved_through_the_selected_option(self):
+        bad = self._bad({"1": {"class_type": "MinimaxNode", "inputs": {
+            "model": "MiniMax H3", "model.resolution": "4K"}}})
+        self.assertEqual([(b["input"], b["options"]) for b in bad],
+                         [("model.resolution", ["2K"])])
+
+    def test_unknowable_enums_are_skipped_not_guessed(self):
+        for cls in ("LazyCombo", "RemoteCombo"):
+            self.assertEqual(self._bad({"1": {"class_type": cls,
+                                              "inputs": {"pick": "whatever"}}}), [], cls)
+
+    def test_long_asset_lists_are_summarised_not_pasted(self):
+        oi = {"Loader": {"input": {"required": {
+            "ckpt_name": [[f"model_{i}.safetensors" for i in range(200)], {}]}}}}
+        bad = C._invalid_widget_values(
+            {"1": {"class_type": "Loader", "inputs": {"ckpt_name": "made-up.safetensors"}}}, oi)
+        self.assertNotIn("options", bad[0])
+        self.assertEqual(bad[0]["options_count"], 200)
+        self.assertLessEqual(len(bad[0]["closest_options"]), 5)
+
+
+class SuggestOptionTest(unittest.TestCase):
+    OPTS = ["FLUX1\\flux1-dev.safetensors", "karras", "MiniMax H3"]
+
+    def test_case_insensitive_exact_match(self):
+        self.assertEqual(C._suggest_option("KARRAS", self.OPTS), "karras")
+
+    def test_basename_match_ignores_folder_and_separator(self):
+        self.assertEqual(C._suggest_option("FLUX1/flux1-dev.safetensors", self.OPTS),
+                         "FLUX1\\flux1-dev.safetensors")
+
+    def test_no_plausible_match_returns_none(self):
+        self.assertIsNone(C._suggest_option("MiniMax-Hailuo-02", self.OPTS))
+
+
 class RequiredDefaultsTest(unittest.TestCase):
     """A template need not serialise a widget the author never touched, but
     /prompt requires it — api_kling_v3_flf2v ships five values and no `seed`."""
