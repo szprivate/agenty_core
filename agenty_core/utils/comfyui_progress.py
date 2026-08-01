@@ -206,6 +206,7 @@ async def stream_comfyui_job(
     *,
     timeout: float = 30 * 60,
     node_titles: dict[str, str] | None = None,
+    console: bool | None = None,
 ) -> AsyncGenerator:
     """Stream live progress for *prompt_id* via the ComfyUI WebSocket.
 
@@ -215,6 +216,9 @@ async def stream_comfyui_job(
         timeout:     Hard cap on total wait time (seconds).
         node_titles: Optional mapping of node_id -> display name, used to
                      annotate progress messages with human-readable names.
+        console:     Relay ComfyUI's own terminal output alongside the progress
+                     lines (model loads, warnings, node prints).  ``None`` =
+                     let ``AGENTY_COMFY_CONSOLE`` decide, which defaults to on.
 
     Yields:
         Progress strings, then a single terminal dict.
@@ -222,6 +226,7 @@ async def stream_comfyui_job(
     import websockets
 
     from agenty_core.utils.comfyui_client import get_client
+    from agenty_core.utils.comfyui_console import attach as _console_attach
 
     client = get_client()
     parsed = urlparse(client.base_url)
@@ -244,6 +249,10 @@ async def stream_comfyui_job(
     elapsed: float = 0.0
     RECV_TIMEOUT = 5.0  # seconds — also drives periodic history fallback check
 
+    # ComfyUI's own terminal, relayed for the life of this job. Best-effort and
+    # entirely optional: a tap that cannot subscribe simply never yields a line.
+    tap = _console_attach(console)
+
     try:
         connect_kwargs: dict = {"max_size": None}
         if headers:
@@ -251,136 +260,182 @@ async def stream_comfyui_job(
             connect_kwargs["additional_headers"] = headers
 
         async with websockets.connect(ws_url, **connect_kwargs) as ws:
-            while elapsed < timeout:
-                try:
-                    raw = await asyncio.wait_for(ws.recv(), timeout=RECV_TIMEOUT)
-                except asyncio.TimeoutError:
+            # Two sources feed this loop: the job's event socket and the console
+            # tap. Both are held as futures and waited on together, so console
+            # output appears as it is printed without putting a receive that may
+            # be mid-message on a cancellation treadmill.
+            recv_fut: asyncio.Future | None = None
+            console_fut: asyncio.Future | None = None
+            loop = asyncio.get_running_loop()
+            last_heard = loop.time()
+            try:
+                while elapsed < timeout:
+                    if recv_fut is None:
+                        recv_fut = asyncio.ensure_future(ws.recv())
+                    if tap is not None and console_fut is None:
+                        console_fut = asyncio.ensure_future(tap.get())
+
+                    await asyncio.wait(
+                        {f for f in (recv_fut, console_fut) if f is not None},
+                        timeout=RECV_TIMEOUT,
+                        return_when=asyncio.FIRST_COMPLETED,
+                    )
+
+                    if console_fut is not None and console_fut.done():
+                        try:
+                            _lines = console_fut.result()
+                        except Exception as _exc:  # noqa: BLE001 — console trouble
+                            logger.debug("console relay dropped: %s", _exc)
+                            _lines = []          # must never take a run down
+                            tap.close()
+                            tap = None
+                        console_fut = None
+                        for _line in _lines:
+                            yield f"🖥 {_line}"
+
                     # No event for RECV_TIMEOUT — re-check the terminal state in
                     # case we missed the completion/error event (server restart,
                     # the prompt finished between pre-check and ws.connect, or the
                     # job errored and was dropped from /history). The queue-aware
                     # check ends the wait as soon as the prompt leaves the queue,
-                    # instead of hanging until the hard timeout.
-                    elapsed += RECV_TIMEOUT
-                    fallback = await _check_terminal(client, prompt_id)
-                    if fallback is not None:
-                        yield fallback
-                        return
-                    continue
-
-                if isinstance(raw, (bytes, bytearray)):
-                    # Binary preview frames — not used for progress.
-                    continue
-
-                try:
-                    msg = json.loads(raw)
-                except json.JSONDecodeError:
-                    continue
-
-                msg_type = msg.get("type")
-                data = msg.get("data", {}) or {}
-                msg_prompt_id = data.get("prompt_id")
-
-                # Filter to our prompt where the message carries one.
-                if msg_prompt_id and msg_prompt_id != prompt_id:
-                    continue
-
-                if msg_type == "status":
-                    qrem = (
-                        data.get("status", {})
-                        .get("exec_info", {})
-                        .get("queue_remaining")
-                    )
-                    if qrem is not None and qrem > 0:
-                        yield f"⏳ Queue: {qrem} job(s) ahead"
-
-                elif msg_type == "execution_start":
-                    yield "▶ Execution started"
-                    last_progress_pct = -1
-
-                elif msg_type == "execution_cached":
-                    cached = data.get("nodes", []) or []
-                    if cached:
-                        yield f"💾 {len(cached)} node(s) served from cache"
-
-                elif msg_type == "executing":
-                    node = data.get("node")
-                    if node is None:
-                        # null node = prompt finished (older protocol); confirm via history
-                        fallback = _check_history(client, prompt_id)
+                    # instead of hanging until the hard timeout. Timed from the
+                    # last thing the JOB socket said, not from "the wait expired",
+                    # so a chatty console — which wakes the wait early, over and
+                    # over — can never starve the check.
+                    if loop.time() - last_heard >= RECV_TIMEOUT:
+                        elapsed += RECV_TIMEOUT
+                        last_heard = loop.time()
+                        fallback = await _check_terminal(client, prompt_id)
                         if fallback is not None:
                             yield fallback
                             return
-                    else:
+
+                    if recv_fut is None or not recv_fut.done():
+                        continue
+                    last_heard = loop.time()
+                    raw = recv_fut.result()
+                    recv_fut = None
+
+                    if isinstance(raw, (bytes, bytearray)):
+                        # Binary preview frames — not used for progress.
+                        continue
+
+                    try:
+                        msg = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+
+                    msg_type = msg.get("type")
+                    data = msg.get("data", {}) or {}
+                    msg_prompt_id = data.get("prompt_id")
+
+                    # Filter to our prompt where the message carries one.
+                    if msg_prompt_id and msg_prompt_id != prompt_id:
+                        continue
+
+                    if msg_type == "status":
+                        qrem = (
+                            data.get("status", {})
+                            .get("exec_info", {})
+                            .get("queue_remaining")
+                        )
+                        if qrem is not None and qrem > 0:
+                            yield f"⏳ Queue: {qrem} job(s) ahead"
+
+                    elif msg_type == "execution_start":
+                        yield "▶ Execution started"
                         last_progress_pct = -1
-                        _title = node_titles.get(str(node), "") if node_titles else ""
-                        _node_label = f" · {_title}" if _title else ""
-                        yield f"🎨 Running node {node}{_node_label}"
 
-                elif msg_type == "progress":
-                    value = int(data.get("value", 0) or 0)
-                    max_v = int(data.get("max", 0) or 0)
-                    node = data.get("node")
-                    if max_v > 0:
-                        pct = int(value / max_v * 100)
-                        loop_t = asyncio.get_event_loop().time()
-                        # Throttle: emit on first/last step, ≥10% jump, or ≥1s elapsed.
-                        is_endpoint = value <= 1 or value >= max_v
-                        big_jump = pct - last_progress_pct >= 10
-                        time_due = loop_t - last_emit_loop_t >= 1.0
-                        if is_endpoint or big_jump or time_due:
-                            if node:
-                                _title = node_titles.get(str(node), "") if node_titles else ""
-                                node_label = f" — node {node}" + (f" · {_title}" if _title else "")
-                            else:
-                                node_label = ""
-                            yield f"🎨 {_bar(value, max_v)}{node_label}"
-                            last_progress_pct = pct
-                            last_emit_loop_t = loop_t
+                    elif msg_type == "execution_cached":
+                        cached = data.get("nodes", []) or []
+                        if cached:
+                            yield f"💾 {len(cached)} node(s) served from cache"
 
-                elif msg_type == "execution_success":
-                    # Outputs can lag this event by a moment — retry /history
-                    # until they appear instead of fetching once.
-                    yield {"history": await _fetch_history_with_outputs(client, prompt_id)}
-                    return
+                    elif msg_type == "executing":
+                        node = data.get("node")
+                        if node is None:
+                            # null node = prompt finished (older protocol); confirm via history
+                            fallback = _check_history(client, prompt_id)
+                            if fallback is not None:
+                                yield fallback
+                                return
+                        else:
+                            last_progress_pct = -1
+                            _title = node_titles.get(str(node), "") if node_titles else ""
+                            _node_label = f" · {_title}" if _title else ""
+                            yield f"🎨 Running node {node}{_node_label}"
 
-                elif msg_type == "execution_error":
-                    err_msg = data.get("exception_message", "Unknown error")
-                    exc_type = data.get("exception_type", "")
-                    node_type = data.get("node_type", "?")
-                    node_id = data.get("node_id", "?")
-                    # A cancellation surfaced as a node exception (API nodes raise
-                    # ProcessingInterrupted "Task cancelled" when the queue is
-                    # stopped mid-run) is a deliberate stop, not a workflow fault —
-                    # flag it so the executor skips it instead of repairing it.
-                    if _exception_is_interrupt(exc_type, err_msg):
+                    elif msg_type == "progress":
+                        value = int(data.get("value", 0) or 0)
+                        max_v = int(data.get("max", 0) or 0)
+                        node = data.get("node")
+                        if max_v > 0:
+                            pct = int(value / max_v * 100)
+                            loop_t = loop.time()
+                            # Throttle: emit on first/last step, ≥10% jump, or ≥1s elapsed.
+                            is_endpoint = value <= 1 or value >= max_v
+                            big_jump = pct - last_progress_pct >= 10
+                            time_due = loop_t - last_emit_loop_t >= 1.0
+                            if is_endpoint or big_jump or time_due:
+                                if node:
+                                    _title = node_titles.get(str(node), "") if node_titles else ""
+                                    node_label = f" — node {node}" + (f" · {_title}" if _title else "")
+                                else:
+                                    node_label = ""
+                                yield f"🎨 {_bar(value, max_v)}{node_label}"
+                                last_progress_pct = pct
+                                last_emit_loop_t = loop_t
+
+                    elif msg_type == "execution_success":
+                        # Outputs can lag this event by a moment — retry /history
+                        # until they appear instead of fetching once.
+                        yield {"history": await _fetch_history_with_outputs(client, prompt_id)}
+                        return
+
+                    elif msg_type == "execution_error":
+                        err_msg = data.get("exception_message", "Unknown error")
+                        exc_type = data.get("exception_type", "")
+                        node_type = data.get("node_type", "?")
+                        node_id = data.get("node_id", "?")
+                        # A cancellation surfaced as a node exception (API nodes raise
+                        # ProcessingInterrupted "Task cancelled" when the queue is
+                        # stopped mid-run) is a deliberate stop, not a workflow fault —
+                        # flag it so the executor skips it instead of repairing it.
+                        if _exception_is_interrupt(exc_type, err_msg):
+                            yield "🛑 Execution interrupted"
+                            yield {"interrupted": True, "error": "Execution interrupted"}
+                            return
+                        yield f"❌ Error in {node_type} (node {node_id}): {err_msg}"
+                        yield {
+                            "error": "ComfyUI execution failed",
+                            "details": {
+                                "node_id": node_id,
+                                "node_type": node_type,
+                                "exception_type": exc_type,
+                                "exception_message": err_msg,
+                                "traceback": data.get("traceback", []),
+                            },
+                        }
+                        return
+
+                    elif msg_type == "execution_interrupted":
                         yield "🛑 Execution interrupted"
+                        # NOT a workflow fault — flag it so the executor skips it
+                        # instead of recording an error and firing the repair/heal loop.
                         yield {"interrupted": True, "error": "Execution interrupted"}
                         return
-                    yield f"❌ Error in {node_type} (node {node_id}): {err_msg}"
-                    yield {
-                        "error": "ComfyUI execution failed",
-                        "details": {
-                            "node_id": node_id,
-                            "node_type": node_type,
-                            "exception_type": exc_type,
-                            "exception_message": err_msg,
-                            "traceback": data.get("traceback", []),
-                        },
-                    }
-                    return
 
-                elif msg_type == "execution_interrupted":
-                    yield "🛑 Execution interrupted"
-                    # NOT a workflow fault — flag it so the executor skips it
-                    # instead of recording an error and firing the repair/heal loop.
-                    yield {"interrupted": True, "error": "Execution interrupted"}
-                    return
-
-            # Hard timeout
-            yield {"error": f"WebSocket timeout after {timeout:.0f}s"}
-            return
+                # Hard timeout
+                yield {"error": f"WebSocket timeout after {timeout:.0f}s"}
+                return
+            finally:
+                for _fut in (recv_fut, console_fut):
+                    if _fut is not None:
+                        _fut.cancel()
 
     except Exception as exc:
         logger.error("comfyui_progress: WebSocket failed for prompt_id=%s: %s", prompt_id, exc)
         yield {"error": f"WebSocket connection failed: {exc}"}
+    finally:
+        if tap is not None:
+            tap.close()

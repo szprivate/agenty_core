@@ -107,6 +107,22 @@ class ComfyUIClient:
         except ValueError:
             return resp.text
 
+    def patch(self, path: str, json_data: dict | None = None,
+              timeout: float = 120) -> dict | str:
+        """Send a PATCH request. Returns parsed JSON when possible.
+
+        ``timeout`` is settable because the one caller (the console-log
+        subscription) unsubscribes from a teardown path, where waiting two
+        minutes on an unreachable ComfyUI would stall shutdown.
+        """
+        url = f"{self.base_url}{path}"
+        resp = requests.patch(url, headers=self._headers(), json=json_data, timeout=timeout)
+        resp.raise_for_status()
+        try:
+            return resp.json()
+        except ValueError:
+            return resp.text
+
     def delete(self, path: str) -> dict | str:
         """Send a DELETE request."""
         url = f"{self.base_url}{path}"
