@@ -399,6 +399,43 @@ _LINK_ONLY_TYPES: frozenset[str] = frozenset({
     "GEMINI_INPUT_FILES",
 })
 
+# The only input types the frontend renders as a widget (plus inline COMBOs,
+# which arrive as a list of options, and the V3 combo/autogrow wrappers handled
+# separately). _LINK_ONLY_TYPES was an allowlist of socket types, so anything a
+# custom node invented — MODEL_TASK_ID, IMAGECOMPARE, WANVIDIMAGE_EMBEDS, and
+# 200-odd others — slipped through and got reported as a missing *widget value*
+# when it is a wire. Deciding by what IS a widget is the closed set.
+_WIDGET_TYPES: frozenset[str] = frozenset({"INT", "FLOAT", "STRING", "BOOLEAN", "COMBO"})
+
+
+def _is_widget_spec(spec) -> bool:
+    """True when this input is a widget the user types/picks, not a socket."""
+    typ = spec[0] if isinstance(spec, (list, tuple)) and spec else spec
+    if isinstance(typ, list):          # inline COMBO: the options themselves
+        return True
+    if not isinstance(typ, str):
+        return False
+    return typ in _WIDGET_TYPES or typ == "COMFY_DYNAMICCOMBO_V3"
+
+
+def _widget_options(spec) -> list:
+    """The selectable values for a COMBO-ish widget, else []."""
+    typ = spec[0] if isinstance(spec, (list, tuple)) and spec else spec
+    if isinstance(typ, list):
+        return list(typ)
+    meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
+    if isinstance(meta, dict) and isinstance(meta.get("options"), list):
+        return [o for o in meta["options"] if not isinstance(o, dict)]
+    return []
+
+
+# Widgets with no schema default where one value is the obvious intent. Kept
+# deliberately tiny and node-specific: a general "pick the first option" rule
+# would silently choose things like an export codec at random.
+_CONVENTIONAL_DEFAULTS: dict = {
+    ("VHS_VideoCombine", "format"): "video/h264-mp4",
+}
+
 _SEED_CONTROL_VALUES: frozenset[str] = frozenset({"fixed", "randomize", "increment", "decrement"})
 _SEED_INPUT_NAMES: frozenset[str] = frozenset({"seed", "noise_seed"})
 
@@ -426,25 +463,37 @@ def _schema_widget_names(schema: dict, linked_names: set[str]) -> list[str]:
     return [name for name, _spec in _schema_widget_slots(schema, linked_names)]
 
 
-def _fill_required_defaults(api_inputs: dict, schema: dict, linked_names: set) -> None:
-    """Give every required widget input still absent its schema default.
+def _fill_required_defaults(api_inputs: dict, schema: dict, linked_names: set,
+                            class_type: str = "") -> None:
+    """Give every required widget input still absent a defensible value.
 
     A template need not serialise a widget the author never touched —
     api_kling_v3_flf2v ships five widget values and no ``seed`` — but /prompt
-    requires it all the same. ComfyUI's frontend materialises the default from
-    the schema, so do the same rather than submitting a graph that fails
-    validation on a value nobody chose. Only explicit ``default`` keys are used;
-    inventing one (say, the first COMBO option) would be a guess.
+    requires it all the same. ComfyUI's frontend materialises one from the
+    schema, so do the same rather than submitting a graph that fails validation
+    on a value nobody chose.
+
+    Three sources, in descending confidence: the schema's explicit ``default``,
+    a COMBO with exactly one option (no choice to get wrong), and the small
+    ``_CONVENTIONAL_DEFAULTS`` table. Anything else is left absent for the
+    caller to decide — validate_workflow reports it with its options attached.
     """
     for name, spec in (schema.get("required") or {}).items():
         if name in linked_names or _is_autogrow_spec(spec):
             continue
-        typ = spec[0] if isinstance(spec, (list, tuple)) and spec else ""
-        if isinstance(typ, str) and typ in _LINK_ONLY_TYPES:
-            continue
+        if not _is_widget_spec(spec):
+            continue                    # a socket, not a widget: it wants a wire
         opts = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
-        if name not in api_inputs and isinstance(opts, dict) and "default" in opts:
-            api_inputs[name] = opts["default"]
+        if name not in api_inputs:
+            choices = _widget_options(spec)
+            if isinstance(opts, dict) and "default" in opts:
+                api_inputs[name] = opts["default"]
+            elif len(choices) == 1:
+                api_inputs[name] = choices[0]
+            elif (class_type, name) in _CONVENTIONAL_DEFAULTS:
+                conventional = _CONVENTIONAL_DEFAULTS[(class_type, name)]
+                if not choices or conventional in choices:
+                    api_inputs[name] = conventional
         # The selected option of a dynamic combo brings its own required inputs;
         # they are just as mandatory and just as often left unserialised.
         subs = _dynamic_combo_suboptions(spec)
@@ -785,7 +834,7 @@ def _convert_graph_to_api(workflow: dict) -> dict:
 
         node_schema = object_info.get(class_type, {}).get("input", {}) if object_info else {}
         if node_schema:
-            _fill_required_defaults(api_inputs, node_schema, linked_names)
+            _fill_required_defaults(api_inputs, node_schema, linked_names, class_type)
 
         api_node: dict = {"class_type": class_type, "inputs": api_inputs}
         title = node.get("title", "")
@@ -3953,10 +4002,42 @@ def remove_workflow_node(workflow_path: str, node_id: str) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @tool
+def _missing_widget_facts(nid: str, cls: str, name: str, spec) -> dict:
+    """Everything needed to choose a value for one missing widget, in one place.
+
+    Without this the repair loop is: validate → read an opaque "missing required
+    input 'format'" → call get_node_schema to learn what format even accepts →
+    guess → patch → validate again, each step its own model call. The schema is
+    already in hand here, so hand it over.
+    """
+    meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else {}
+    meta = meta if isinstance(meta, dict) else {}
+    typ = spec[0] if isinstance(spec, (list, tuple)) and spec else spec
+    options = _widget_options(spec)
+    out = {
+        "node_id": str(nid),
+        "class_type": cls,
+        "input": name,
+        "type": "COMBO" if isinstance(typ, list) else typ,
+    }
+    if options:
+        out["options"] = options[:40]
+        if len(options) > 40:
+            out["options_truncated"] = len(options)
+    for key in ("min", "max", "step", "tooltip"):
+        if key in meta:
+            out[key] = meta[key]
+    return out
+
+
 def validate_workflow(workflow_path: str) -> str:
     """Validate a ComfyUI workflow (local + server-side) without executing it.
 
-    Returns valid=true/false, local_errors list, and server_errors dict.
+    Returns valid=true/false, local_errors, server_errors, plus — when something
+    is missing — ``missing_inputs``: one entry per unset required widget carrying
+    its type, selectable options and range, so the value can be chosen without a
+    separate get_node_schema call. Unconnected socket inputs are reported as
+    wiring problems instead, since no literal can satisfy them.
 
     Args:
         workflow_path: File path to the workflow JSON (from get_workflow_template or save_workflow).
@@ -3967,6 +4048,7 @@ def validate_workflow(workflow_path: str) -> str:
         return json.dumps({"valid": False, "local_errors": [f"Cannot load workflow: {e}"], "server_errors": {}})
 
     local_errors = []
+    missing_inputs: list = []
 
     try:
         all_nodes = _get_object_info()
@@ -4005,10 +4087,22 @@ def validate_workflow(workflow_path: str) -> str:
                         f"(e.g. {', '.join(ag['keys'][:2]) or 'image0, image1'}); found {have}."
                     )
                 continue
-            if req_name not in inputs:
+            if req_name in inputs:
+                continue
+            if not _is_widget_spec(req_spec):
+                # A socket type (IMAGE, MODEL_TASK_ID, a custom node's own type):
+                # it wants a wire from another node, not a literal. Reported as a
+                # wiring problem, never as a value the caller could type in.
                 local_errors.append(
-                    f"Node {nid} ({cls}): missing required input '{req_name}'."
+                    f"Node {nid} ({cls}): required input '{req_name}' "
+                    f"is unconnected (expects a {req_spec[0]} link)."
                 )
+                continue
+            facts = _missing_widget_facts(nid, cls, req_name, req_spec)
+            missing_inputs.append(facts)
+            local_errors.append(
+                f"Node {nid} ({cls}): missing required input '{req_name}'."
+            )
 
         for inp_name, inp_val in inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
@@ -4025,8 +4119,16 @@ def validate_workflow(workflow_path: str) -> str:
 
     is_valid = len(local_errors) == 0 and len(server_errors) == 0
 
-    return json.dumps({
+    result = {
         "valid": is_valid,
         "local_errors": local_errors,
         "server_errors": server_errors,
-    })
+    }
+    if missing_inputs:
+        # Everything needed to fix it, in the same response that reported it —
+        # so the repair is one update_workflow call, not a schema round trip
+        # per node followed by a guess.
+        result["missing_inputs"] = missing_inputs
+        result["hint"] = ("Set each entry in missing_inputs with update_workflow "
+                          "(pick from 'options' where present), then re-validate.")
+    return json.dumps(result)

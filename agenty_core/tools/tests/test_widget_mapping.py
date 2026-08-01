@@ -105,6 +105,92 @@ class WidgetValueMappingTest(unittest.TestCase):
         self.assertEqual(leftover, [2, 3])
 
 
+class WidgetVsSocketTest(unittest.TestCase):
+    """Which inputs are values a caller can type, and which want a wire.
+
+    The old rule was an allowlist of socket types, so every type a custom node
+    invented — MODEL_TASK_ID, IMAGECOMPARE, WANVIDIMAGE_EMBEDS — fell through and
+    was reported as a missing *widget value* the agent then tried to guess.
+    """
+
+    def test_primitive_and_combo_inputs_are_widgets(self):
+        for spec in (["INT", {}], ["FLOAT", {}], ["STRING", {}], ["BOOLEAN", {}],
+                     ["COMBO", {"options": ["a", "b"]}], [["a", "b"], {}],
+                     ["COMFY_DYNAMICCOMBO_V3", {"options": []}]):
+            self.assertTrue(C._is_widget_spec(spec), spec)
+
+    def test_socket_and_custom_types_are_not_widgets(self):
+        for spec in (["IMAGE", {}], ["MODEL", {}], ["LATENT", {}],
+                     ["MODEL_TASK_ID", {}], ["IMAGECOMPARE", {"socketless": True}],
+                     ["WANVIDIMAGE_EMBEDS", {}], ["*", {}]):
+            self.assertFalse(C._is_widget_spec(spec), spec)
+
+    def test_options_are_read_from_either_shape(self):
+        self.assertEqual(C._widget_options([["a", "b"], {}]), ["a", "b"])
+        self.assertEqual(C._widget_options(["COMBO", {"options": ["x"]}]), ["x"])
+        self.assertEqual(C._widget_options(["INT", {"default": 1}]), [])
+
+
+class MissingInputFactsTest(unittest.TestCase):
+    """validate_workflow has the schema in hand; it should hand it over rather
+    than making the caller fetch it again to learn what a widget accepts."""
+
+    def test_combo_miss_carries_its_options(self):
+        facts = C._missing_widget_facts(
+            "7", "VHS_VideoCombine", "format",
+            [["image/gif", "video/h264-mp4"], {"tooltip": "output container"}])
+        self.assertEqual(facts["node_id"], "7")
+        self.assertEqual(facts["type"], "COMBO")
+        self.assertEqual(facts["options"], ["image/gif", "video/h264-mp4"])
+        self.assertEqual(facts["tooltip"], "output container")
+
+    def test_numeric_miss_carries_its_range(self):
+        facts = C._missing_widget_facts("3", "KSampler", "steps",
+                                        ["INT", {"min": 1, "max": 150}])
+        self.assertEqual((facts["type"], facts["min"], facts["max"]), ("INT", 1, 150))
+        self.assertNotIn("options", facts)
+
+    def test_long_option_lists_are_truncated_with_a_count(self):
+        facts = C._missing_widget_facts("1", "VHS_LoadVideo", "video",
+                                        [[f"clip_{i}.mp4" for i in range(90)], {}])
+        self.assertEqual(len(facts["options"]), 40)
+        self.assertEqual(facts["options_truncated"], 90)
+
+
+class ConventionalDefaultsTest(unittest.TestCase):
+    def test_single_option_combo_is_filled(self):
+        inputs = {}
+        C._fill_required_defaults(inputs, {"required": {"fmt": [["only"], {}]}}, set())
+        self.assertEqual(inputs["fmt"], "only")
+
+    def test_multi_option_combo_without_a_default_is_left_for_the_caller(self):
+        inputs = {}
+        C._fill_required_defaults(inputs, {"required": {"fmt": [["a", "b"], {}]}}, set())
+        self.assertNotIn("fmt", inputs)
+
+    def test_curated_convention_applies_only_to_its_own_node(self):
+        spec = {"required": {"format": [["image/gif", "video/h264-mp4"], {}]}}
+        inputs = {}
+        C._fill_required_defaults(inputs, spec, set(), "VHS_VideoCombine")
+        self.assertEqual(inputs["format"], "video/h264-mp4")
+        other = {}
+        C._fill_required_defaults(other, spec, set(), "SomeOtherNode")
+        self.assertNotIn("format", other)
+
+    def test_convention_is_skipped_when_the_node_does_not_offer_it(self):
+        inputs = {}
+        C._fill_required_defaults(
+            inputs, {"required": {"format": [["image/gif", "image/webp"], {}]}},
+            set(), "VHS_VideoCombine")
+        self.assertNotIn("format", inputs)
+
+    def test_socket_inputs_are_never_given_a_value(self):
+        inputs = {}
+        C._fill_required_defaults(
+            inputs, {"required": {"task_id": ["MODEL_TASK_ID", {"default": "x"}]}}, set())
+        self.assertNotIn("task_id", inputs)
+
+
 class RequiredDefaultsTest(unittest.TestCase):
     """A template need not serialise a widget the author never touched, but
     /prompt requires it — api_kling_v3_flf2v ships five values and no `seed`."""
