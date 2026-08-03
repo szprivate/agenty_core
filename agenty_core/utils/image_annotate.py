@@ -42,6 +42,8 @@ __all__ = [
     "annotate_file",
     "parse_color",
     "auto_stroke_width",
+    "box_iou",
+    "dedupe_regions",
 ]
 
 # Supersampling factor for the overlay. 4x is the knee of the curve — 8x is not
@@ -182,6 +184,69 @@ def parse_color(value: str, default: str = "#FF2D2D") -> tuple[int, int, int]:
     if raw != default.strip().lower():
         return parse_color(default, default="#FF2D2D")
     return (255, 45, 45)
+
+
+def box_iou(a: Sequence[float], b: Sequence[float]) -> float:
+    """Intersection-over-union of two ``(x1, y1, x2, y2)`` boxes."""
+    ax1, ay1, ax2, ay2 = (float(v) for v in a[:4])
+    bx1, by1, bx2, by2 = (float(v) for v in b[:4])
+    ix1, iy1 = max(ax1, bx1), max(ay1, by1)
+    ix2, iy2 = min(ax2, bx2), min(ay2, by2)
+    iw, ih = max(0.0, ix2 - ix1), max(0.0, iy2 - iy1)
+    inter = iw * ih
+    if inter <= 0:
+        return 0.0
+    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
+    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
+    union = area_a + area_b - inter
+    return inter / union if union > 0 else 0.0
+
+
+def dedupe_regions(
+    regions: Sequence[Region],
+    iou_threshold: float = 0.55,
+    contain_threshold: float = 0.85,
+) -> list[Region]:
+    """Drop near-duplicate detections, keeping the highest-scoring of each cluster.
+
+    A grounding model routinely returns the same object several times at slightly
+    different extents — five "bolt" hits over three bolts, drawn as overlapping
+    rings with colliding labels. Standard greedy NMS on IoU, plus a containment
+    rule: a small box almost entirely inside a kept one is the same object seen
+    tighter, and IoU alone scores that pair low enough to keep both.
+
+    Order is preserved for the survivors so numbered labels stay stable.
+    """
+    if not regions:
+        return []
+    indexed = list(enumerate(regions))
+    # Highest score first; unscored regions sort last but keep their input order.
+    ranked = sorted(
+        indexed,
+        key=lambda pair: (pair[1].score if pair[1].score is not None else -1.0, -pair[0]),
+        reverse=True,
+    )
+    kept: list[tuple[int, Region]] = []
+    for idx, region in ranked:
+        duplicate = False
+        for _, k in kept:
+            if box_iou(region.box, k.box) >= iou_threshold:
+                duplicate = True
+                break
+            # Containment: how much of the smaller box lies inside the other.
+            ax1, ay1, ax2, ay2 = (float(v) for v in region.box[:4])
+            bx1, by1, bx2, by2 = (float(v) for v in k.box[:4])
+            iw = max(0.0, min(ax2, bx2) - max(ax1, bx1))
+            ih = max(0.0, min(ay2, by2) - max(ay1, by1))
+            inter = iw * ih
+            small = min(max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1),
+                        max(0.0, bx2 - bx1) * max(0.0, by2 - by1))
+            if small > 0 and inter / small >= contain_threshold:
+                duplicate = True
+                break
+        if not duplicate:
+            kept.append((idx, region))
+    return [r for _, r in sorted(kept, key=lambda pair: pair[0])]
 
 
 def auto_stroke_width(width: int, height: int, weight: float = 1.0) -> int:
@@ -424,6 +489,56 @@ def _label_text(region: Region, index: int, mode: str) -> str:
     return ""
 
 
+def _rects_overlap(a, b, gap: float = 0.0) -> bool:
+    return not (
+        a[2] + gap <= b[0] or b[2] + gap <= a[0]
+        or a[3] + gap <= b[1] or b[3] + gap <= a[1]
+    )
+
+
+def _place_label(
+    pw: float, ph: float, box, position: str, pad: float,
+    img_w: int, img_h: int, taken: list,
+) -> tuple[float, float]:
+    """Find a spot for a label pill that clears the ones already placed.
+
+    Two labels landing on top of each other is worse than either being slightly
+    off its ideal side — overlapping pills render as unreadable mush (a 5-bolt
+    detection produced "b bolt 47%"). Try the preferred side first, then the
+    other obvious sides, then walk upward until something is free.
+    """
+    x1, y1, x2, y2 = box
+    cx = (x1 + x2) / 2
+    px = cx - pw / 2
+
+    order = {
+        "top": (y1 - ph - pad, y2 + pad, y1 + pad),
+        "bottom": (y2 + pad, y1 - ph - pad, y1 + pad),
+        "inside": (y1 + pad, y1 - ph - pad, y2 + pad),
+    }[position]
+
+    candidates: list[tuple[float, float]] = [(px, py) for py in order]
+    # Sideways, for a cluster of small boxes stacked vertically.
+    candidates += [(x2 + pad, (y1 + y2) / 2 - ph / 2),
+                   (x1 - pw - pad, (y1 + y2) / 2 - ph / 2)]
+    # Last resort: step away from the box until clear.
+    step = ph + pad
+    for i in range(1, 7):
+        candidates.append((px, y1 - ph - pad - step * i))
+        candidates.append((px, y2 + pad + step * i))
+
+    for cx_, cy_ in candidates:
+        cx_ = max(0.0, min(float(img_w) - pw, cx_))
+        cy_ = max(0.0, min(float(img_h) - ph, cy_))
+        rect = (cx_, cy_, cx_ + pw, cy_ + ph)
+        if not any(_rects_overlap(rect, t, pad * 0.5) for t in taken):
+            return cx_, cy_
+
+    # Everything collided; use the preferred spot clamped in-frame.
+    return (max(0.0, min(float(img_w) - pw, px)),
+            max(0.0, min(float(img_h) - ph, order[0])))
+
+
 def _draw_label(
     d: ImageDraw.ImageDraw,
     text: str,
@@ -434,8 +549,9 @@ def _draw_label(
     ss: int,
     img_w: int,
     img_h: int,
+    taken: Optional[list] = None,
 ) -> None:
-    """A filled pill with the text in it, kept inside the image bounds."""
+    """A filled pill with the text in it, kept in frame and clear of other labels."""
     if not text:
         return
     x1, y1, x2, y2 = box
@@ -449,18 +565,11 @@ def _draw_label(
     pad = max(sw, 4 * ss)
     pw, ph = tw + pad * 2, th + pad * 1.6
 
-    cx = (x1 + x2) / 2
-    if position == "inside":
-        py = y1 + pad
-    elif position == "bottom":
-        py = y2 + pad
-    else:
-        py = y1 - ph - pad
-    px = cx - pw / 2
-
-    # Keep the pill on-canvas; a label clipped by the frame edge is unreadable.
-    px = max(0.0, min(float(img_w) - pw, px))
-    py = max(0.0, min(float(img_h) - ph, py))
+    # _place_label already clamps in-frame; re-clamping here would move the pill
+    # after it was registered as taken, so the next label could collide with it.
+    px, py = _place_label(pw, ph, box, position, pad, img_w, img_h, taken or [])
+    if taken is not None:
+        taken.append((px, py, px + pw, py + ph))
 
     radius = ph / 2
     d.rounded_rectangle([px, py, px + pw, py + ph], radius=radius, fill=color + (235,))
@@ -527,6 +636,7 @@ def annotate(
 
     sw_final = auto_stroke_width(w, h, style.weight)
     sw = max(1, sw_final * ss)
+    placed_labels: list = []     # pill rects, so labels don't stack on each other
 
     for index, region in enumerate(regions):
         shape = (region.shape or style.shape).strip().lower()
@@ -582,7 +692,8 @@ def annotate(
 
         text = _label_text(region, index, style.label_mode)
         if text:
-            _draw_label(d, text, box, rgb, sw, style.label_position, ss, w * ss, h * ss)
+            _draw_label(d, text, box, rgb, sw, style.label_position, ss,
+                        w * ss, h * ss, placed_labels)
 
     if ss > 1:
         overlay = overlay.resize((w, h), Image.Resampling.LANCZOS)

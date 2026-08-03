@@ -395,5 +395,120 @@ class AnnotateFileTest(unittest.TestCase):
             self.assertEqual(im.size, (200, 200))
 
 
+# ── duplicate detections ────────────────────────────────────────────────────
+class DedupeTest(unittest.TestCase):
+    def test_iou_of_identical_boxes_is_one(self):
+        self.assertAlmostEqual(ia.box_iou((0, 0, 10, 10), (0, 0, 10, 10)), 1.0)
+
+    def test_iou_of_disjoint_boxes_is_zero(self):
+        self.assertEqual(ia.box_iou((0, 0, 10, 10), (50, 50, 60, 60)), 0.0)
+
+    def test_iou_of_half_overlap(self):
+        # Two 10x10 boxes sharing a 5x10 strip: 50 / (100 + 100 - 50).
+        self.assertAlmostEqual(ia.box_iou((0, 0, 10, 10), (5, 0, 15, 10)), 50 / 150)
+
+    def test_touching_boxes_do_not_overlap(self):
+        self.assertEqual(ia.box_iou((0, 0, 10, 10), (10, 0, 20, 10)), 0.0)
+
+    def test_near_duplicates_collapse_to_the_best_scoring(self):
+        regions = [
+            Region(box=(100, 100, 200, 200), label="bolt", score=0.51),
+            Region(box=(104, 98, 198, 203), label="bolt", score=0.75),
+        ]
+        kept = ia.dedupe_regions(regions)
+        self.assertEqual(len(kept), 1)
+        self.assertEqual(kept[0].score, 0.75)
+
+    def test_distinct_objects_are_both_kept(self):
+        regions = [
+            Region(box=(0, 0, 50, 50), score=0.9),
+            Region(box=(200, 200, 260, 260), score=0.8),
+        ]
+        self.assertEqual(len(ia.dedupe_regions(regions)), 2)
+
+    def test_a_box_contained_in_another_is_dropped(self):
+        # IoU here is only ~0.14, so containment is what catches it.
+        regions = [
+            Region(box=(0, 0, 300, 300), score=0.9),
+            Region(box=(100, 100, 140, 140), score=0.4),
+        ]
+        self.assertEqual(len(ia.dedupe_regions(regions)), 1)
+
+    def test_input_order_is_preserved_for_survivors(self):
+        regions = [
+            Region(box=(0, 0, 50, 50), label="a", score=0.3),
+            Region(box=(200, 0, 250, 50), label="b", score=0.9),
+            Region(box=(400, 0, 450, 50), label="c", score=0.6),
+        ]
+        self.assertEqual([r.label for r in ia.dedupe_regions(regions)], ["a", "b", "c"])
+
+    def test_unscored_regions_are_not_dropped_wholesale(self):
+        regions = [Region(box=(0, 0, 50, 50)), Region(box=(200, 200, 250, 250))]
+        self.assertEqual(len(ia.dedupe_regions(regions)), 2)
+
+    def test_empty_input(self):
+        self.assertEqual(ia.dedupe_regions([]), [])
+
+    def test_a_higher_threshold_keeps_more(self):
+        regions = [
+            Region(box=(0, 0, 100, 100), score=0.9),
+            Region(box=(40, 0, 140, 100), score=0.5),
+        ]
+        self.assertEqual(len(ia.dedupe_regions(regions, iou_threshold=0.3)), 1)
+        self.assertEqual(
+            len(ia.dedupe_regions(regions, iou_threshold=0.9, contain_threshold=0.99)), 2
+        )
+
+
+# ── label collision ─────────────────────────────────────────────────────────
+class LabelPlacementTest(unittest.TestCase):
+    def test_two_labels_on_stacked_boxes_do_not_overlap(self):
+        taken = []
+        a = ia._place_label(60, 20, (100, 100, 200, 140), "top", 4, 400, 400, taken)
+        taken.append((a[0], a[1], a[0] + 60, a[1] + 20))
+        b = ia._place_label(60, 20, (100, 150, 200, 190), "top", 4, 400, 400, taken)
+        rect_a = (a[0], a[1], a[0] + 60, a[1] + 20)
+        rect_b = (b[0], b[1], b[0] + 60, b[1] + 20)
+        self.assertFalse(ia._rects_overlap(rect_a, rect_b), f"{rect_a} vs {rect_b}")
+
+    def test_a_label_is_kept_inside_the_frame(self):
+        x, y = ia._place_label(80, 24, (10, 0, 90, 30), "top", 4, 200, 200, [])
+        self.assertGreaterEqual(x, 0.0)
+        self.assertGreaterEqual(y, 0.0)
+        self.assertLessEqual(x + 80, 200)
+        self.assertLessEqual(y + 24, 200)
+
+    def test_with_no_neighbours_the_preferred_side_is_used(self):
+        x, y = ia._place_label(60, 20, (100, 100, 200, 140), "top", 4, 400, 400, [])
+        self.assertAlmostEqual(y, 100 - 20 - 4)
+
+    def test_many_crowded_labels_all_land_clear(self):
+        # Five overlapping boxes, the case that produced "b bolt 47%".
+        taken = []
+        rects = []
+        for i in range(5):
+            box = (100 + i * 8, 100 + i * 6, 190 + i * 8, 150 + i * 6)
+            x, y = ia._place_label(70, 22, box, "top", 4, 600, 600, taken)
+            r = (x, y, x + 70, y + 22)
+            taken.append(r)
+            rects.append(r)
+        for i in range(len(rects)):
+            for j in range(i + 1, len(rects)):
+                self.assertFalse(
+                    ia._rects_overlap(rects[i], rects[j]),
+                    f"labels {i} and {j} overlap: {rects[i]} {rects[j]}",
+                )
+
+    def test_rects_overlap_detects_a_shared_area(self):
+        self.assertTrue(ia._rects_overlap((0, 0, 10, 10), (5, 5, 15, 15)))
+        self.assertFalse(ia._rects_overlap((0, 0, 10, 10), (10, 10, 20, 20)))
+
+    def test_crowded_labels_still_render(self):
+        regions = [Region(box=(100 + i * 8, 100 + i * 6, 190 + i * 8, 150 + i * 6),
+                          label="bolt", score=0.5) for i in range(4)]
+        out = ia.annotate(flat(400, 400), regions, Style(label_mode="text"))
+        self.assertEqual(out.size, (400, 400))
+
+
 if __name__ == "__main__":
     unittest.main()
