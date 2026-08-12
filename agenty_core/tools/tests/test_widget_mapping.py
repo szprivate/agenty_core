@@ -23,6 +23,7 @@ from agenty_core.tools import comfyui as C
 from agenty_core.tools.comfyui import (
     _convert_graph_to_api,
     _dynamic_combo_suboptions,
+    _api_to_graph,
     _fill_required_defaults,
     _map_widget_values,
     _schema_widget_slots,
@@ -399,6 +400,86 @@ class GraphToApiTest(unittest.TestCase):
         node = {"id": 1, "type": "Unknown", "inputs": [], "widgets_values": [1, 2]}
         api = self._api(node, {})
         self.assertEqual(api["1"]["inputs"]["__widgets_values"], [1, 2])
+
+
+class ApiToGraphTest(unittest.TestCase):
+    """The reverse trip: API prompt -> canvas node, where widget ORDER decides
+    which box each value lands in.
+
+    Ordering used to be taken from the API dict's key order, on the assumption it
+    still matched the canvas. It does not once anything rewrites the node: dropping
+    and re-adding an input (splicing a canvas hook off a widget-backed input)
+    appends it, and the values then land in whichever widgets sit at their index —
+    the prompts showed the resolution and the duration.
+    """
+
+    def setUp(self):
+        self._orig = C._get_object_info
+        C._get_object_info = lambda: {
+            "MinimaxHailuo03FirstLastFrameNode": {
+                "input": MINIMAX_SCHEMA, "output": ["VIDEO"], "output_name": ["VIDEO"]},
+            "LoadImage": {"input": {"required": {"image": [["a.png"], {}]}},
+                          "output": ["IMAGE", "MASK"], "output_name": ["IMAGE", "MASK"]},
+        }
+
+    def tearDown(self):
+        C._get_object_info = self._orig
+
+    def _node43(self, inputs):
+        api = {"36": {"class_type": "LoadImage", "inputs": {"image": "a.png"}},
+               "43": {"class_type": "MinimaxHailuo03FirstLastFrameNode",
+                      "inputs": inputs}}
+        graph = _api_to_graph(api)
+        return next(n for n in graph["nodes"]
+                    if n["type"] == "MinimaxHailuo03FirstLastFrameNode")
+
+    # The order a freshly authored graph happens to have.
+    AUTHORED = {"model": "MiniMax H3", "model.prompt": "a prompt",
+                "model.resolution": "2K", "model.duration": 5,
+                "first_frame": ["36", 0], "seed": 42, "watermark": False}
+    # The same node after a hook was spliced off model.prompt and the produced
+    # value re-added: identical content, prompt now last.
+    REWRITTEN = {"model": "MiniMax H3", "model.resolution": "2K",
+                 "model.duration": 5, "first_frame": ["36", 0], "seed": 42,
+                 "watermark": False, "model.prompt": "a prompt"}
+
+    EXPECTED = ["MiniMax H3", "a prompt", "2K", 5, 42, "fixed", False]
+
+    def test_authored_order_is_unchanged(self):
+        self.assertEqual(self._node43(self.AUTHORED)["widgets_values"], self.EXPECTED)
+
+    def test_rewritten_order_still_lands_in_the_right_widgets(self):
+        """The regression: prompt appended last must not shift every widget."""
+        self.assertEqual(self._node43(self.REWRITTEN)["widgets_values"], self.EXPECTED)
+
+    def test_round_trips_back_to_the_same_inputs(self):
+        wv = self._node43(self.REWRITTEN)["widgets_values"]
+        linked = {"first_frame", "last_frame"}
+        mapped, leftover = _map_widget_values(
+            _schema_widget_slots(MINIMAX_SCHEMA, linked), wv, linked)
+        self.assertEqual(leftover, [])
+        self.assertEqual(mapped, {k: v for k, v in self.REWRITTEN.items()
+                                  if k != "first_frame"})
+
+    def test_unknown_schema_keeps_the_authored_order(self):
+        C._get_object_info = lambda: {}
+        node = self._node43(self.AUTHORED)
+        self.assertIn("a prompt", node["widgets_values"])
+
+    def test_derived_names_expand_the_selected_option(self):
+        names = C._dynamic_widget_names(MINIMAX_SCHEMA, {"model": "MiniMax H3"},
+                                        {"first_frame", "last_frame"})
+        self.assertEqual(names, ["model", "model.prompt", "model.resolution",
+                                 "model.duration", "seed", "watermark"])
+
+    def test_derived_names_follow_a_different_option(self):
+        names = C._dynamic_widget_names(MINIMAX_SCHEMA, {"model": "MiniMax H2"},
+                                        {"first_frame", "last_frame"})
+        self.assertEqual(names, ["model", "model.prompt", "model.duration",
+                                 "seed", "watermark"])
+
+    def test_no_schema_returns_nothing(self):
+        self.assertEqual(C._dynamic_widget_names({}, {}, set()), [])
 
 
 if __name__ == "__main__":

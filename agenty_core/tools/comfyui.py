@@ -652,6 +652,25 @@ def _dynamic_combo_suboptions(inp_spec) -> dict | None:
     return out
 
 
+def _dynamic_widget_names(schema: dict, inputs: dict, linked: set[str]) -> list[str]:
+    """Widget names in canvas order for an API node, expanding dynamic combos.
+
+    The inverse of what :func:`_map_widget_values` does when reading a canvas node:
+    each dynamic combo is followed by the dotted sub-inputs its *selected* option
+    contributes, in schema order. Empty when the schema is unknown, which tells the
+    caller to fall back rather than emit an order it cannot justify.
+    """
+    if not schema:
+        return []
+    names: list[str] = []
+    for name, spec in _schema_widget_slots(schema, linked):
+        names.append(name)
+        subs = _dynamic_combo_suboptions(spec)
+        if subs is not None:
+            names.extend(f"{name}.{sub}" for sub in subs.get(str(inputs.get(name)), []))
+    return names
+
+
 def _flatten_subgraphs(workflow: dict) -> dict:
     """Inline ComfyUI subgraph nodes into concrete nodes.
 
@@ -991,7 +1010,8 @@ def _api_to_graph(workflow: dict) -> dict:
                    else [n for n, v in ins.items() if not _is_link(v)])
         outs = info.get("output", []) or []
         onames = info.get("output_name", []) or outs
-        meta[k] = {"conns": conns, "widgets": widgets, "outputs": list(zip(onames, outs))}
+        meta[k] = {"conns": conns, "widgets": widgets, "spec": spec,
+                   "outputs": list(zip(onames, outs))}
 
     # Links + slot bookkeeping.
     links: list = []
@@ -1038,18 +1058,29 @@ def _api_to_graph(workflow: dict) -> dict:
             m = meta[k]
             ins = api[k].get("inputs", {})
             # Widget order for the canvas node's positional widgets_values.
-            # Normally object_info's schema order (m["widgets"]). But dynamic-combo
-            # nodes (e.g. OpenAIGPTImageNodeV2) expose dotted sub-widgets
-            # (model.size, model.custom_width, model.custom_height, …) that the
-            # schema does NOT list — it carries only the top-level 'model' combo.
-            # Using the schema order then drops every dotted value and shifts the
-            # rest, so the frontend reads widgets_values into the wrong slots (size,
-            # custom_width, custom_height show garbage; e.g. custom_height="fixed").
-            # The API node's own input dict already holds the dotted keys in the
-            # authored (frontend) order, so for such nodes drive the values from it.
+            # Normally object_info's schema order (m["widgets"]). Dynamic-combo
+            # nodes (e.g. OpenAIGPTImageNodeV2, Wan2ImageToVideoApi) also expose
+            # dotted sub-widgets (model.prompt, model.size, …) which m["widgets"]
+            # omits — it carries only the top-level combo — so using it as-is drops
+            # every dotted value and shifts the rest into the wrong slots.
+            #
+            # The sub-widgets ARE derivable: the selected option's own inputs, in
+            # schema order, right after the combo — the same expansion
+            # _map_widget_values uses to read them back. Deriving beats trusting
+            # the API dict's key order, which only matches the canvas while nothing
+            # has rewritten the node: dropping and re-adding an input (as splicing
+            # a canvas hook off a widget-backed input does) appends it, and the
+            # prompts then land in whichever widgets happen to sit at their index.
             _non_link = [n for n in ins if not _is_link(ins.get(n))]
-            _widget_names = (_non_link if any("." in str(n) for n in _non_link)
-                             else m["widgets"])
+            if any("." in str(n) for n in _non_link):
+                derived = _dynamic_widget_names(m["spec"], ins,
+                                                {c[0] for c in m["conns"]})
+                # Only trust the schema when it accounts for every value present;
+                # otherwise keep the authored order, which is all we have.
+                _widget_names = (derived if derived and set(_non_link) <= set(derived)
+                                 else _non_link)
+            else:
+                _widget_names = m["widgets"]
             wv: list = []
             for wname in _widget_names:
                 val = ins.get(wname)
