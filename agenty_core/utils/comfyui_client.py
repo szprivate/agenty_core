@@ -17,6 +17,86 @@ from agenty_core.paths import project_root
 
 _DEFAULT_COMFYUI_URL = "http://127.0.0.1:8188"
 
+# Error bodies are folded into the exception message, which ends up in toasts and
+# chat lines, so they are clipped. A single ``value_not_in_list`` detail can carry
+# every model name ComfyUI knows about.
+_MAX_DETAIL = 200
+_MAX_BODY = 500
+
+
+def _clip(text: object, limit: int) -> str:
+    """*text* as one whitespace-collapsed line, no longer than *limit*."""
+    flat = " ".join(str(text or "").split())
+    return flat if len(flat) <= limit else flat[: limit - 1] + "…"
+
+
+def _reason(entry: dict) -> str:
+    """One ComfyUI error record as ``message (details)``."""
+    message = _clip(entry.get("message") or entry.get("type") or "error", _MAX_DETAIL)
+    details = _clip(entry.get("details"), _MAX_DETAIL)
+    return f"{message} ({details})" if details and details != message else message
+
+
+def describe_error_response(resp: requests.Response) -> str:
+    """Summarise an error response body, or '' when it says nothing useful.
+
+    ComfyUI answers a rejected ``/prompt`` with 400 and a JSON body holding the
+    reason — ``{"error": {"type", "message", "details"}, "node_errors": {id:
+    {"class_type", "errors": [...]}}}`` (see its ``execution.validate_prompt``).
+    ``raise_for_status`` builds its exception from the status line alone, so
+    without this every rejection reads ``400 Client Error: Bad Request`` and the
+    actual cause — no output node, a missing required input, a model name that
+    isn't installed — is thrown away. Other endpoints answer with plain text or a
+    different JSON shape, both of which fall through to a clipped dump.
+    """
+    try:
+        body = resp.json()
+    except Exception:  # noqa: BLE001 — a non-JSON body is still worth showing
+        return _clip(getattr(resp, "text", ""), _MAX_BODY)
+    if not isinstance(body, dict):
+        return _clip(body, _MAX_BODY)
+
+    parts: list[str] = []
+    error = body.get("error")
+    if isinstance(error, dict):
+        parts.append(_reason(error))
+    elif error:
+        parts.append(_clip(error, _MAX_DETAIL))
+
+    node_errors = body.get("node_errors")
+    if isinstance(node_errors, dict):
+        for node_id, info in node_errors.items():
+            if not isinstance(info, dict):
+                continue
+            label = f"node {node_id} ({info.get('class_type') or '?'})"
+            reasons = "; ".join(
+                _reason(e) for e in (info.get("errors") or []) if isinstance(e, dict)
+            )
+            parts.append(f"{label}: {reasons}" if reasons else label)
+
+    if not parts:  # some routes answer {"message": ...} / {"detail": ...}
+        for key in ("message", "detail", "reason"):
+            if body.get(key):
+                parts.append(_clip(body[key], _MAX_DETAIL))
+                break
+    return _clip(" | ".join(parts), _MAX_BODY)
+
+
+def raise_for_status(resp: requests.Response) -> None:
+    """``resp.raise_for_status()``, but keep what the server said about why.
+
+    The raised error stays a :class:`requests.HTTPError` carrying the same
+    ``response``/``request``, so existing handlers that switch on
+    ``exc.response.status_code`` are unaffected — only the message grows.
+    """
+    try:
+        resp.raise_for_status()
+    except requests.HTTPError as exc:
+        detail = describe_error_response(resp)
+        if not detail:
+            raise
+        raise requests.HTTPError(f"{exc} — {detail}", response=resp) from None
+
 
 def parse_argv_dir_flag(argv: list, flag: str) -> str | None:
     """Extract a directory value passed to ComfyUI as ``--flag=VALUE`` or ``--flag VALUE``.
@@ -77,7 +157,7 @@ class ComfyUIClient:
         resp = requests.get(
             url, headers=self._headers(), params=params, stream=stream, timeout=120
         )
-        resp.raise_for_status()
+        raise_for_status(resp)
         if raw or stream:
             return resp
         try:
@@ -101,7 +181,7 @@ class ComfyUIClient:
         resp = requests.post(
             url, headers=headers, json=json_data, data=data, files=files, timeout=120
         )
-        resp.raise_for_status()
+        raise_for_status(resp)
         try:
             return resp.json()
         except ValueError:
@@ -117,7 +197,7 @@ class ComfyUIClient:
         """
         url = f"{self.base_url}{path}"
         resp = requests.patch(url, headers=self._headers(), json=json_data, timeout=timeout)
-        resp.raise_for_status()
+        raise_for_status(resp)
         try:
             return resp.json()
         except ValueError:
@@ -127,7 +207,7 @@ class ComfyUIClient:
         """Send a DELETE request."""
         url = f"{self.base_url}{path}"
         resp = requests.delete(url, headers=self._headers(), timeout=120)
-        resp.raise_for_status()
+        raise_for_status(resp)
         try:
             return resp.json()
         except ValueError:
