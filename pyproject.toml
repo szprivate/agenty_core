@@ -16,6 +16,15 @@ dependencies = [
     "Pillow>=10.0.0",
     "ddgs>=9.0.0",
     "tqdm>=4.66.0",
+    # utils/secrets.py imports dotenv at module level — the .env reader every
+    # consumer goes through. agentY happened to declare it; agentY-mcp did not.
+    "python-dotenv>=1.0.0",
+    # utils/image_annotate.py: masks arrive as numpy arrays (SAM3 and friends).
+    # A miss here is silent — the mask is dropped and the annotation degrades.
+    "numpy>=1.26",
+    # utils/video_frames.py's preferred backend (it falls back to OpenCV, then to
+    # ffmpeg on PATH). Named in the comment above since day one, never listed.
+    "imageio[ffmpeg]>=2.34.0",
 ]
 
 [tool.setuptools.packages.find]
