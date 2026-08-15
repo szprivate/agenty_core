@@ -3030,7 +3030,8 @@ def set_canvas_node_params(node_id: str, params: dict) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @tool
-def open_workflow_in_canvas(workflow_path: str, name: str = "") -> str:
+def open_workflow_in_canvas(workflow_path: str, name: str = "",
+                            push_to_canvas: bool = True) -> str:
     """Load a workflow the agent built or ran into the ComfyUI canvas so the user
     can visually inspect it.
 
@@ -3048,6 +3049,11 @@ def open_workflow_in_canvas(workflow_path: str, name: str = "") -> str:
     Args:
         workflow_path: Path to the workflow JSON (API or graph format).
         name: Optional file/display name (defaults to the workflow's file stem).
+        push_to_canvas: Also swap it onto the canvas the user is looking at
+            (default). Pass False to only file it under ``agent/`` in the
+            Workflows sidebar — which is what you want when the graph they
+            currently have open is the thing being worked on, and replacing it
+            would take away what they are watching.
 
     Returns JSON: ``{status, saved_as, node_count, url, hint}``.
     """
@@ -3075,14 +3081,17 @@ def open_workflow_in_canvas(workflow_path: str, name: str = "") -> str:
         return json.dumps({"status": "error", "error": f"Could not save to ComfyUI: {e}"})
 
     # Also push it straight onto the open canvas via the AgentCanvas extension
-    # (custom_nodes/comfyui-agent-canvas). Harmless 404 when the extension isn't
-    # installed/loaded — the sidebar copy above is always available as fallback.
+    # (custom_nodes/comfyui-agent-canvas). This REPLACES the graph the user has
+    # open, so a caller with a reason to leave it alone can opt out and keep the
+    # sidebar copy above as the only delivery. Harmless 404 when the extension
+    # isn't installed/loaded — the sidebar copy is always available as fallback.
     opened = False
-    try:
-        _r = get_client().post("/agent/load_workflow", json_data={"workflow": graph})
-        opened = isinstance(_r, dict) and bool(_r.get("ok"))
-    except Exception:  # noqa: BLE001
-        pass
+    if push_to_canvas:
+        try:
+            _r = get_client().post("/agent/load_workflow", json_data={"workflow": graph})
+            opened = isinstance(_r, dict) and bool(_r.get("ok"))
+        except Exception:  # noqa: BLE001
+            pass
 
     return json.dumps({
         "status": "ok",
@@ -3091,8 +3100,9 @@ def open_workflow_in_canvas(workflow_path: str, name: str = "") -> str:
         "node_count": len(graph["nodes"]),
         "url": "http://127.0.0.1:8188",
         "hint": ("Opened on the ComfyUI canvas." if opened else
-                 f"Saved — open the Workflows sidebar and select agent/{stem} "
-                 "(install/restart to enable auto-open on the canvas)."),
+                 f"Saved — open the Workflows sidebar and select agent/{stem}"
+                 + ("." if not push_to_canvas else
+                    " (install/restart to enable auto-open on the canvas).")),
     })
 
 
