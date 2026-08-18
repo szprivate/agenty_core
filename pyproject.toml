@@ -24,7 +24,15 @@ dependencies = [
     "numpy>=1.26",
     # utils/video_frames.py's preferred backend (it falls back to OpenCV, then to
     # ffmpeg on PATH). Named in the comment above since day one, never listed.
+    #
+    # tools/video.py also cuts with the ffmpeg binary this wheel ships, rather
+    # than one on PATH: on Windows there usually isn't one, and a shot splitter
+    # that depends on the user having installed ffmpeg is a shot splitter that
+    # mostly doesn't run.
     "imageio[ffmpeg]>=2.34.0",
+    # Shot-boundary detection for tools/video.py. Verified against 0.7.1; the
+    # detect()/ContentDetector/AdaptiveDetector API used there is 0.7's.
+    "scenedetect>=0.7.0",
 ]
 
 [tool.setuptools.packages.find]
