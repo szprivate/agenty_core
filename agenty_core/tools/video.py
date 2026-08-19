@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 from shutil import which
@@ -40,6 +41,14 @@ _MIN_SHOT_SECONDS = 0.4
 _MAX_SHOTS = 200
 
 _FFMPEG_TIMEOUT = 900   # seconds per shot — a long 4K re-encode is not a hang
+
+# How far a written shot may run past the length asked for before it counts as
+# the wrong piece of film rather than container rounding. A stream copy overshoots
+# by a frame or two routinely; snapping back to an earlier keyframe overshoots by
+# whole seconds, and that is the case worth catching.
+_CUT_TOLERANCE = 0.25
+
+_DURATION_RE = re.compile(r"Duration:\s*(\d+):(\d\d):(\d\d(?:\.\d+)?)")
 
 
 def _resolve_video(path: str) -> str | None:
@@ -147,9 +156,33 @@ def _detect_shots(path: str, detector: str, threshold: float,
     return shots, dict(meta, cuts=max(0, len(shots) - 1))
 
 
+def _probe_duration(exe: str, path: Path) -> float | None:
+    """How long the file ffmpeg just wrote actually is, in seconds.
+
+    Read back off the container instead of trusted from the cut list, because the
+    two disagree exactly where it matters. ``-c copy`` cannot start anywhere but a
+    keyframe, so ffmpeg silently seeks BACKWARDS to the previous one and writes a
+    longer clip than it was asked for — with a zero exit code and nothing on
+    stderr. Nothing short of measuring the output catches that.
+    """
+    try:
+        proc = subprocess.run([exe, "-hide_banner", "-i", str(path)],
+                              capture_output=True, text=True, timeout=120)
+    except Exception:  # noqa: BLE001
+        return None
+    m = _DURATION_RE.search(proc.stderr or "")
+    if not m:
+        return None
+    hours, minutes, seconds = m.groups()
+    return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+
+
 def _cut_one(exe: str, source: str, dest: Path, start: float, duration: float,
-             fast: bool) -> tuple[bool, str]:
+             fast: bool) -> tuple[bool, str, float | None]:
     """Cut ``[start, start + duration)`` out of *source* into *dest*.
+
+    Returns ``(ok, error, actual_duration)`` — the measured length of what landed
+    on disk, which is not the same question as whether ffmpeg succeeded.
 
     ``-ss`` goes BEFORE ``-i`` (fast seek, still frame-accurate in modern ffmpeg)
     and the length is given as ``-t``, never ``-to``: with a pre-input seek, what
@@ -159,7 +192,8 @@ def _cut_one(exe: str, source: str, dest: Path, start: float, duration: float,
     Re-encoding is the default because a stream copy can only cut on a keyframe,
     so shot 2 opens with the tail of shot 1 — the exact thing this tool exists to
     avoid. ``fast`` takes the copy anyway, for when speed matters more than the
-    first few frames.
+    first few frames; the caller checks the result and re-cuts if the copy landed
+    somewhere else entirely.
     """
     cmd = [exe, "-hide_banner", "-loglevel", "error", "-y",
            "-ss", f"{start:.3f}", "-i", source, "-t", f"{duration:.3f}"]
@@ -172,13 +206,13 @@ def _cut_one(exe: str, source: str, dest: Path, start: float, duration: float,
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=_FFMPEG_TIMEOUT)
     except subprocess.TimeoutExpired:
-        return False, f"ffmpeg timed out after {_FFMPEG_TIMEOUT}s"
+        return False, f"ffmpeg timed out after {_FFMPEG_TIMEOUT}s", None
     except Exception as exc:  # noqa: BLE001
-        return False, str(exc)
+        return False, str(exc), None
     if proc.returncode != 0 or not dest.is_file() or dest.stat().st_size == 0:
         return False, " ".join((proc.stderr or "").split())[-300:] or \
-            f"ffmpeg exited {proc.returncode}"
-    return True, ""
+            f"ffmpeg exited {proc.returncode}", None
+    return True, "", _probe_duration(exe, dest)
 
 
 @tool
@@ -210,9 +244,13 @@ def split_video_into_shots(file_path: str = "", detector: str = "content",
         detect_only: Report where the cuts are and write nothing.
         output_dir: Where the shots go. Defaults to a ``<name>_shots`` folder
             under the agent's videos directory.
-        fast: Stream-copy instead of re-encoding. Much faster, but a copy can only
-            cut on a keyframe, so shots may open with a fraction of a second of
-            the previous one. Leave this off when the boundaries matter.
+        fast: Stream-copy instead of re-encoding. LEAVE THIS OFF unless you know
+            the source is keyframe-dense: a copy can only start on a keyframe, and
+            generated video (ComfyUI's savers, most model APIs) is usually written
+            with a single keyframe at the start, which makes every shot run from
+            the beginning of the file. That is detected and re-cut properly rather
+            than returned, so the cost of asking for it wrongly is wasted time,
+            not wrong files — but it buys nothing on that footage.
         max_shots: Stop writing after this many (default 200). Detection still
             reports everything it found.
 
@@ -282,15 +320,40 @@ def split_video_into_shots(file_path: str = "", detector: str = "content",
 
     src = Path(resolved)
     dest_dir = _shots_dir(src, output_dir)
-    ext = src.suffix if (fast and src.suffix) else ".mp4"
     print(f"[split_video] {src.name}: {len(rows)} shot(s) -> {dest_dir}")
 
     written, failed = [], []
+    copied = False      # at least one shot really was stream-copied
+    # Once a copy has proved inaccurate on THIS file, every later shot is cut
+    # properly straight away. The source's keyframe spacing does not change
+    # part-way through, so re-testing it per shot only buys N wasted encodes.
+    give_up_on_copy = False
     for r in rows[:cap]:
-        out = dest_dir / f"{src.stem}_shot_{r['index']:03d}{ext}"
-        ok, err = _cut_one(exe, resolved, out, r["start_s"], r["duration_s"], bool(fast))
+        want = r["duration_s"]
+        use_fast = bool(fast) and not give_up_on_copy
+        out = dest_dir / f"{src.stem}_shot_{r['index']:03d}" \
+                         f"{src.suffix if (use_fast and src.suffix) else '.mp4'}"
+        ok, err, actual = _cut_one(exe, resolved, out, r["start_s"], want, use_fast)
+
+        if ok and use_fast and actual is not None and actual > want + _CUT_TOLERANCE:
+            # The copy snapped back to an earlier keyframe, so what landed on disk
+            # is not this shot: it is everything from that keyframe onwards. On a
+            # clip with a single keyframe — which is most generated video — that
+            # is the whole source file back again under a shot's name. Cut it for
+            # real, and stop copying.
+            give_up_on_copy = True
+            proper = dest_dir / f"{src.stem}_shot_{r['index']:03d}.mp4"
+            if proper != out:
+                out.unlink(missing_ok=True)
+            ok, err, actual = _cut_one(exe, resolved, proper, r["start_s"], want, False)
+            out = proper
+        elif ok and use_fast:
+            copied = True
+
         if ok:
             r["path"] = str(out)
+            if actual is not None:
+                r["written_duration_s"] = round(actual, 3)
             written.append(r)
         else:
             r["error"] = err
@@ -307,7 +370,13 @@ def split_video_into_shots(file_path: str = "", detector: str = "content",
         lines.append(f"{truncated} further shot(s) were detected but not written "
                      f"(cap {cap}) — raise max_shots, or raise the threshold if the "
                      "detector is firing on motion rather than on cuts.")
-    if fast:
+    if give_up_on_copy:
+        lines.append("fast=true was ignored: this file's keyframes are too far apart "
+                     "to stream-copy (a copy can only start on one, so the shots came "
+                     "back running from an earlier keyframe — on generated video, "
+                     "usually the whole file). The shots above were re-encoded and "
+                     "are cut where the list says.")
+    elif copied:
         lines.append("Stream-copied: each shot may open with a fraction of a second "
                      "of the previous one. Re-run with fast=false for exact cuts.")
     return {
