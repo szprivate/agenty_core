@@ -191,6 +191,57 @@ def _get_object_info() -> dict:
     return _object_info_cache
 
 
+def registered_node_classes() -> set[str]:
+    """Every node class THIS ComfyUI has, or an empty set if it cannot be asked.
+
+    Which custom node packs are installed is a property of the machine, not of
+    any workflow, so anything choosing between "use the node from pack X" and
+    "fall back to core" has to ask rather than assume.
+
+    An empty set means *unknown*, not *none*: ComfyUI being unreachable is
+    indistinguishable here from an install with no nodes at all, and a caller
+    that reads it as "the pack is absent" would commit to a fallback it has no
+    way to verify either.
+    """
+    try:
+        info = _get_object_info()
+    except Exception:  # noqa: BLE001 — ComfyUI down is "cannot be asked"
+        return set()
+    return set(info) if isinstance(info, dict) else set()
+
+
+def node_default_inputs(class_type: str) -> dict:
+    """Every REQUIRED widget input of *class_type*, at its declared default.
+
+    ComfyUI does not fill defaults in. A required input missing from an API
+    prompt is rejected outright — ``"Required input is missing"``, whatever
+    default the node declares — so anything BUILDING a node from scratch has to
+    write them itself. A node assembled with only its interesting widget set
+    looks complete and fails validation the moment it is queued:
+    ``VHS_LoadImagePath`` needs ``custom_width`` and ``custom_height`` as much as
+    it needs the path.
+
+    Inputs that take a WIRE are left out. Those need a link, and a literal in one
+    is not a default, it is a type error.
+    """
+    try:
+        info = _get_object_info() or {}
+    except Exception:  # noqa: BLE001
+        return {}
+    required = ((info.get(class_type) or {}).get("input") or {}).get("required") or {}
+    out: dict = {}
+    for name, spec in required.items():
+        if not isinstance(spec, (list, tuple)) or not spec:
+            continue
+        kind = spec[0]
+        opts = spec[1] if len(spec) > 1 and isinstance(spec[1], dict) else {}
+        if "default" in opts:
+            out[name] = opts["default"]
+        elif isinstance(kind, list) and kind:
+            out[name] = kind[0]      # a combo declares its default by being first
+    return out
+
+
 from agenty_core.paths import project_root as _project_root
 from agenty_core.paths import corpus_root as _corpus_root
 
