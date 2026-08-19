@@ -51,6 +51,11 @@ DEFAULT_TYPE = "note"
 # forty characters must not cost forty character sheets' worth of context.
 _ALWAYS_FULL = ("technical",)
 
+# The type whose whole point is the file it names, and the line that carries it.
+# Kept in step with src/utils/tag_memory.py in the agentY repo, which writes it.
+_REFERENCE_TYPE = "reference"
+_PATH_PREFIX = "path: "
+
 # Caps for the injected block. The orchestrator's per-turn budget is the reason
 # this store exists as files instead of one big document.
 _MAX_LISTED = 40
@@ -71,6 +76,19 @@ class Entry:
         for line in self.body.splitlines():
             if line.strip():
                 return line.strip()
+        return ""
+
+    @property
+    def file(self) -> str:
+        """The file this entry points at, or "" — the ``path:`` line if it has one.
+
+        Written by the `agentY add tag` node's `remember` switch, and by the agent
+        for a chosen reference. Kept as a property rather than parsed at each call
+        site so that "where is the picture" has one answer.
+        """
+        for line in self.body.splitlines():
+            if line.strip().lower().startswith(_PATH_PREFIX):
+                return line.strip()[len(_PATH_PREFIX):].strip()
         return ""
 
 
@@ -272,5 +290,13 @@ def render_context() -> str:
         out.append('ON RECORD — read one with project_memory_read("<name>") before you '
                    "invent your own version of it:")
         for e in listed:
-            out.append(f"  - {e.name} ({e.type}) — {_clip(e.summary, _MAX_SUMMARY)}")
+            line = f"  - {e.name} ({e.type}) — {_clip(e.summary, _MAX_SUMMARY)}"
+            # A reference's summary says what it is FOR; the file it points at is
+            # on a later line and would need a read to see. For this one type the
+            # path IS the fact — an agent that cannot see it describes the entry
+            # instead of using it, and has been known to write the folder back
+            # into memory as though that were the reference. It is one short line.
+            if e.type == _REFERENCE_TYPE and e.file:
+                line += f"  [{e.file}]"
+            out.append(line)
     return "\n".join(out)
