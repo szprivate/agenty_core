@@ -25,7 +25,7 @@ import os
 import re
 import uuid
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import requests
 from PIL import Image
@@ -36,6 +36,29 @@ from agenty_core.utils.comfyui_client import get_client
 from agenty_core.utils.image_bytes import detect_format, downsize as _downsize
 
 # Extension → Content-Type for the PUT header when the caller doesn't pass one.
+# Set by the host so a downloaded image reaches wherever that host shows things
+# — in agentY, the chat panel and the ComfyUI canvas. Injected rather than
+# imported: this layer is shared with the MCP server, which has no canvas to drop
+# a node onto and leaves it unset. Mirrors ``src/tools/annotate.py``.
+_output_sink: Optional[Callable[[str], None]] = None
+
+
+def set_output_sink(fn: Optional[Callable[[str], None]]) -> None:
+    """Register the callable that publishes a downloaded file to the host."""
+    global _output_sink
+    _output_sink = fn
+
+
+def _publish(path: str) -> None:
+    """Hand *path* to the host, if one is listening. Never raises."""
+    if not path or _output_sink is None:
+        return
+    try:
+        _output_sink(path)
+    except Exception as exc:  # noqa: BLE001 — delivery must never fail a download
+        print(f"[download_image] could not publish {path}: {exc}")
+
+
 _MIME_BY_EXT = {
     ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
     ".webp": "image/webp", ".gif": "image/gif", ".bmp": "image/bmp",
@@ -149,6 +172,11 @@ def download_image(image_url: str, subfolder: str = "", downsize: bool = True) -
                    5 MB / 1568 px limit so they stay usable everywhere (matching
                    how user-uploaded images are handled). False keeps the original.
 
+    The downloaded image is put in front of the user automatically — in agentY it
+    is dropped onto their ComfyUI canvas as a loader node and shown in the chat,
+    exactly as a generated image is. So downloading IS showing: do not follow it
+    by building or editing a workflow to display the picture, and do not offer to.
+
     Returns:
         JSON ``{"name", "subfolder", "type", "saved_to", "width", "height",
         "size_bytes", "source_url"}`` on success, or ``{"error": "<message>"}``.
@@ -222,6 +250,21 @@ def download_image(image_url: str, subfolder: str = "", downsize: bool = True) -
                 width, height = im.size
         except Exception:  # noqa: BLE001
             width = height = None
+
+        # Show it. Downloading an image is an explicit act — the caller wanted
+        # this picture — so the host gets to put it in front of the user, the
+        # same as anything a render produced. Without this the file lands in
+        # ComfyUI's input directory and is mentioned in a tool result, which no
+        # one is looking at: agents were reduced to building a workflow of
+        # LoadImage nodes to make a downloaded reference visible.
+        #
+        # Only what actually decodes. The format is taken from the content-type
+        # or the URL's extension, so a hotlink block or a login page served at
+        # `…/photo.jpg` still arrives looking like a JPEG — and putting THAT on
+        # someone's canvas is a node that shows nothing and fails when it runs.
+        # `width` is None exactly when PIL could not read the bytes.
+        if width:
+            _publish(saved_to)
 
         return json.dumps({
             "name": up.get("name"),

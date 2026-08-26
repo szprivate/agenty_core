@@ -1,9 +1,9 @@
 {
   "generated_from": {
-    "workflow_count": 699,
-    "node_class_count": 702,
-    "custom_classes": 93,
-    "unresolved_classes": 106
+    "workflow_count": 701,
+    "node_class_count": 706,
+    "custom_classes": 96,
+    "unresolved_classes": 107
   },
   "nodes": [
     {
@@ -280,6 +280,77 @@
         "image_to_video__generic"
       ],
       "occurrences": 1
+    },
+    {
+      "class": "AgentYImageCollector",
+      "role": "other",
+      "role_description": "unclassified node role",
+      "resolved": true,
+      "is_custom": true,
+      "inputs": {
+        "required": [
+          "files",
+          "load_incrementally"
+        ],
+        "optional": [],
+        "types": {
+          "files": "STRING",
+          "load_incrementally": "BOOLEAN"
+        }
+      },
+      "outputs": [
+        "IMAGE",
+        "STRING"
+      ],
+      "used_in_type_ids": [
+        "api_partner_nodes_image_to_video__kling"
+      ],
+      "occurrences": 2
+    },
+    {
+      "class": "AgentYPython",
+      "role": "other",
+      "role_description": "unclassified node role",
+      "resolved": true,
+      "is_custom": true,
+      "inputs": {
+        "required": [
+          "code",
+          "inputs"
+        ],
+        "optional": [],
+        "types": {
+          "code": "STRING",
+          "inputs": "COMFY_AUTOGROW_V3"
+        }
+      },
+      "outputs": [
+        "*",
+        "*",
+        "*",
+        "*"
+      ],
+      "used_in_type_ids": [
+        "api_partner_nodes_text_to_image__z_image"
+      ],
+      "occurrences": 2
+    },
+    {
+      "class": "AgentYRefNote",
+      "role": "other",
+      "role_description": "unclassified node role",
+      "resolved": false,
+      "is_custom": false,
+      "inputs": {
+        "required": [],
+        "optional": [],
+        "types": {}
+      },
+      "outputs": [],
+      "used_in_type_ids": [
+        "api_partner_nodes_image_to_video__kling"
+      ],
+      "occurrences": 5
     },
     {
       "class": "AnimaLLLiteApply",
@@ -1532,9 +1603,10 @@
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__seedream",
+        "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_text_to_image__seedream"
       ],
-      "occurrences": 5
+      "occurrences": 6
     },
     {
       "class": "ByteDanceTextToVideoNode",
@@ -1746,6 +1818,7 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__wan_vace",
+        "api_partner_nodes_text_to_image__z_image",
         "api_partner_nodes_video_to_video__wan_2_2",
         "api_partner_nodes_video_to_video__wan_vace",
         "audio__qwen_image",
@@ -1808,7 +1881,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 258
+      "occurrences": 259
     },
     {
       "class": "CLIPTextEncode",
@@ -1839,6 +1912,7 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__wan_vace",
+        "api_partner_nodes_text_to_image__z_image",
         "api_partner_nodes_video_to_video__wan_2_2",
         "api_partner_nodes_video_to_video__wan_vace",
         "audio__ltx_2",
@@ -1909,7 +1983,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 532
+      "occurrences": 535
     },
     {
       "class": "CLIPTextEncodeFlux",
@@ -4198,6 +4272,7 @@
       "used_in_type_ids": [
         "api_partner_nodes_first_last_frame_to_video__kling",
         "api_partner_nodes_image_to_video__kling",
+        "api_partner_nodes_text_to_image__z_image",
         "first_last_frame_to_video__wan_2_2",
         "image_edit__flux",
         "image_edit__generic",
@@ -4217,7 +4292,7 @@
         "upscale__flux",
         "upscale__z_image"
       ],
-      "occurrences": 67
+      "occurrences": 68
     },
     {
       "class": "FILM VFI",
@@ -8330,6 +8405,7 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__wan_vace",
+        "api_partner_nodes_text_to_image__z_image",
         "api_partner_nodes_video_to_video__wan_2_2",
         "api_partner_nodes_video_to_video__wan_vace",
         "audio__ace_step",
@@ -8384,7 +8460,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 253
+      "occurrences": 255
     },
     {
       "class": "KSamplerAdvanced",
@@ -8912,7 +8988,7 @@
         "api_partner_nodes_image_to_video__generic",
         "api_partner_nodes_image_to_video__kling"
       ],
-      "occurrences": 5
+      "occurrences": 6
     },
     {
       "class": "KlingOmniProTextToVideoNode",
@@ -10557,7 +10633,7 @@
         "video_to_video__wan_vace",
         "video_tools__generic"
       ],
-      "occurrences": 555
+      "occurrences": 561
     },
     {
       "class": "LoadMediaPipeFaceLandmarker",
@@ -12477,6 +12553,7 @@
         "api_partner_nodes_image_edit__wan",
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
+        "api_partner_nodes_text_to_image__z_image",
         "audio__ace_step",
         "character__qwen_image",
         "first_last_frame_to_video__wan_2_2",
@@ -12499,7 +12576,7 @@
         "upscale__z_image",
         "video_to_video__anima"
       ],
-      "occurrences": 129
+      "occurrences": 130
     },
     {
       "class": "ModelSamplingFlux",
@@ -13045,9 +13122,10 @@
       ],
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__gemini",
-        "api_partner_nodes_image_edit__generic"
+        "api_partner_nodes_image_edit__generic",
+        "api_partner_nodes_text_to_image__z_image"
       ],
-      "occurrences": 6
+      "occurrences": 8
     },
     {
       "class": "OpticalFlowLoader",
@@ -13895,6 +13973,7 @@
         "api_partner_nodes_image_to_video__gemini",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__wan_vace",
+        "api_partner_nodes_text_to_image__z_image",
         "api_partner_nodes_text_to_video__gemini",
         "api_partner_nodes_text_to_video__generic",
         "api_partner_nodes_video_to_video__gemini",
@@ -13922,7 +14001,7 @@
         "video_to_video__bernini",
         "video_to_video__depth_anything"
       ],
-      "occurrences": 131
+      "occurrences": 133
     },
     {
       "class": "QuadrupleCLIPLoader",
@@ -19082,6 +19161,7 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__wan_vace",
+        "api_partner_nodes_text_to_image__z_image",
         "api_partner_nodes_video_to_video__wan_2_2",
         "api_partner_nodes_video_to_video__wan_vace",
         "audio__ace_step",
@@ -19153,7 +19233,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 338
+      "occurrences": 339
     },
     {
       "class": "UNetTemporalAttentionMultiply",
@@ -19365,6 +19445,7 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__wan_vace",
+        "api_partner_nodes_text_to_image__z_image",
         "api_partner_nodes_video_to_video__wan_2_2",
         "api_partner_nodes_video_to_video__wan_vace",
         "character__qwen_image",
@@ -19437,7 +19518,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 354
+      "occurrences": 356
     },
     {
       "class": "VAEDecodeAudio",
@@ -19705,6 +19786,7 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_image_to_video__wan_vace",
+        "api_partner_nodes_text_to_image__z_image",
         "api_partner_nodes_video_to_video__wan_2_2",
         "api_partner_nodes_video_to_video__wan_vace",
         "audio__ace_step",
@@ -19772,7 +19854,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 291
+      "occurrences": 292
     },
     {
       "class": "VAELoaderKJ",
@@ -23424,6 +23506,55 @@
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__nano_banana",
         "video_to_video__wan_vace"
+      ],
+      "occurrences": 2
+    },
+    {
+      "class": "bEpicSendToViewer",
+      "role": "other",
+      "role_description": "unclassified node role",
+      "resolved": true,
+      "is_custom": true,
+      "inputs": {
+        "required": [
+          "file_format",
+          "filename_prefix",
+          "fps",
+          "input",
+          "save_to_output",
+          "tab_name"
+        ],
+        "optional": [
+          "roto_data",
+          "sam3_box_negative",
+          "sam3_box_positive",
+          "sam3_negative",
+          "sam3_positive"
+        ],
+        "types": {
+          "input": "*",
+          "tab_name": "STRING",
+          "save_to_output": "BOOLEAN",
+          "file_format": "COMBO",
+          "fps": "FLOAT",
+          "filename_prefix": "STRING",
+          "roto_data": "STRING",
+          "sam3_positive": "STRING",
+          "sam3_negative": "STRING",
+          "sam3_box_positive": "STRING",
+          "sam3_box_negative": "STRING"
+        }
+      },
+      "outputs": [
+        "*",
+        "MASK",
+        "SAM3_POINTS_PROMPT",
+        "SAM3_POINTS_PROMPT",
+        "SAM3_BOXES_PROMPT",
+        "SAM3_BOXES_PROMPT"
+      ],
+      "used_in_type_ids": [
+        "api_partner_nodes_image_to_video__kling"
       ],
       "occurrences": 2
     },

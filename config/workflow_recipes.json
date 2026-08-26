@@ -1,9 +1,9 @@
 {
   "structure": "task -> model -> node clusters",
   "generated_from": {
-    "workflow_count": 699,
+    "workflow_count": 701,
     "task_count": 29,
-    "recipe_count": 164
+    "recipe_count": 165
   },
   "tasks": [
     {
@@ -37104,1406 +37104,10 @@
       ]
     },
     {
-      "task": "API / Partner Nodes - 3D",
-      "id": "api_partner_nodes_3d",
-      "execution": "api",
-      "member_count": 28,
-      "model_count": 4,
-      "models": [
-        {
-          "id": "api_partner_nodes_3d__generic",
-          "model": "Generic",
-          "execution": "api",
-          "source": "official",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "GeminiImage2Node",
-            "RecraftRemoveBackgroundNode",
-            "Rodin3D_Detail",
-            "Rodin3D_Gen2",
-            "Rodin3D_Gen25_Image",
-            "Rodin3D_Gen25_Text",
-            "Rodin3D_Regular",
-            "Rodin3D_Sketch",
-            "Rodin3D_Smooth",
-            "TripoConversionNode",
-            "TripoImageToModelNode",
-            "TripoMultiviewToModelNode",
-            "TripoP1ImageToModelNode",
-            "TripoP1MultiviewToModelNode",
-            "TripoP1TextToModelNode",
-            "TripoRefineNode",
-            "TripoRetargetNode",
-            "TripoRigNode",
-            "TripoTextToModelNode",
-            "TripoTextureNode"
-          ],
-          "member_files": [
-            "api_rodin3d_gen2_5_image_to_3d",
-            "api_rodin3d_gen2_5_text_to_3d",
-            "api_rodin_gen2",
-            "api_rodin_image_to_model",
-            "api_rodin_multiview_to_model",
-            "api_tripo3_0_image_to_model",
-            "api_tripo3_0_text_to_model",
-            "api_tripo3_1_image_to_model",
-            "api_tripo3_1_multiview_to_model",
-            "api_tripo3_1_text_to_model",
-            "api_tripo_image_to_model",
-            "api_tripo_multiview_to_model",
-            "api_tripo_p1_image_to_model",
-            "api_tripo_p1_mv_to_model",
-            "api_tripo_p1_text_to_model",
-            "api_tripo_text_to_model",
-            "templates_3d_match_game_art_style.app"
-          ],
-          "member_descriptions": [
-            {
-              "name": "api_rodin3d_gen2_5_image_to_3d",
-              "title": "Rodin Gen2.5: Image to Model",
-              "description": "Upload single or multi-view images to create a 3D model with adjustable quality and enhanced texture"
-            },
-            {
-              "name": "api_rodin3d_gen2_5_text_to_3d",
-              "title": "Rodin Gen2.5: Text to Model",
-              "description": "Input a text description or upload reference images. Generate a detailed 3D model with textures, exportable in multiple formats."
-            },
-            {
-              "name": "api_rodin_gen2",
-              "title": "Rodin: Gen-2 Image to Model",
-              "description": "Generate detailed 4X mesh quality 3D models from photos using Rodin Gen2"
-            },
-            {
-              "name": "api_rodin_image_to_model",
-              "title": "Rodin: Image to Model",
-              "description": "Generate detailed 3D models from single photos using Rodin AI."
-            },
-            {
-              "name": "api_rodin_multiview_to_model",
-              "title": "Rodin: Multiview to Model",
-              "description": "Sculpt comprehensive 3D models using Rodin's multi-angle reconstruction."
-            },
-            {
-              "name": "api_tripo3_0_image_to_model",
-              "title": "Tripo3.0: Image to Model",
-              "description": "Transform images or sketches into 3D models with Tripo 3.0's sharp geometry and production-ready PBR textures."
-            },
-            {
-              "name": "api_tripo3_0_text_to_model",
-              "title": "Tripo3.0: Text to Model",
-              "description": "Generate precise 3D models from text with Tripo 3.0's ultra-high resolution geometry and realistic PBR materials."
-            },
-            {
-              "name": "api_tripo3_1_image_to_model",
-              "title": "Tripo H3.1: Image to Model",
-              "description": "Upload a reference image of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials."
-            },
-            {
-              "name": "api_tripo3_1_multiview_to_model",
-              "title": "Tripo H3.1: Multiview to Model",
-              "description": "Upload multiview images of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials."
-            },
-            {
-              "name": "api_tripo3_1_text_to_model",
-              "title": "Tripo H3.1: Text to Model",
-              "description": "Generate production-ready 3D hero assets with high-density geometry and PBR materials. Takes text prompts or reference images as input and outputs detailed 3D meshes suitable for close-up renders and game assets."
-            },
-            {
-              "name": "api_tripo_image_to_model",
-              "title": "Tripo: Image to Model",
-              "description": "Generate professional 3D assets from 2D images using Tripo engine."
-            },
-            {
-              "name": "api_tripo_multiview_to_model",
-              "title": "Tripo: Multiview to Model",
-              "description": "Build 3D models from multiple angles with Tripo's advanced scanner."
-            },
-            {
-              "name": "api_tripo_p1_image_to_model",
-              "title": "Tripo P1: Image to Model",
-              "description": "Upload a reference image of your subject. Generate a game-ready 3D model with clean topology and optimized polygon budgets"
-            },
-            {
-              "name": "api_tripo_p1_mv_to_model",
-              "title": "Tripo P1: Multiview to Model",
-              "description": "Upload an image or multi-view references to generate a clean low-poly 3D model with controlled polygon count and organized topology, ready for export to game engines."
-            },
-            {
-              "name": "api_tripo_p1_text_to_model",
-              "title": "Tripo P1: Text to Model",
-              "description": "Input a text description of a 3D model. Generate a game-ready 3D model with clean topology and optimized polygon counts"
-            },
-            {
-              "name": "api_tripo_text_to_model",
-              "title": "Tripo: Text to Model",
-              "description": "Craft 3D objects from descriptions with Tripo's text-driven modeling."
-            },
-            {
-              "name": "templates_3d_match_game_art_style.app",
-              "title": "Game Asset Style Transfer Sprite Generator",
-              "description": " Use an outline reference, and a style reference as input to generate 2D sprite as model textures. Useful for background set dressing in 2D/2.5D game."
-            }
-          ],
-          "member_count": 17,
-          "user_intent": {
-            "media": "3d",
-            "task": "3d_generation",
-            "model_families": [],
-            "when_to_use": "Use to generate a 3D model.",
-            "example_requests": [
-              "build a 3d workflow",
-              "generate a 3D model"
-            ]
-          },
-          "description": " Use an outline reference, and a style reference as input to generate 2D sprite as model textures. Useful for background set dressing in 2D/2.5D game. | Build 3D models from multiple angles with Tripo's advanced scanner. | Craft 3D objects from descriptions with Tripo's text-driven modeling. | Generate detailed 3D models from single photos using Rodin AI. | Generate detailed 4X mesh quality 3D models from photos using Rodin Gen2 | Generate precise 3D models from text with Tripo 3.0's ultra-high resolution geometry and realistic PBR materials. | Generate production-ready 3D hero assets with high-density geometry and PBR materials. Takes text prompts or reference images as input and outputs detailed 3D meshes suitable for close-up renders and game assets. | Generate professional 3D assets from 2D images using Tripo engine. | Input a text description of a 3D model. Generate a game-ready 3D model with clean topology and optimized polygon counts | Input a text description or upload reference images. Generate a detailed 3D model with textures, exportable in multiple formats. | Sculpt comprehensive 3D models using Rodin's multi-angle reconstruction. | Transform images or sketches into 3D models with Tripo 3.0's sharp geometry and production-ready PBR textures. | Upload a reference image of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload a reference image of your subject. Generate a game-ready 3D model with clean topology and optimized polygon budgets | Upload an image or multi-view references to generate a clean low-poly 3D model with controlled polygon count and organized topology, ready for export to game engines. | Upload multiview images of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload single or multi-view images to create a 3D model with adjustable quality and enhanced texture",
-          "description_source": "catalog",
-          "node_clusters": [],
-          "required_node_roles": [],
-          "optional_node_roles": [
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "LoadImage",
-              "utility": false,
-              "frequency": "12/17 members",
-              "min_instances": 0,
-              "max_instances": 4
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Preview3D",
-              "utility": false,
-              "frequency": "11/17 members",
-              "min_instances": 0,
-              "max_instances": 4
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "MarkdownNote",
-              "utility": false,
-              "frequency": "6/17 members",
-              "min_instances": 0,
-              "max_instances": 2
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 2
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "BatchImagesNode",
-              "utility": false,
-              "frequency": "5/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "GeminiImage2Node",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "ImageCompare",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Note",
-              "utility": false,
-              "frequency": "2/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "RecraftRemoveBackgroundNode",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Rodin3D_Detail",
-              "utility": false,
-              "frequency": "2/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Rodin3D_Gen2",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Rodin3D_Gen25_Image",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Rodin3D_Gen25_Text",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Rodin3D_Regular",
-              "utility": false,
-              "frequency": "2/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Rodin3D_Sketch",
-              "utility": false,
-              "frequency": "2/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Rodin3D_Smooth",
-              "utility": false,
-              "frequency": "2/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "SaveGLB",
-              "utility": false,
-              "frequency": "14/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoConversionNode",
-              "utility": false,
-              "frequency": "10/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoImageToModelNode",
-              "utility": false,
-              "frequency": "3/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoMultiviewToModelNode",
-              "utility": false,
-              "frequency": "2/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoP1ImageToModelNode",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoP1MultiviewToModelNode",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoP1TextToModelNode",
-              "utility": false,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoRefineNode",
-              "utility": false,
-              "frequency": "10/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoRetargetNode",
-              "utility": false,
-              "frequency": "11/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoRigNode",
-              "utility": false,
-              "frequency": "11/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoTextToModelNode",
-              "utility": false,
-              "frequency": "3/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoTextureNode",
-              "utility": false,
-              "frequency": "11/17 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "PrimitiveStringMultiline",
-              "utility": true,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 3
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "StringConcatenate",
-              "utility": true,
-              "frequency": "1/17 members",
-              "min_instances": 0,
-              "max_instances": 2
-            }
-          ],
-          "connection_patterns": [],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "image_loader"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "STRING",
-                "role": "Preview3D"
-              }
-            ]
-          },
-          "param_variability": "no single-instance invariant params to compare",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [
-            "MarkdownNote",
-            "Note"
-          ],
-          "custom_nodes": []
-        },
-        {
-          "id": "api_partner_nodes_3d__hunyuan3d",
-          "model": "Hunyuan3D",
-          "execution": "api",
-          "source": "official",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "Tencent3DPartNode",
-            "TencentImageToModelNode",
-            "TencentModelTo3DUVNode",
-            "TencentSmartTopologyNode",
-            "TencentTextToModelNode"
-          ],
-          "member_files": [
-            "api_hunyuan3d_image_to_model",
-            "api_hunyuan3d_model2uv",
-            "api_hunyuan3d_part",
-            "api_hunyuan3d_retopo_uv",
-            "api_hunyuan3d_smart_topology",
-            "api_hunyuan3d_text_to_model"
-          ],
-          "member_descriptions": [
-            {
-              "name": "api_hunyuan3d_image_to_model",
-              "title": "HY 3D: Image to Model",
-              "description": "Upload an image to generate a 3D model with geometry and PBR textures. "
-            },
-            {
-              "name": "api_hunyuan3d_model2uv",
-              "title": "HY 3D: UV Unwrapping",
-              "description": "Upload a 3D model to perform UV unwrapping. Generate a processed model with optimized UV layout for texturing."
-            },
-            {
-              "name": "api_hunyuan3d_part",
-              "title": "HY 3D: 3D Parts Decomposition",
-              "description": "Upload a 3D model to automatically segment it into its constituent parts, generating a fully decomposed 3D asset for reuse and editing."
-            },
-            {
-              "name": "api_hunyuan3d_retopo_uv",
-              "title": "Hunyuan3D: Model Retopology and UV Unwrapping",
-              "description": "Input a dense mesh (from AI generation or photogrammetry scans) and create a light weight model with good topology and unwrapped UV. Great for 3D game assets optimization."
-            },
-            {
-              "name": "api_hunyuan3d_smart_topology",
-              "title": "HY 3D: Smart Topology",
-              "description": "Upload a high-poly 3D model file. Generate a lower-polygon, topologically optimized 3D model with a specified reduction level."
-            },
-            {
-              "name": "api_hunyuan3d_text_to_model",
-              "title": "HunYuan3D: Text to Model",
-              "description": "Input a text prompt or upload a reference image to generate a detailed 3D model asset."
-            }
-          ],
-          "member_count": 6,
-          "user_intent": {
-            "media": "3d",
-            "task": "3d_generation",
-            "model_families": [
-              "Hunyuan3D"
-            ],
-            "when_to_use": "Use to generate a 3D model using Hunyuan3D.",
-            "example_requests": [
-              "build a 3d workflow using Hunyuan3D",
-              "generate a 3D model using Hunyuan3D"
-            ]
-          },
-          "description": "Input a dense mesh (from AI generation or photogrammetry scans) and create a light weight model with good topology and unwrapped UV. Great for 3D game assets optimization. | Input a text prompt or upload a reference image to generate a detailed 3D model asset. | Upload a 3D model to automatically segment it into its constituent parts, generating a fully decomposed 3D asset for reuse and editing. | Upload a 3D model to perform UV unwrapping. Generate a processed model with optimized UV layout for texturing. | Upload a high-poly 3D model file. Generate a lower-polygon, topologically optimized 3D model with a specified reduction level. | Upload an image to generate a 3D model with geometry and PBR textures. ",
-          "description_source": "catalog",
-          "node_clusters": [
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "SaveGLB"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "SaveGLB",
-              "utility": false,
-              "frequency": "all members (6/6)",
-              "min_instances": 1,
-              "max_instances": 2
-            }
-          ],
-          "optional_node_roles": [
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "2/6 members",
-              "min_instances": 0,
-              "max_instances": 4
-            },
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "LoadImage",
-              "utility": false,
-              "frequency": "1/6 members",
-              "min_instances": 0,
-              "max_instances": 2
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Load3D",
-              "utility": false,
-              "frequency": "4/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "MarkdownNote",
-              "utility": false,
-              "frequency": "3/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Preview3D",
-              "utility": false,
-              "frequency": "2/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Tencent3DPartNode",
-              "utility": false,
-              "frequency": "1/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TencentImageToModelNode",
-              "utility": false,
-              "frequency": "1/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TencentModelTo3DUVNode",
-              "utility": false,
-              "frequency": "2/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TencentSmartTopologyNode",
-              "utility": false,
-              "frequency": "2/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TencentTextToModelNode",
-              "utility": false,
-              "frequency": "1/6 members",
-              "min_instances": 0,
-              "max_instances": 1
-            }
-          ],
-          "connection_patterns": [],
-          "boundary_ports": {
-            "inputs": [],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "varies across members: SaveGLB",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [
-            "MarkdownNote"
-          ],
-          "custom_nodes": []
-        },
-        {
-          "id": "api_partner_nodes_3d__meshy",
-          "model": "Meshy",
-          "execution": "api",
-          "source": "mixed",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "GeminiNanoBanana2",
-            "MeshyImageToModelNode",
-            "MeshyMultiImageToModelNode",
-            "MeshyTextToModelNode",
-            "TripoImageToModelNode"
-          ],
-          "member_files": [
-            "api_meshy_image_to_model",
-            "api_meshy_multi_image_to_model",
-            "api_meshy_text_to_model",
-            "templates_mjm_image_to_3d"
-          ],
-          "member_descriptions": [
-            {
-              "name": "api_meshy_image_to_model",
-              "title": null,
-              "description": "API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology."
-            },
-            {
-              "name": "api_meshy_multi_image_to_model",
-              "title": null,
-              "description": "API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure."
-            },
-            {
-              "name": "api_meshy_text_to_model",
-              "title": null,
-              "description": "API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry."
-            },
-            {
-              "name": "templates_mjm_image_to_3d",
-              "title": "Generate 3D Model From Single Image",
-              "description": "Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model."
-            }
-          ],
-          "member_count": 4,
-          "user_intent": {
-            "media": "3d",
-            "task": "3d_generation",
-            "model_families": [
-              "Meshy"
-            ],
-            "when_to_use": "Use to generate a 3D model using Meshy.",
-            "example_requests": [
-              "build a 3d workflow using Meshy",
-              "generate a 3D model using Meshy"
-            ]
-          },
-          "description": "API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology. | API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure. | API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry. | Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model.",
-          "description_source": "catalog",
-          "node_clusters": [
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "SaveGLB"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "SaveGLB",
-              "utility": false,
-              "frequency": "all members (4/4)",
-              "min_instances": 1,
-              "max_instances": 2
-            }
-          ],
-          "optional_node_roles": [
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "GeminiNanoBanana2",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 3
-            },
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "LoadImage",
-              "utility": false,
-              "frequency": "3/4 members",
-              "min_instances": 0,
-              "max_instances": 3
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 3
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "BatchImagesNode",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "MarkdownNote",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "MeshyImageToModelNode",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "MeshyMultiImageToModelNode",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "external API generation node",
-              "role_key": "api_node",
-              "node_class": "MeshyTextToModelNode",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Preview3D",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TripoImageToModelNode",
-              "utility": false,
-              "frequency": "1/4 members",
-              "min_instances": 0,
-              "max_instances": 1
-            }
-          ],
-          "connection_patterns": [
-            {
-              "from_role": "api_node",
-              "to_role": "SaveGLB",
-              "data_type": "FILE_3D_FBX",
-              "frequency": "3/4 members",
-              "invariant": false
-            },
-            {
-              "from_role": "api_node",
-              "to_role": "SaveGLB",
-              "data_type": "FILE_3D_GLB",
-              "frequency": "3/4 members",
-              "invariant": false
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "api_node",
-              "data_type": "IMAGE",
-              "frequency": "3/4 members",
-              "invariant": false
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "image_loader"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "save_output"
-              }
-            ]
-          },
-          "param_variability": "varies across members: SaveGLB",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [
-            "MarkdownNote"
-          ],
-          "custom_nodes": []
-        },
-        {
-          "id": "api_partner_nodes_3d__qwen_image",
-          "model": "Qwen Image",
-          "execution": "api",
-          "source": "official",
-          "uses_api_nodes": true,
-          "api_node_classes": [
-            "TencentImageToModelNode"
-          ],
-          "member_files": [
-            "templates_shane_single_image_to_3d_model"
-          ],
-          "member_descriptions": [
-            {
-              "name": "templates_shane_single_image_to_3d_model",
-              "title": "Single Image to 3D model",
-              "description": "Use one frontal image to generate a consistent and highly detailed 3D model. Model used: Multiangle QWEN Edit + Hunyuan 3D"
-            }
-          ],
-          "member_count": 1,
-          "user_intent": {
-            "media": "3d",
-            "task": "3d_generation",
-            "model_families": [
-              "Hunyuan3D",
-              "Qwen Image"
-            ],
-            "when_to_use": "Use to generate a 3D model using Hunyuan3D, Qwen Image.",
-            "example_requests": [
-              "build a 3d workflow using Hunyuan3D",
-              "build a 3d workflow using Qwen Image",
-              "generate a 3D model using Hunyuan3D"
-            ]
-          },
-          "description": "Use one frontal image to generate a consistent and highly detailed 3D model. Model used: Multiangle QWEN Edit + Hunyuan 3D",
-          "description_source": "catalog",
-          "node_clusters": [
-            {
-              "cluster": "inputs",
-              "nodes": [
-                "LoadImage"
-              ]
-            },
-            {
-              "cluster": "model loading",
-              "nodes": [
-                "CLIPLoader",
-                "LoraLoaderModelOnly (x2)",
-                "UNETLoader",
-                "VAELoader"
-              ]
-            },
-            {
-              "cluster": "conditioning",
-              "nodes": [
-                "TextEncodeQwenImageEditPlus (x2)"
-              ]
-            },
-            {
-              "cluster": "latent / canvas",
-              "nodes": [
-                "VAEEncode"
-              ]
-            },
-            {
-              "cluster": "sampling",
-              "nodes": [
-                "KSampler"
-              ]
-            },
-            {
-              "cluster": "decoding",
-              "nodes": [
-                "VAEDecode"
-              ]
-            },
-            {
-              "cluster": "output",
-              "nodes": [
-                "SaveImage"
-              ]
-            },
-            {
-              "cluster": "other operations",
-              "nodes": [
-                "CFGNorm",
-                "FluxKontextImageScale",
-                "FluxKontextMultiReferenceLatentMethod (x2)",
-                "MarkdownNote",
-                "ModelSamplingAuraFlow",
-                "Preview3D",
-                "QwenMultiangleCameraNode",
-                "TencentImageToModelNode"
-              ]
-            }
-          ],
-          "required_node_roles": [
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "FluxKontextMultiReferenceLatentMethod",
-              "utility": false,
-              "frequency": "all members (1/1), 2 required instances",
-              "min_instances": 2,
-              "max_instances": 2,
-              "paired_or_multiple": true
-            },
-            {
-              "role": "LoRA / model patch loader",
-              "role_key": "lora_loader",
-              "node_class": "LoraLoaderModelOnly",
-              "utility": false,
-              "frequency": "all members (1/1), 2 required instances",
-              "min_instances": 2,
-              "max_instances": 2,
-              "paired_or_multiple": true,
-              "distinct_instances": [
-                {
-                  "feeds_into": [
-                    "ModelSamplingAuraFlow"
-                  ],
-                  "fed_by": [
-                    "lora_loader"
-                  ],
-                  "occurrences": 1
-                },
-                {
-                  "feeds_into": [
-                    "lora_loader"
-                  ],
-                  "fed_by": [
-                    "model_loader"
-                  ],
-                  "occurrences": 1
-                }
-              ]
-            },
-            {
-              "role": "prompt text encoding",
-              "role_key": "text_encode",
-              "node_class": "TextEncodeQwenImageEditPlus",
-              "utility": false,
-              "frequency": "all members (1/1), 2 required instances",
-              "min_instances": 2,
-              "max_instances": 2,
-              "paired_or_multiple": true,
-              "distinct_instances": [
-                {
-                  "feeds_into": [
-                    "FluxKontextMultiReferenceLatentMethod"
-                  ],
-                  "fed_by": [
-                    "QwenMultiangleCameraNode",
-                    "clip_loader",
-                    "upscale",
-                    "vae_loader"
-                  ],
-                  "occurrences": 1
-                },
-                {
-                  "feeds_into": [
-                    "FluxKontextMultiReferenceLatentMethod"
-                  ],
-                  "fed_by": [
-                    "clip_loader",
-                    "upscale",
-                    "vae_loader"
-                  ],
-                  "occurrences": 1
-                }
-              ]
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "CFGNorm",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "text encoder / CLIP loader",
-              "role_key": "clip_loader",
-              "node_class": "CLIPLoader",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "upscale / resize",
-              "role_key": "upscale",
-              "node_class": "FluxKontextImageScale",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "diffusion sampler / denoiser",
-              "role_key": "sampler",
-              "node_class": "KSampler",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "image input / load",
-              "role_key": "image_loader",
-              "node_class": "LoadImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "MarkdownNote",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "ModelSamplingAuraFlow",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "Preview3D",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "QwenMultiangleCameraNode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "save / preview / combine output",
-              "role_key": "save_output",
-              "node_class": "SaveImage",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "TencentImageToModelNode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "diffusion model / UNET loader",
-              "role_key": "model_loader",
-              "node_class": "UNETLoader",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "latent -> pixel decode",
-              "role_key": "vae_decode",
-              "node_class": "VAEDecode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "pixel -> latent encode",
-              "role_key": "vae_encode",
-              "node_class": "VAEEncode",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            },
-            {
-              "role": "VAE loader",
-              "role_key": "vae_loader",
-              "node_class": "VAELoader",
-              "utility": false,
-              "frequency": "all members (1/1)",
-              "min_instances": 1,
-              "max_instances": 1
-            }
-          ],
-          "optional_node_roles": [],
-          "connection_patterns": [
-            {
-              "from_role": "CFGNorm",
-              "to_role": "sampler",
-              "data_type": "MODEL",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "FluxKontextMultiReferenceLatentMethod",
-              "to_role": "sampler",
-              "data_type": "CONDITIONING",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "ModelSamplingAuraFlow",
-              "to_role": "CFGNorm",
-              "data_type": "MODEL",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "QwenMultiangleCameraNode",
-              "to_role": "text_encode",
-              "data_type": "STRING",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "TencentImageToModelNode",
-              "to_role": "Preview3D",
-              "data_type": "STRING",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "clip_loader",
-              "to_role": "text_encode",
-              "data_type": "CLIP",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "QwenMultiangleCameraNode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "TencentImageToModelNode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "image_loader",
-              "to_role": "upscale",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "lora_loader",
-              "to_role": "ModelSamplingAuraFlow",
-              "data_type": "MODEL",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "lora_loader",
-              "to_role": "lora_loader",
-              "data_type": "MODEL",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "model_loader",
-              "to_role": "lora_loader",
-              "data_type": "MODEL",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "sampler",
-              "to_role": "vae_decode",
-              "data_type": "LATENT",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "text_encode",
-              "to_role": "FluxKontextMultiReferenceLatentMethod",
-              "data_type": "CONDITIONING",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "upscale",
-              "to_role": "text_encode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "upscale",
-              "to_role": "vae_encode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "vae_decode",
-              "to_role": "TencentImageToModelNode",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "vae_decode",
-              "to_role": "save_output",
-              "data_type": "IMAGE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "vae_encode",
-              "to_role": "sampler",
-              "data_type": "LATENT",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "vae_loader",
-              "to_role": "text_encode",
-              "data_type": "VAE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "vae_loader",
-              "to_role": "vae_decode",
-              "data_type": "VAE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            },
-            {
-              "from_role": "vae_loader",
-              "to_role": "vae_encode",
-              "data_type": "VAE",
-              "frequency": "all members (1/1)",
-              "invariant": true
-            }
-          ],
-          "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "COMBO",
-                "role": "clip_name"
-              },
-              {
-                "data_type": "COMBO",
-                "role": "lora_name"
-              },
-              {
-                "data_type": "COMBO",
-                "role": "lora_name_1"
-              },
-              {
-                "data_type": "COMBO",
-                "role": "unet_name"
-              },
-              {
-                "data_type": "COMBO",
-                "role": "vae_name"
-              },
-              {
-                "data_type": "IMAGE",
-                "role": "image"
-              },
-              {
-                "data_type": "INT",
-                "role": "seed"
-              },
-              {
-                "data_type": "STRING",
-                "role": "prompt"
-              }
-            ],
-            "outputs": [
-              {
-                "data_type": "IMAGE",
-                "role": "IMAGE"
-              }
-            ]
-          },
-          "param_variability": "single member - no cross-member variability to report",
-          "catalog_category": {
-            "primary": null,
-            "distribution": {},
-            "pure": false,
-            "coverage": 0
-          },
-          "unresolved_nodes": [
-            "MarkdownNote"
-          ],
-          "custom_nodes": [
-            "QwenMultiangleCameraNode"
-          ]
-        }
-      ]
-    },
-    {
       "task": "API / Partner Nodes - Image to Video",
       "id": "api_partner_nodes_image_to_video",
       "execution": "api",
-      "member_count": 28,
+      "member_count": 29,
       "model_count": 9,
       "models": [
         {
@@ -38873,6 +37477,7 @@
           "source": "mixed",
           "uses_api_nodes": true,
           "api_node_classes": [
+            "ByteDanceSeedreamNodeV2",
             "GeminiImage2Node",
             "GeminiNanoBanana2",
             "GeminiNode",
@@ -38882,6 +37487,7 @@
             "OpenAIChatNode"
           ],
           "member_files": [
+            "akagane-video-batch1",
             "api_kling2_6_i2v",
             "api_kling_o3_i2v",
             "api_kling_omni_i2v",
@@ -38890,6 +37496,11 @@
             "templates_rob_kling3_0_multishot_llm_product"
           ],
           "member_descriptions": [
+            {
+              "name": "akagane-video-batch1",
+              "title": null,
+              "description": "Local image editing via Kling. 6 image inputs -> 1 video output. Processes and generates content using ComfyUI workflows."
+            },
             {
               "name": "api_kling2_6_i2v",
               "title": "Kling2.6: Animate Images with Audio",
@@ -38921,7 +37532,7 @@
               "description": "Upload a start frame and references of your product. Select total duration and number of shots and automatically generate prompts for each shot."
             }
           ],
-          "member_count": 6,
+          "member_count": 7,
           "user_intent": {
             "media": "video",
             "task": "image_to_video",
@@ -38938,7 +37549,7 @@
               "generate a video from an input image using Kling"
             ]
           },
-          "description": "API image-to-video via Kling O3 (Kling 3.0). 1 reference image (+ optional audio/text prompt) -> 1 video output. Generates character-consistent video with native audio output and precise storyboard control. | This is the base workflow behind my viral Wes Anderson-style reel on Instagram.  It shows how to go from a simple prompt to a Wes Anderson-style image using a cinematic image model, then enhance it with Nanobanana to improve textures and details, and finally turn it into a video using the current best video model, Kling 3.0. | Transform static images into dynamic videos with Kling O1. Add motion, camera movements, and life to your images using text prompts. | Transform static images into dynamic videos with synchronized dialogue, singing, sound effects, and ambient audio. | Upload a start frame and references of your product. Select total duration and number of shots and automatically generate prompts for each shot. | Upload an image to automatically generate a descriptive script. This script is then used to create a video with the Kling 3.0 Omni model.",
+          "description": "API image-to-video via Kling O3 (Kling 3.0). 1 reference image (+ optional audio/text prompt) -> 1 video output. Generates character-consistent video with native audio output and precise storyboard control. | Local image editing via Kling. 6 image inputs -> 1 video output. Processes and generates content using ComfyUI workflows. | This is the base workflow behind my viral Wes Anderson-style reel on Instagram.  It shows how to go from a simple prompt to a Wes Anderson-style image using a cinematic image model, then enhance it with Nanobanana to improve textures and details, and finally turn it into a video using the current best video model, Kling 3.0. | Transform static images into dynamic videos with Kling O1. Add motion, camera movements, and life to your images using text prompts. | Transform static images into dynamic videos with synchronized dialogue, singing, sound effects, and ambient audio. | Upload a start frame and references of your product. Select total duration and number of shots and automatically generate prompts for each shot. | Upload an image to automatically generate a descriptive script. This script is then used to create a video with the Kling 3.0 Omni model.",
           "description_source": "catalog",
           "node_clusters": [],
           "required_node_roles": [],
@@ -38948,34 +37559,43 @@
               "role_key": "other",
               "node_class": "RegexExtract",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 12
-            },
-            {
-              "role": "unclassified node role",
-              "role_key": "other",
-              "node_class": "StringToInt",
-              "utility": false,
-              "frequency": "1/6 members",
-              "min_instances": 0,
-              "max_instances": 6
             },
             {
               "role": "image input / load",
               "role_key": "image_loader",
               "node_class": "LoadImage",
               "utility": false,
-              "frequency": "5/6 members",
+              "frequency": "6/7 members",
               "min_instances": 0,
-              "max_instances": 3
+              "max_instances": 6
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "StringToInt",
+              "utility": false,
+              "frequency": "1/7 members",
+              "min_instances": 0,
+              "max_instances": 6
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "AgentYRefNote",
+              "utility": false,
+              "frequency": "1/7 members",
+              "min_instances": 0,
+              "max_instances": 5
             },
             {
               "role": "unclassified node role",
               "role_key": "other",
               "node_class": "OpenAIChatConfig",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 3
             },
@@ -38984,16 +37604,25 @@
               "role_key": "other",
               "node_class": "OpenAIChatNode",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 3
             },
             {
               "role": "unclassified node role",
               "role_key": "other",
+              "node_class": "AgentYImageCollector",
+              "utility": false,
+              "frequency": "1/7 members",
+              "min_instances": 0,
+              "max_instances": 2
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
               "node_class": "Note",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 2
             },
@@ -39002,7 +37631,7 @@
               "role_key": "other",
               "node_class": "RegexReplace",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 2
             },
@@ -39011,7 +37640,7 @@
               "role_key": "other",
               "node_class": "ResizeAndPadImage",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 2
             },
@@ -39020,7 +37649,7 @@
               "role_key": "save_output",
               "node_class": "SaveImage",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 2
             },
@@ -39029,7 +37658,16 @@
               "role_key": "other",
               "node_class": "SomethingToString",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
+              "min_instances": 0,
+              "max_instances": 2
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "bEpicSendToViewer",
+              "utility": false,
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 2
             },
@@ -39038,7 +37676,16 @@
               "role_key": "other",
               "node_class": "BatchImagesNode",
               "utility": false,
-              "frequency": "2/6 members",
+              "frequency": "2/7 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "ByteDanceSeedreamNodeV2",
+              "utility": false,
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39047,7 +37694,7 @@
               "role_key": "clip_loader",
               "node_class": "CLIPLoader",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39056,7 +37703,7 @@
               "role_key": "text_encode",
               "node_class": "CLIPTextEncode",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39065,7 +37712,7 @@
               "role_key": "conditioning_op",
               "node_class": "ConditioningZeroOut",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39074,7 +37721,7 @@
               "role_key": "latent_source",
               "node_class": "EmptySD3LatentImage",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39083,7 +37730,7 @@
               "role_key": "api_node",
               "node_class": "GeminiImage2Node",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39092,7 +37739,7 @@
               "role_key": "api_node",
               "node_class": "GeminiNanoBanana2",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39101,7 +37748,7 @@
               "role_key": "api_node",
               "node_class": "GeminiNode",
               "utility": false,
-              "frequency": "2/6 members",
+              "frequency": "2/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39110,7 +37757,7 @@
               "role_key": "other",
               "node_class": "GetVideoComponents",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39119,7 +37766,7 @@
               "role_key": "other",
               "node_class": "ImageBatchMulti",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39128,7 +37775,7 @@
               "role_key": "sampler",
               "node_class": "KSampler",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39137,7 +37784,7 @@
               "role_key": "other",
               "node_class": "KlingImageToVideoWithAudio",
               "utility": false,
-              "frequency": "2/6 members",
+              "frequency": "2/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39146,7 +37793,7 @@
               "role_key": "api_node",
               "node_class": "KlingOmniProImageToVideoNode",
               "utility": false,
-              "frequency": "4/6 members",
+              "frequency": "5/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39155,7 +37802,7 @@
               "role_key": "other",
               "node_class": "MarkdownNote",
               "utility": false,
-              "frequency": "3/6 members",
+              "frequency": "3/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39164,7 +37811,7 @@
               "role_key": "other",
               "node_class": "ModelSamplingAuraFlow",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39173,7 +37820,7 @@
               "role_key": "save_output",
               "node_class": "PreviewImage",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39182,7 +37829,7 @@
               "role_key": "save_output",
               "node_class": "SaveVideo",
               "utility": false,
-              "frequency": "5/6 members",
+              "frequency": "5/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39191,7 +37838,7 @@
               "role_key": "other",
               "node_class": "StringCompare",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39200,7 +37847,7 @@
               "role_key": "other",
               "node_class": "Text Multiline",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39209,7 +37856,7 @@
               "role_key": "model_loader",
               "node_class": "UNETLoader",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39218,7 +37865,7 @@
               "role_key": "vae_decode",
               "node_class": "VAEDecode",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39227,7 +37874,7 @@
               "role_key": "vae_loader",
               "node_class": "VAELoader",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39236,7 +37883,7 @@
               "role_key": "save_output",
               "node_class": "VHS_VideoCombine",
               "utility": false,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39245,7 +37892,7 @@
               "role_key": "other",
               "node_class": "PreviewAny",
               "utility": true,
-              "frequency": "2/6 members",
+              "frequency": "2/7 members",
               "min_instances": 0,
               "max_instances": 13
             },
@@ -39254,7 +37901,7 @@
               "role_key": "other",
               "node_class": "Reroute",
               "utility": true,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 12
             },
@@ -39263,7 +37910,7 @@
               "role_key": "other",
               "node_class": "PrimitiveInt",
               "utility": true,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 2
             },
@@ -39272,7 +37919,7 @@
               "role_key": "other",
               "node_class": "PrimitiveStringMultiline",
               "utility": true,
-              "frequency": "1/6 members",
+              "frequency": "2/7 members",
               "min_instances": 0,
               "max_instances": 2
             },
@@ -39281,7 +37928,7 @@
               "role_key": "other",
               "node_class": "ComfySwitchNode",
               "utility": true,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39290,7 +37937,7 @@
               "role_key": "other",
               "node_class": "GetImageSize",
               "utility": true,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39299,7 +37946,7 @@
               "role_key": "other",
               "node_class": "PrimitiveNode",
               "utility": true,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             },
@@ -39308,27 +37955,14 @@
               "role_key": "other",
               "node_class": "PrimitiveString",
               "utility": true,
-              "frequency": "1/6 members",
+              "frequency": "1/7 members",
               "min_instances": 0,
               "max_instances": 1
             }
           ],
-          "connection_patterns": [
-            {
-              "from_role": "api_node",
-              "to_role": "save_output",
-              "data_type": "VIDEO",
-              "frequency": "3/6 members",
-              "invariant": false
-            }
-          ],
+          "connection_patterns": [],
           "boundary_ports": {
-            "inputs": [
-              {
-                "data_type": "STRING",
-                "role": "prompt"
-              }
-            ],
+            "inputs": [],
             "outputs": [
               {
                 "data_type": "STRING",
@@ -39344,6 +37978,7 @@
             "coverage": 0
           },
           "unresolved_nodes": [
+            "AgentYRefNote",
             "MarkdownNote",
             "Note",
             "PrimitiveNode",
@@ -39352,9 +37987,11 @@
             "Text Multiline"
           ],
           "custom_nodes": [
+            "AgentYImageCollector",
             "ImageBatchMulti",
             "SomethingToString",
-            "VHS_VideoCombine"
+            "VHS_VideoCombine",
+            "bEpicSendToViewer"
           ]
         },
         {
@@ -41418,11 +40055,1407 @@
       ]
     },
     {
+      "task": "API / Partner Nodes - 3D",
+      "id": "api_partner_nodes_3d",
+      "execution": "api",
+      "member_count": 28,
+      "model_count": 4,
+      "models": [
+        {
+          "id": "api_partner_nodes_3d__generic",
+          "model": "Generic",
+          "execution": "api",
+          "source": "official",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "GeminiImage2Node",
+            "RecraftRemoveBackgroundNode",
+            "Rodin3D_Detail",
+            "Rodin3D_Gen2",
+            "Rodin3D_Gen25_Image",
+            "Rodin3D_Gen25_Text",
+            "Rodin3D_Regular",
+            "Rodin3D_Sketch",
+            "Rodin3D_Smooth",
+            "TripoConversionNode",
+            "TripoImageToModelNode",
+            "TripoMultiviewToModelNode",
+            "TripoP1ImageToModelNode",
+            "TripoP1MultiviewToModelNode",
+            "TripoP1TextToModelNode",
+            "TripoRefineNode",
+            "TripoRetargetNode",
+            "TripoRigNode",
+            "TripoTextToModelNode",
+            "TripoTextureNode"
+          ],
+          "member_files": [
+            "api_rodin3d_gen2_5_image_to_3d",
+            "api_rodin3d_gen2_5_text_to_3d",
+            "api_rodin_gen2",
+            "api_rodin_image_to_model",
+            "api_rodin_multiview_to_model",
+            "api_tripo3_0_image_to_model",
+            "api_tripo3_0_text_to_model",
+            "api_tripo3_1_image_to_model",
+            "api_tripo3_1_multiview_to_model",
+            "api_tripo3_1_text_to_model",
+            "api_tripo_image_to_model",
+            "api_tripo_multiview_to_model",
+            "api_tripo_p1_image_to_model",
+            "api_tripo_p1_mv_to_model",
+            "api_tripo_p1_text_to_model",
+            "api_tripo_text_to_model",
+            "templates_3d_match_game_art_style.app"
+          ],
+          "member_descriptions": [
+            {
+              "name": "api_rodin3d_gen2_5_image_to_3d",
+              "title": "Rodin Gen2.5: Image to Model",
+              "description": "Upload single or multi-view images to create a 3D model with adjustable quality and enhanced texture"
+            },
+            {
+              "name": "api_rodin3d_gen2_5_text_to_3d",
+              "title": "Rodin Gen2.5: Text to Model",
+              "description": "Input a text description or upload reference images. Generate a detailed 3D model with textures, exportable in multiple formats."
+            },
+            {
+              "name": "api_rodin_gen2",
+              "title": "Rodin: Gen-2 Image to Model",
+              "description": "Generate detailed 4X mesh quality 3D models from photos using Rodin Gen2"
+            },
+            {
+              "name": "api_rodin_image_to_model",
+              "title": "Rodin: Image to Model",
+              "description": "Generate detailed 3D models from single photos using Rodin AI."
+            },
+            {
+              "name": "api_rodin_multiview_to_model",
+              "title": "Rodin: Multiview to Model",
+              "description": "Sculpt comprehensive 3D models using Rodin's multi-angle reconstruction."
+            },
+            {
+              "name": "api_tripo3_0_image_to_model",
+              "title": "Tripo3.0: Image to Model",
+              "description": "Transform images or sketches into 3D models with Tripo 3.0's sharp geometry and production-ready PBR textures."
+            },
+            {
+              "name": "api_tripo3_0_text_to_model",
+              "title": "Tripo3.0: Text to Model",
+              "description": "Generate precise 3D models from text with Tripo 3.0's ultra-high resolution geometry and realistic PBR materials."
+            },
+            {
+              "name": "api_tripo3_1_image_to_model",
+              "title": "Tripo H3.1: Image to Model",
+              "description": "Upload a reference image of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials."
+            },
+            {
+              "name": "api_tripo3_1_multiview_to_model",
+              "title": "Tripo H3.1: Multiview to Model",
+              "description": "Upload multiview images of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials."
+            },
+            {
+              "name": "api_tripo3_1_text_to_model",
+              "title": "Tripo H3.1: Text to Model",
+              "description": "Generate production-ready 3D hero assets with high-density geometry and PBR materials. Takes text prompts or reference images as input and outputs detailed 3D meshes suitable for close-up renders and game assets."
+            },
+            {
+              "name": "api_tripo_image_to_model",
+              "title": "Tripo: Image to Model",
+              "description": "Generate professional 3D assets from 2D images using Tripo engine."
+            },
+            {
+              "name": "api_tripo_multiview_to_model",
+              "title": "Tripo: Multiview to Model",
+              "description": "Build 3D models from multiple angles with Tripo's advanced scanner."
+            },
+            {
+              "name": "api_tripo_p1_image_to_model",
+              "title": "Tripo P1: Image to Model",
+              "description": "Upload a reference image of your subject. Generate a game-ready 3D model with clean topology and optimized polygon budgets"
+            },
+            {
+              "name": "api_tripo_p1_mv_to_model",
+              "title": "Tripo P1: Multiview to Model",
+              "description": "Upload an image or multi-view references to generate a clean low-poly 3D model with controlled polygon count and organized topology, ready for export to game engines."
+            },
+            {
+              "name": "api_tripo_p1_text_to_model",
+              "title": "Tripo P1: Text to Model",
+              "description": "Input a text description of a 3D model. Generate a game-ready 3D model with clean topology and optimized polygon counts"
+            },
+            {
+              "name": "api_tripo_text_to_model",
+              "title": "Tripo: Text to Model",
+              "description": "Craft 3D objects from descriptions with Tripo's text-driven modeling."
+            },
+            {
+              "name": "templates_3d_match_game_art_style.app",
+              "title": "Game Asset Style Transfer Sprite Generator",
+              "description": " Use an outline reference, and a style reference as input to generate 2D sprite as model textures. Useful for background set dressing in 2D/2.5D game."
+            }
+          ],
+          "member_count": 17,
+          "user_intent": {
+            "media": "3d",
+            "task": "3d_generation",
+            "model_families": [],
+            "when_to_use": "Use to generate a 3D model.",
+            "example_requests": [
+              "build a 3d workflow",
+              "generate a 3D model"
+            ]
+          },
+          "description": " Use an outline reference, and a style reference as input to generate 2D sprite as model textures. Useful for background set dressing in 2D/2.5D game. | Build 3D models from multiple angles with Tripo's advanced scanner. | Craft 3D objects from descriptions with Tripo's text-driven modeling. | Generate detailed 3D models from single photos using Rodin AI. | Generate detailed 4X mesh quality 3D models from photos using Rodin Gen2 | Generate precise 3D models from text with Tripo 3.0's ultra-high resolution geometry and realistic PBR materials. | Generate production-ready 3D hero assets with high-density geometry and PBR materials. Takes text prompts or reference images as input and outputs detailed 3D meshes suitable for close-up renders and game assets. | Generate professional 3D assets from 2D images using Tripo engine. | Input a text description of a 3D model. Generate a game-ready 3D model with clean topology and optimized polygon counts | Input a text description or upload reference images. Generate a detailed 3D model with textures, exportable in multiple formats. | Sculpt comprehensive 3D models using Rodin's multi-angle reconstruction. | Transform images or sketches into 3D models with Tripo 3.0's sharp geometry and production-ready PBR textures. | Upload a reference image of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload a reference image of your subject. Generate a game-ready 3D model with clean topology and optimized polygon budgets | Upload an image or multi-view references to generate a clean low-poly 3D model with controlled polygon count and organized topology, ready for export to game engines. | Upload multiview images of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload single or multi-view images to create a 3D model with adjustable quality and enhanced texture",
+          "description_source": "catalog",
+          "node_clusters": [],
+          "required_node_roles": [],
+          "optional_node_roles": [
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "12/17 members",
+              "min_instances": 0,
+              "max_instances": 4
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Preview3D",
+              "utility": false,
+              "frequency": "11/17 members",
+              "min_instances": 0,
+              "max_instances": 4
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "MarkdownNote",
+              "utility": false,
+              "frequency": "6/17 members",
+              "min_instances": 0,
+              "max_instances": 2
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 2
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "BatchImagesNode",
+              "utility": false,
+              "frequency": "5/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiImage2Node",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "ImageCompare",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Note",
+              "utility": false,
+              "frequency": "2/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "RecraftRemoveBackgroundNode",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Rodin3D_Detail",
+              "utility": false,
+              "frequency": "2/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Rodin3D_Gen2",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Rodin3D_Gen25_Image",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Rodin3D_Gen25_Text",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Rodin3D_Regular",
+              "utility": false,
+              "frequency": "2/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Rodin3D_Sketch",
+              "utility": false,
+              "frequency": "2/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Rodin3D_Smooth",
+              "utility": false,
+              "frequency": "2/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "SaveGLB",
+              "utility": false,
+              "frequency": "14/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoConversionNode",
+              "utility": false,
+              "frequency": "10/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoImageToModelNode",
+              "utility": false,
+              "frequency": "3/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoMultiviewToModelNode",
+              "utility": false,
+              "frequency": "2/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoP1ImageToModelNode",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoP1MultiviewToModelNode",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoP1TextToModelNode",
+              "utility": false,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoRefineNode",
+              "utility": false,
+              "frequency": "10/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoRetargetNode",
+              "utility": false,
+              "frequency": "11/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoRigNode",
+              "utility": false,
+              "frequency": "11/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoTextToModelNode",
+              "utility": false,
+              "frequency": "3/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoTextureNode",
+              "utility": false,
+              "frequency": "11/17 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "PrimitiveStringMultiline",
+              "utility": true,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 3
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "StringConcatenate",
+              "utility": true,
+              "frequency": "1/17 members",
+              "min_instances": 0,
+              "max_instances": 2
+            }
+          ],
+          "connection_patterns": [],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "image_loader"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "STRING",
+                "role": "Preview3D"
+              }
+            ]
+          },
+          "param_variability": "no single-instance invariant params to compare",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [
+            "MarkdownNote",
+            "Note"
+          ],
+          "custom_nodes": []
+        },
+        {
+          "id": "api_partner_nodes_3d__hunyuan3d",
+          "model": "Hunyuan3D",
+          "execution": "api",
+          "source": "official",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "Tencent3DPartNode",
+            "TencentImageToModelNode",
+            "TencentModelTo3DUVNode",
+            "TencentSmartTopologyNode",
+            "TencentTextToModelNode"
+          ],
+          "member_files": [
+            "api_hunyuan3d_image_to_model",
+            "api_hunyuan3d_model2uv",
+            "api_hunyuan3d_part",
+            "api_hunyuan3d_retopo_uv",
+            "api_hunyuan3d_smart_topology",
+            "api_hunyuan3d_text_to_model"
+          ],
+          "member_descriptions": [
+            {
+              "name": "api_hunyuan3d_image_to_model",
+              "title": "HY 3D: Image to Model",
+              "description": "Upload an image to generate a 3D model with geometry and PBR textures. "
+            },
+            {
+              "name": "api_hunyuan3d_model2uv",
+              "title": "HY 3D: UV Unwrapping",
+              "description": "Upload a 3D model to perform UV unwrapping. Generate a processed model with optimized UV layout for texturing."
+            },
+            {
+              "name": "api_hunyuan3d_part",
+              "title": "HY 3D: 3D Parts Decomposition",
+              "description": "Upload a 3D model to automatically segment it into its constituent parts, generating a fully decomposed 3D asset for reuse and editing."
+            },
+            {
+              "name": "api_hunyuan3d_retopo_uv",
+              "title": "Hunyuan3D: Model Retopology and UV Unwrapping",
+              "description": "Input a dense mesh (from AI generation or photogrammetry scans) and create a light weight model with good topology and unwrapped UV. Great for 3D game assets optimization."
+            },
+            {
+              "name": "api_hunyuan3d_smart_topology",
+              "title": "HY 3D: Smart Topology",
+              "description": "Upload a high-poly 3D model file. Generate a lower-polygon, topologically optimized 3D model with a specified reduction level."
+            },
+            {
+              "name": "api_hunyuan3d_text_to_model",
+              "title": "HunYuan3D: Text to Model",
+              "description": "Input a text prompt or upload a reference image to generate a detailed 3D model asset."
+            }
+          ],
+          "member_count": 6,
+          "user_intent": {
+            "media": "3d",
+            "task": "3d_generation",
+            "model_families": [
+              "Hunyuan3D"
+            ],
+            "when_to_use": "Use to generate a 3D model using Hunyuan3D.",
+            "example_requests": [
+              "build a 3d workflow using Hunyuan3D",
+              "generate a 3D model using Hunyuan3D"
+            ]
+          },
+          "description": "Input a dense mesh (from AI generation or photogrammetry scans) and create a light weight model with good topology and unwrapped UV. Great for 3D game assets optimization. | Input a text prompt or upload a reference image to generate a detailed 3D model asset. | Upload a 3D model to automatically segment it into its constituent parts, generating a fully decomposed 3D asset for reuse and editing. | Upload a 3D model to perform UV unwrapping. Generate a processed model with optimized UV layout for texturing. | Upload a high-poly 3D model file. Generate a lower-polygon, topologically optimized 3D model with a specified reduction level. | Upload an image to generate a 3D model with geometry and PBR textures. ",
+          "description_source": "catalog",
+          "node_clusters": [
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "SaveGLB"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "SaveGLB",
+              "utility": false,
+              "frequency": "all members (6/6)",
+              "min_instances": 1,
+              "max_instances": 2
+            }
+          ],
+          "optional_node_roles": [
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "2/6 members",
+              "min_instances": 0,
+              "max_instances": 4
+            },
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "1/6 members",
+              "min_instances": 0,
+              "max_instances": 2
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Load3D",
+              "utility": false,
+              "frequency": "4/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "MarkdownNote",
+              "utility": false,
+              "frequency": "3/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Preview3D",
+              "utility": false,
+              "frequency": "2/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Tencent3DPartNode",
+              "utility": false,
+              "frequency": "1/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TencentImageToModelNode",
+              "utility": false,
+              "frequency": "1/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TencentModelTo3DUVNode",
+              "utility": false,
+              "frequency": "2/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TencentSmartTopologyNode",
+              "utility": false,
+              "frequency": "2/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TencentTextToModelNode",
+              "utility": false,
+              "frequency": "1/6 members",
+              "min_instances": 0,
+              "max_instances": 1
+            }
+          ],
+          "connection_patterns": [],
+          "boundary_ports": {
+            "inputs": [],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "varies across members: SaveGLB",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [
+            "MarkdownNote"
+          ],
+          "custom_nodes": []
+        },
+        {
+          "id": "api_partner_nodes_3d__meshy",
+          "model": "Meshy",
+          "execution": "api",
+          "source": "mixed",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "GeminiNanoBanana2",
+            "MeshyImageToModelNode",
+            "MeshyMultiImageToModelNode",
+            "MeshyTextToModelNode",
+            "TripoImageToModelNode"
+          ],
+          "member_files": [
+            "api_meshy_image_to_model",
+            "api_meshy_multi_image_to_model",
+            "api_meshy_text_to_model",
+            "templates_mjm_image_to_3d"
+          ],
+          "member_descriptions": [
+            {
+              "name": "api_meshy_image_to_model",
+              "title": null,
+              "description": "API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology."
+            },
+            {
+              "name": "api_meshy_multi_image_to_model",
+              "title": null,
+              "description": "API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure."
+            },
+            {
+              "name": "api_meshy_text_to_model",
+              "title": null,
+              "description": "API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry."
+            },
+            {
+              "name": "templates_mjm_image_to_3d",
+              "title": "Generate 3D Model From Single Image",
+              "description": "Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model."
+            }
+          ],
+          "member_count": 4,
+          "user_intent": {
+            "media": "3d",
+            "task": "3d_generation",
+            "model_families": [
+              "Meshy"
+            ],
+            "when_to_use": "Use to generate a 3D model using Meshy.",
+            "example_requests": [
+              "build a 3d workflow using Meshy",
+              "generate a 3D model using Meshy"
+            ]
+          },
+          "description": "API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology. | API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure. | API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry. | Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model.",
+          "description_source": "catalog",
+          "node_clusters": [
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "SaveGLB"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "SaveGLB",
+              "utility": false,
+              "frequency": "all members (4/4)",
+              "min_instances": 1,
+              "max_instances": 2
+            }
+          ],
+          "optional_node_roles": [
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "GeminiNanoBanana2",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 3
+            },
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "3/4 members",
+              "min_instances": 0,
+              "max_instances": 3
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 3
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "BatchImagesNode",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "MarkdownNote",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "MeshyImageToModelNode",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "MeshyMultiImageToModelNode",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "external API generation node",
+              "role_key": "api_node",
+              "node_class": "MeshyTextToModelNode",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Preview3D",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TripoImageToModelNode",
+              "utility": false,
+              "frequency": "1/4 members",
+              "min_instances": 0,
+              "max_instances": 1
+            }
+          ],
+          "connection_patterns": [
+            {
+              "from_role": "api_node",
+              "to_role": "SaveGLB",
+              "data_type": "FILE_3D_FBX",
+              "frequency": "3/4 members",
+              "invariant": false
+            },
+            {
+              "from_role": "api_node",
+              "to_role": "SaveGLB",
+              "data_type": "FILE_3D_GLB",
+              "frequency": "3/4 members",
+              "invariant": false
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "api_node",
+              "data_type": "IMAGE",
+              "frequency": "3/4 members",
+              "invariant": false
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "image_loader"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "save_output"
+              }
+            ]
+          },
+          "param_variability": "varies across members: SaveGLB",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [
+            "MarkdownNote"
+          ],
+          "custom_nodes": []
+        },
+        {
+          "id": "api_partner_nodes_3d__qwen_image",
+          "model": "Qwen Image",
+          "execution": "api",
+          "source": "official",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "TencentImageToModelNode"
+          ],
+          "member_files": [
+            "templates_shane_single_image_to_3d_model"
+          ],
+          "member_descriptions": [
+            {
+              "name": "templates_shane_single_image_to_3d_model",
+              "title": "Single Image to 3D model",
+              "description": "Use one frontal image to generate a consistent and highly detailed 3D model. Model used: Multiangle QWEN Edit + Hunyuan 3D"
+            }
+          ],
+          "member_count": 1,
+          "user_intent": {
+            "media": "3d",
+            "task": "3d_generation",
+            "model_families": [
+              "Hunyuan3D",
+              "Qwen Image"
+            ],
+            "when_to_use": "Use to generate a 3D model using Hunyuan3D, Qwen Image.",
+            "example_requests": [
+              "build a 3d workflow using Hunyuan3D",
+              "build a 3d workflow using Qwen Image",
+              "generate a 3D model using Hunyuan3D"
+            ]
+          },
+          "description": "Use one frontal image to generate a consistent and highly detailed 3D model. Model used: Multiangle QWEN Edit + Hunyuan 3D",
+          "description_source": "catalog",
+          "node_clusters": [
+            {
+              "cluster": "inputs",
+              "nodes": [
+                "LoadImage"
+              ]
+            },
+            {
+              "cluster": "model loading",
+              "nodes": [
+                "CLIPLoader",
+                "LoraLoaderModelOnly (x2)",
+                "UNETLoader",
+                "VAELoader"
+              ]
+            },
+            {
+              "cluster": "conditioning",
+              "nodes": [
+                "TextEncodeQwenImageEditPlus (x2)"
+              ]
+            },
+            {
+              "cluster": "latent / canvas",
+              "nodes": [
+                "VAEEncode"
+              ]
+            },
+            {
+              "cluster": "sampling",
+              "nodes": [
+                "KSampler"
+              ]
+            },
+            {
+              "cluster": "decoding",
+              "nodes": [
+                "VAEDecode"
+              ]
+            },
+            {
+              "cluster": "output",
+              "nodes": [
+                "SaveImage"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "CFGNorm",
+                "FluxKontextImageScale",
+                "FluxKontextMultiReferenceLatentMethod (x2)",
+                "MarkdownNote",
+                "ModelSamplingAuraFlow",
+                "Preview3D",
+                "QwenMultiangleCameraNode",
+                "TencentImageToModelNode"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "FluxKontextMultiReferenceLatentMethod",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true
+            },
+            {
+              "role": "LoRA / model patch loader",
+              "role_key": "lora_loader",
+              "node_class": "LoraLoaderModelOnly",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true,
+              "distinct_instances": [
+                {
+                  "feeds_into": [
+                    "ModelSamplingAuraFlow"
+                  ],
+                  "fed_by": [
+                    "lora_loader"
+                  ],
+                  "occurrences": 1
+                },
+                {
+                  "feeds_into": [
+                    "lora_loader"
+                  ],
+                  "fed_by": [
+                    "model_loader"
+                  ],
+                  "occurrences": 1
+                }
+              ]
+            },
+            {
+              "role": "prompt text encoding",
+              "role_key": "text_encode",
+              "node_class": "TextEncodeQwenImageEditPlus",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true,
+              "distinct_instances": [
+                {
+                  "feeds_into": [
+                    "FluxKontextMultiReferenceLatentMethod"
+                  ],
+                  "fed_by": [
+                    "QwenMultiangleCameraNode",
+                    "clip_loader",
+                    "upscale",
+                    "vae_loader"
+                  ],
+                  "occurrences": 1
+                },
+                {
+                  "feeds_into": [
+                    "FluxKontextMultiReferenceLatentMethod"
+                  ],
+                  "fed_by": [
+                    "clip_loader",
+                    "upscale",
+                    "vae_loader"
+                  ],
+                  "occurrences": 1
+                }
+              ]
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "CFGNorm",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "text encoder / CLIP loader",
+              "role_key": "clip_loader",
+              "node_class": "CLIPLoader",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "upscale / resize",
+              "role_key": "upscale",
+              "node_class": "FluxKontextImageScale",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "diffusion sampler / denoiser",
+              "role_key": "sampler",
+              "node_class": "KSampler",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "image input / load",
+              "role_key": "image_loader",
+              "node_class": "LoadImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "MarkdownNote",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "ModelSamplingAuraFlow",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "Preview3D",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "QwenMultiangleCameraNode",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "save / preview / combine output",
+              "role_key": "save_output",
+              "node_class": "SaveImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "TencentImageToModelNode",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "diffusion model / UNET loader",
+              "role_key": "model_loader",
+              "node_class": "UNETLoader",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "latent -> pixel decode",
+              "role_key": "vae_decode",
+              "node_class": "VAEDecode",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "pixel -> latent encode",
+              "role_key": "vae_encode",
+              "node_class": "VAEEncode",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "VAE loader",
+              "role_key": "vae_loader",
+              "node_class": "VAELoader",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "CFGNorm",
+              "to_role": "sampler",
+              "data_type": "MODEL",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "FluxKontextMultiReferenceLatentMethod",
+              "to_role": "sampler",
+              "data_type": "CONDITIONING",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "ModelSamplingAuraFlow",
+              "to_role": "CFGNorm",
+              "data_type": "MODEL",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "QwenMultiangleCameraNode",
+              "to_role": "text_encode",
+              "data_type": "STRING",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "TencentImageToModelNode",
+              "to_role": "Preview3D",
+              "data_type": "STRING",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "clip_loader",
+              "to_role": "text_encode",
+              "data_type": "CLIP",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "QwenMultiangleCameraNode",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "TencentImageToModelNode",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "image_loader",
+              "to_role": "upscale",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "lora_loader",
+              "to_role": "ModelSamplingAuraFlow",
+              "data_type": "MODEL",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "lora_loader",
+              "to_role": "lora_loader",
+              "data_type": "MODEL",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "model_loader",
+              "to_role": "lora_loader",
+              "data_type": "MODEL",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "sampler",
+              "to_role": "vae_decode",
+              "data_type": "LATENT",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "text_encode",
+              "to_role": "FluxKontextMultiReferenceLatentMethod",
+              "data_type": "CONDITIONING",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "upscale",
+              "to_role": "text_encode",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "upscale",
+              "to_role": "vae_encode",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "vae_decode",
+              "to_role": "TencentImageToModelNode",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "vae_decode",
+              "to_role": "save_output",
+              "data_type": "IMAGE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "vae_encode",
+              "to_role": "sampler",
+              "data_type": "LATENT",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "vae_loader",
+              "to_role": "text_encode",
+              "data_type": "VAE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "vae_loader",
+              "to_role": "vae_decode",
+              "data_type": "VAE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "vae_loader",
+              "to_role": "vae_encode",
+              "data_type": "VAE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "COMBO",
+                "role": "clip_name"
+              },
+              {
+                "data_type": "COMBO",
+                "role": "lora_name"
+              },
+              {
+                "data_type": "COMBO",
+                "role": "lora_name_1"
+              },
+              {
+                "data_type": "COMBO",
+                "role": "unet_name"
+              },
+              {
+                "data_type": "COMBO",
+                "role": "vae_name"
+              },
+              {
+                "data_type": "IMAGE",
+                "role": "image"
+              },
+              {
+                "data_type": "INT",
+                "role": "seed"
+              },
+              {
+                "data_type": "STRING",
+                "role": "prompt"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "IMAGE",
+                "role": "IMAGE"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [
+            "MarkdownNote"
+          ],
+          "custom_nodes": [
+            "QwenMultiangleCameraNode"
+          ]
+        }
+      ]
+    },
+    {
       "task": "API / Partner Nodes - Text to Image",
       "id": "api_partner_nodes_text_to_image",
       "execution": "api",
-      "member_count": 27,
-      "model_count": 7,
+      "member_count": 28,
+      "model_count": 8,
       "models": [
         {
           "id": "api_partner_nodes_text_to_image__generic",
@@ -42474,6 +42507,337 @@
             "MarkdownNote"
           ],
           "custom_nodes": []
+        },
+        {
+          "id": "api_partner_nodes_text_to_image__z_image",
+          "model": "Z-Image",
+          "execution": "api",
+          "source": "custom",
+          "uses_api_nodes": true,
+          "api_node_classes": [
+            "OpenRouterLLMNode"
+          ],
+          "member_files": [
+            "story_refs_only"
+          ],
+          "member_descriptions": [
+            {
+              "name": "story_refs_only",
+              "title": null,
+              "description": "Local generation via ComfyUI Model. text input -> 1 video output. Processes and generates content using ComfyUI workflows."
+            }
+          ],
+          "member_count": 1,
+          "user_intent": {
+            "media": "video",
+            "task": "video_generation",
+            "model_families": [
+              "Z-Image"
+            ],
+            "when_to_use": "Use to generate a video using Z-Image.",
+            "example_requests": [
+              "build a video workflow using Z-Image",
+              "generate a video using Z-Image"
+            ]
+          },
+          "description": "Local generation via ComfyUI Model. text input -> 1 video output. Processes and generates content using ComfyUI workflows.",
+          "description_source": "catalog",
+          "node_clusters": [
+            {
+              "cluster": "model loading",
+              "nodes": [
+                "CLIPLoader",
+                "UNETLoader",
+                "VAELoader"
+              ]
+            },
+            {
+              "cluster": "conditioning",
+              "nodes": [
+                "CLIPTextEncode (x3)"
+              ]
+            },
+            {
+              "cluster": "latent / canvas",
+              "nodes": [
+                "EmptySD3LatentImage"
+              ]
+            },
+            {
+              "cluster": "sampling",
+              "nodes": [
+                "KSampler (x2)"
+              ]
+            },
+            {
+              "cluster": "decoding",
+              "nodes": [
+                "VAEDecode (x2)"
+              ]
+            },
+            {
+              "cluster": "other operations",
+              "nodes": [
+                "AgentYPython (x2)",
+                "ModelSamplingAuraFlow",
+                "OpenRouterLLMNode (x2)",
+                "PrimitiveStringMultiline"
+              ]
+            }
+          ],
+          "required_node_roles": [
+            {
+              "role": "prompt text encoding",
+              "role_key": "text_encode",
+              "node_class": "CLIPTextEncode",
+              "utility": false,
+              "frequency": "all members (1/1), 3 required instances",
+              "min_instances": 3,
+              "max_instances": 3,
+              "paired_or_multiple": true,
+              "distinct_instances": [
+                {
+                  "feeds_into": [
+                    "sampler"
+                  ],
+                  "fed_by": [
+                    "AgentYPython",
+                    "clip_loader"
+                  ],
+                  "occurrences": 2
+                },
+                {
+                  "feeds_into": [
+                    "sampler",
+                    "sampler"
+                  ],
+                  "fed_by": [
+                    "clip_loader"
+                  ],
+                  "occurrences": 1
+                }
+              ]
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "AgentYPython",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true,
+              "distinct_instances": [
+                {
+                  "feeds_into": [],
+                  "fed_by": [
+                    "OpenRouterLLMNode"
+                  ],
+                  "occurrences": 1
+                },
+                {
+                  "feeds_into": [
+                    "text_encode",
+                    "text_encode"
+                  ],
+                  "fed_by": [
+                    "OpenRouterLLMNode"
+                  ],
+                  "occurrences": 1
+                }
+              ]
+            },
+            {
+              "role": "diffusion sampler / denoiser",
+              "role_key": "sampler",
+              "node_class": "KSampler",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "OpenRouterLLMNode",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true
+            },
+            {
+              "role": "latent -> pixel decode",
+              "role_key": "vae_decode",
+              "node_class": "VAEDecode",
+              "utility": false,
+              "frequency": "all members (1/1), 2 required instances",
+              "min_instances": 2,
+              "max_instances": 2,
+              "paired_or_multiple": true
+            },
+            {
+              "role": "text encoder / CLIP loader",
+              "role_key": "clip_loader",
+              "node_class": "CLIPLoader",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "empty latent / canvas",
+              "role_key": "latent_source",
+              "node_class": "EmptySD3LatentImage",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "ModelSamplingAuraFlow",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "diffusion model / UNET loader",
+              "role_key": "model_loader",
+              "node_class": "UNETLoader",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "VAE loader",
+              "role_key": "vae_loader",
+              "node_class": "VAELoader",
+              "utility": false,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            },
+            {
+              "role": "unclassified node role",
+              "role_key": "other",
+              "node_class": "PrimitiveStringMultiline",
+              "utility": true,
+              "frequency": "all members (1/1)",
+              "min_instances": 1,
+              "max_instances": 1
+            }
+          ],
+          "optional_node_roles": [],
+          "connection_patterns": [
+            {
+              "from_role": "AgentYPython",
+              "to_role": "text_encode",
+              "data_type": "*",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "ModelSamplingAuraFlow",
+              "to_role": "sampler",
+              "data_type": "MODEL",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "OpenRouterLLMNode",
+              "to_role": "AgentYPython",
+              "data_type": "STRING",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "PrimitiveStringMultiline",
+              "to_role": "OpenRouterLLMNode",
+              "data_type": "STRING",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "clip_loader",
+              "to_role": "text_encode",
+              "data_type": "CLIP",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "latent_source",
+              "to_role": "sampler",
+              "data_type": "LATENT",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "model_loader",
+              "to_role": "ModelSamplingAuraFlow",
+              "data_type": "MODEL",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "sampler",
+              "to_role": "vae_decode",
+              "data_type": "LATENT",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "text_encode",
+              "to_role": "sampler",
+              "data_type": "CONDITIONING",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            },
+            {
+              "from_role": "vae_loader",
+              "to_role": "vae_decode",
+              "data_type": "VAE",
+              "frequency": "all members (1/1)",
+              "invariant": true
+            }
+          ],
+          "boundary_ports": {
+            "inputs": [
+              {
+                "data_type": "LATENT",
+                "role": "latent_source"
+              },
+              {
+                "data_type": "STRING",
+                "role": "PrimitiveStringMultiline"
+              }
+            ],
+            "outputs": [
+              {
+                "data_type": "LATENT",
+                "role": "vae_decode"
+              },
+              {
+                "data_type": "STRING",
+                "role": "AgentYPython"
+              }
+            ]
+          },
+          "param_variability": "single member - no cross-member variability to report",
+          "catalog_category": {
+            "primary": null,
+            "distribution": {},
+            "pure": false,
+            "coverage": 0
+          },
+          "unresolved_nodes": [],
+          "custom_nodes": [
+            "AgentYPython"
+          ]
         }
       ]
     },

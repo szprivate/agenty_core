@@ -1,0 +1,221 @@
+{
+  "6": {
+    "inputs": {
+      "image": "images.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "7": {
+    "inputs": {
+      "image": "images (1).jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "8": {
+    "inputs": {
+      "image": "Medium_WW1297324.a1b490b8.fill-375x500.format-webp.webp"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "9": {
+    "inputs": {
+      "image": "images (3).jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "11": {
+    "inputs": {
+      "tab_name": "REFS",
+      "save_to_output": true,
+      "file_format": "png",
+      "fps": 24,
+      "filename_prefix": "./agentY/refs_08/ref",
+      "input": [
+        "348",
+        0
+      ]
+    },
+    "class_type": "bEpicSendToViewer",
+    "_meta": {
+      "title": "bEpic Send To Image Viewer"
+    }
+  },
+  "32": {
+    "inputs": {
+      "tab_name": "STARTFRAMES",
+      "save_to_output": true,
+      "file_format": "mp4",
+      "fps": 24,
+      "filename_prefix": "./agentY/video_04/video",
+      "input": [
+        "504",
+        0
+      ]
+    },
+    "class_type": "bEpicSendToViewer",
+    "_meta": {
+      "title": "bEpic Send To Image Viewer"
+    }
+  },
+  "75": {
+    "inputs": {
+      "value": "BLACK SCREEN FADE IN: TITLE CARD: FEUDAL JAPAN We hear ominous “thump” sounds in the distance. \nCUT TO: An aerial shot of what appears to be the aftermath of an epic battle reveals numerous slain Samurai warriors lying across the battlefield. Little craters next to some are glowing and emitting smoke. \nAs the camera zooms in on a Samurai in brilliant red armor, we are able to make out facial features, to reveal the face of: TANIHO (HERO)! \nFace covered in dust, his hair at an unusual length and a magnificent red Samurai helmet rolled on its side next to him, the scenery is that of painterly beauty and devastation combined. Over the continued sound of nearby thuds, we suddenly hear a voice, speaking calmly in Japanese: \n\nV.O. \nMichi o aruku! \n\nThe wind blows TANIHO (HERO)’s hair across his face, as suddenly and violently, a small meteor crashes into the ground next to him with tremendous force. Simultaneously, we hear a huge, animalistic roar. TANIHO (HERO)’s eyes snap open and his upper body jerks upwards. \nIn the sky, amidst oncoming further meteorites, we see an apparition of HEDI MAZIU (MENTOR) (*2). Once again, he speaks – now, directly to TANIHO (HERO): \n\nHEDI MAZIU (MENTOR) \nMichi o aruku! (English subtitles read: “Walk the path!”) \n\nTANIHO (HERO) musters his remaining strength and picks himself up. He wanders towards the apparition, which now starts fading and the camera tilt reveals a blue-ish firewall (think Carpathians in “Bram Stoker’s Dracula”) and, beyond it, a giant ape, APE, wrestling with pain from a meteor impact on his body, as he once again roars in a mix of fury and agony. \nAs we hear Hedi's voice one last time, the warrior in TANIHO (HERO) takes over and, with great purpose and determination, he walks through the fire-wall. As he crosses over, his body starts to transform – reminiscent of a Muscleman-transformation. His whole body begins to swell and expand, his head suddenly jerks back and his mouth emits a glowing light, as his back armor cracks open and spikes begin protruding through them, emitting a familiar blue glow. \nCLOSE-UP on his sword dropping to the ground. His shadow, further mutating, now rapidly changes in size & shape. As he steps into frame, we now see a fully formed lizard foot and, as the camera travels along his body, we see that TANIHO (HERO) has transformed into the world’s most famous kaiju: ZILDOG! \nHe steps in front of APE, just in the nick of time to intercept another incoming meteorite. Unlike with the giant ape, the impact on his own body barely has any effect on Zildog. But these were all just meteorites. What is nearing in the sky now, is a proper and giant meteor that even Zildog is unlikely to withstand the impact of. As he looks to his side, he quickly notices a tree. He burns the branches off with his fire-breath, then rips the tree out of the ground. \nSwinging the still burning tree like a baseball bat, he hits the meteor in mid air, which explodes into a million pieces that the camera follows upwards – giving us an awesome color spectrum in the sky. \nAs the camera pulls back again (with all the exploding fire bits still in frame), we now see ourselves on the ground of a floodlit open-air baseball stadium at night, with their teams annual beautiful fireworks in the sky. The camera tilts to show a delighted audience, with the giant LED screens in the back, running title art (& possibly clips) and release date from “AKAGANE: Fallen Star”. The aerial camera lowers down and, on the field, which we now recognize to be structured like the earlier battlefield, TANIHO (HERO) is finishing a homerun. As he runs past camera, we see familiar shaped glowing spikes protruding from the back of his jersey. He turns around and winks towards camera and we see a hint of blue emitting from his mouth. \nCut to: BLACK TITLE CARD 終わり (English subtitle: The End)"
+    },
+    "class_type": "PrimitiveStringMultiline",
+    "_meta": {
+      "title": "STORY"
+    }
+  },
+  "298": {
+    "inputs": {
+      "role": "Use this as reference for TANIHO (HERO) - use as facial reference only, ignore the wardrobe.",
+      "input": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "AgentYRefNote",
+    "_meta": {
+      "title": "agentY ref note"
+    }
+  },
+  "299": {
+    "inputs": {
+      "role": "Use this as reference for HEDI MAZIU (MENTOR) - use as facial reference only, ignore the wardrobe.",
+      "input": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "AgentYRefNote",
+    "_meta": {
+      "title": "agentY ref note"
+    }
+  },
+  "300": {
+    "inputs": {
+      "role": "Use as reference for APE - ignore the environment, this is only a character reference.",
+      "input": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "AgentYRefNote",
+    "_meta": {
+      "title": "agentY ref note"
+    }
+  },
+  "301": {
+    "inputs": {
+      "role": "Use as reference for ZILGOD - ignore the environment, this is only a character reference.",
+      "input": [
+        "337",
+        0
+      ]
+    },
+    "class_type": "AgentYRefNote",
+    "_meta": {
+      "title": "agentY ref note"
+    }
+  },
+  "302": {
+    "inputs": {
+      "role": "Use as reference for the stadium ",
+      "input": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "AgentYRefNote",
+    "_meta": {
+      "title": "agentY ref note"
+    }
+  },
+  "337": {
+    "inputs": {
+      "image": "t-rex.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "338": {
+    "inputs": {
+      "image": "odyssey.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "348": {
+    "inputs": {
+      "model": "seedream 5.0 pro",
+      "model.size_preset": "(1K) 1312x736 (16:9)",
+      "model.width": 2048,
+      "model.height": 2048,
+      "seed": 0,
+      "watermark": false,
+      "thinking": true,
+      "model.images.image_1": [
+        "298",
+        0
+      ]
+    },
+    "class_type": "ByteDanceSeedreamNodeV2",
+    "_meta": {
+      "title": "ByteDance Seedream 4.5 & 5.0"
+    }
+  },
+  "367": {
+    "inputs": {
+      "load_incrementally": false
+    },
+    "class_type": "AgentYImageCollector",
+    "_meta": {
+      "title": "agentY image collector"
+    }
+  },
+  "504": {
+    "inputs": {
+      "model_name": "kling-v3-omni",
+      "aspect_ratio": "16:9",
+      "storyboards": "6 storyboards",
+      "storyboards.storyboard_2_prompt": "@image1 Medium close-up, slow zoom in. A young Japanese samurai warrior in brilliant crimson-red armor lies on the battlefield. His face is covered in dust, his unusually long dark hair spread out. A magnificent red samurai helmet rests on its side beside him. His eyes are closed. Cool desaturated blue-cyan color grade, cinematic.",
+      "storyboards.storyboard_3_prompt": "@image1 Close-up on the samurai's face. Wind blows his long dark hair across his weathered features. His eyes snap open with sudden intensity. His upper body jerks upwards with determination. Dust falls from his face. Cool desaturated blue-cyan color grade, cinematic.",
+      "generate_audio": true,
+      "seed": 0,
+      "reference_images": [
+        "367",
+        0
+      ]
+    },
+    "class_type": "KlingOmniProImageToVideoNode",
+    "_meta": {
+      "title": "Kling 3.0 Omni Image to Video"
+    }
+  },
+  "523": {
+    "inputs": {
+      "files": "\\\\bepic-storage01\\work\\0204_metabarons\\02_build\\comfy\\sebastian.zilius\\output\\agentY\\refs_08\\ref_00064_.png\n\\\\bepic-storage01\\work\\0204_metabarons\\02_build\\comfy\\sebastian.zilius\\output\\agentY\\refs_08\\ref_00065_.png\n\\\\bepic-storage01\\work\\0204_metabarons\\02_build\\comfy\\sebastian.zilius\\output\\agentY\\refs_08\\ref_00066_.png\n\\\\bepic-storage01\\work\\0204_metabarons\\02_build\\comfy\\sebastian.zilius\\output\\agentY\\refs_08\\ref_00070_.png\n\\\\bepic-storage01\\work\\0204_metabarons\\02_build\\comfy\\sebastian.zilius\\output\\agentY\\refs_08\\ref_00067_.png\n\\\\bepic-storage01\\work\\0204_metabarons\\02_build\\comfy\\sebastian.zilius\\output\\agentY\\refs_08\\ref_00068_.png\n\\\\bepic-storage01\\work\\0204_metabarons\\02_build\\comfy\\sebastian.zilius\\output\\agentY\\refs_08\\ref_00069_.png",
+      "load_incrementally": false
+    },
+    "class_type": "AgentYImageCollector",
+    "_meta": {
+      "title": "review — pick what continues"
+    }
+  }
+}

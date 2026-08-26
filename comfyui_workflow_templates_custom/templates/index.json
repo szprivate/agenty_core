@@ -1364,5 +1364,72 @@
         }
       }
     ]
+  },
+  {
+    "templates": [
+      {
+        "name": "story_refs_only",
+        "description": "Local generation via ComfyUI Model. text input → 1 video output. Processes and generates content using ComfyUI workflows.",
+        "models": [
+          "z_image_turbo_bf16",
+          "qwen_3_4b",
+          "ae"
+        ],
+        "io": {
+          "inputs": [],
+          "outputs": []
+        }
+      }
+    ]
+  },
+  {
+    "templates": [
+      {
+        "name": "akagane-video-batch1",
+        "description": "Local image editing via Kling. 6 image inputs → 1 video output. Processes and generates content using ComfyUI workflows.",
+        "models": [],
+        "io": {
+          "inputs": [
+            {
+              "nodeId": 6,
+              "nodeType": "LoadImage",
+              "file": "images.jpg",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 7,
+              "nodeType": "LoadImage",
+              "file": "images (1).jpg",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 8,
+              "nodeType": "LoadImage",
+              "file": "Medium_WW1297324.a1b490b8.fill-375x500.format-webp.webp",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 9,
+              "nodeType": "LoadImage",
+              "file": "images (3).jpg",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 337,
+              "nodeType": "LoadImage",
+              "file": "t-rex.png",
+              "mediaType": "image"
+            },
+            {
+              "nodeId": 338,
+              "nodeType": "LoadImage",
+              "file": "odyssey.png",
+              "mediaType": "image"
+            }
+          ],
+          "outputs": []
+        }
+      }
+    ]
   }
 ]

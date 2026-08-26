@@ -1,6 +1,6 @@
 # Workflow recipe database  (task -> model -> node clusters)
 
-- Tasks: 29 | task+model recipes: 164
+- Tasks: 29 | task+model recipes: 165
 - Self-contained: every recipe has user_intent + description + node clusters. No human annotation step.
 
 # API / Partner Nodes - Image Edit  (`api_partner_nodes_image_edit`)  -  94 workflow(s), 12 model(s)
@@ -1456,89 +1456,7 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: ImageResize+, LayerUtility: ColorImage V2, MarkdownNote, SimpleMath+
 
 
-# API / Partner Nodes - 3D  (`api_partner_nodes_3d`)  -  28 workflow(s), 4 model(s)
-
-## API / Partner Nodes - 3D / Generic  (`api_partner_nodes_3d__generic`)  -  17 workflow(s)  -  source: official
-- execution: api (API nodes: GeminiImage2Node, RecraftRemoveBackgroundNode, Rodin3D_Detail, Rodin3D_Gen2, Rodin3D_Gen25_Image, Rodin3D_Gen25_Text, Rodin3D_Regular, Rodin3D_Sketch, Rodin3D_Smooth, TripoConversionNode, TripoImageToModelNode, TripoMultiviewToModelNode, TripoP1ImageToModelNode, TripoP1MultiviewToModelNode, TripoP1TextToModelNode, TripoRefineNode, TripoRetargetNode, TripoRigNode, TripoTextToModelNode, TripoTextureNode)
-- when to use: Use to generate a 3D model.
-- example request: "build a 3d workflow"
-- description:  Use an outline reference, and a style reference as input to generate 2D sprite as model textures. Useful for background set dressing in 2D/2.5D game. | Build 3D models from multiple angles with Tripo's advanced scanner. | Craft 3D objects from descriptions with Tripo's text-driven modeling. | Generate detailed 3D models from single photos using Rodin AI. | Generate detailed 4X mesh quality 3D models from photos using Rodin Gen2 | Generate precise 3D models from text with Tripo 3.0's ultra-high resolution geometry and realistic PBR materials. | Generate production-ready 3D hero assets with high-density geometry and PBR materials. Takes text prompts or reference images as input and outputs detailed 3D meshes suitable for close-up renders and game assets. | Generate professional 3D assets from 2D images using Tripo engine. | Input a text description of a 3D model. Generate a game-ready 3D model with clean topology and optimized polygon counts | Input a text description or upload reference images. Generate a detailed 3D model with textures, exportable in multiple formats. | Sculpt comprehensive 3D models using Rodin's multi-angle reconstruction. | Transform images or sketches into 3D models with Tripo 3.0's sharp geometry and production-ready PBR textures. | Upload a reference image of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload a reference image of your subject. Generate a game-ready 3D model with clean topology and optimized polygon budgets | Upload an image or multi-view references to generate a clean low-poly 3D model with controlled polygon count and organized topology, ready for export to game engines. | Upload multiview images of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload single or multi-view images to create a 3D model with adjustable quality and enhanced texture
-- member workflows:
-    - api_rodin3d_gen2_5_image_to_3d
-    - api_rodin3d_gen2_5_text_to_3d
-    - api_rodin_gen2
-    - api_rodin_image_to_model
-    - api_rodin_multiview_to_model
-    - api_tripo3_0_image_to_model
-    - api_tripo3_0_text_to_model
-    - api_tripo3_1_image_to_model
-    - api_tripo3_1_multiview_to_model
-    - api_tripo3_1_text_to_model
-    - api_tripo_image_to_model
-    - api_tripo_multiview_to_model
-    - api_tripo_p1_image_to_model
-    - api_tripo_p1_mv_to_model
-    - api_tripo_p1_text_to_model
-    - api_tripo_text_to_model
-    - templates_3d_match_game_art_style.app
-- node clusters (required structure):
-    - (none resolved)
-- optional roles: LoadImage, Preview3D, MarkdownNote, SaveImage, BatchImagesNode, GeminiImage2Node, ImageCompare, Note, RecraftRemoveBackgroundNode, Rodin3D_Detail, Rodin3D_Gen2, Rodin3D_Gen25_Image
-- unresolved nodes: MarkdownNote, Note
-
-## API / Partner Nodes - 3D / Hunyuan3D  (`api_partner_nodes_3d__hunyuan3d`)  -  6 workflow(s)  -  source: official
-- execution: api (API nodes: Tencent3DPartNode, TencentImageToModelNode, TencentModelTo3DUVNode, TencentSmartTopologyNode, TencentTextToModelNode)
-- when to use: Use to generate a 3D model using Hunyuan3D.
-- example request: "build a 3d workflow using Hunyuan3D"
-- description: Input a dense mesh (from AI generation or photogrammetry scans) and create a light weight model with good topology and unwrapped UV. Great for 3D game assets optimization. | Input a text prompt or upload a reference image to generate a detailed 3D model asset. | Upload a 3D model to automatically segment it into its constituent parts, generating a fully decomposed 3D asset for reuse and editing. | Upload a 3D model to perform UV unwrapping. Generate a processed model with optimized UV layout for texturing. | Upload a high-poly 3D model file. Generate a lower-polygon, topologically optimized 3D model with a specified reduction level. | Upload an image to generate a 3D model with geometry and PBR textures. 
-- member workflows:
-    - api_hunyuan3d_image_to_model
-    - api_hunyuan3d_model2uv
-    - api_hunyuan3d_part
-    - api_hunyuan3d_retopo_uv
-    - api_hunyuan3d_smart_topology
-    - api_hunyuan3d_text_to_model
-- node clusters (required structure):
-    - other operations: SaveGLB
-- optional roles: SaveImage, LoadImage, Load3D, MarkdownNote, Preview3D, Tencent3DPartNode, TencentImageToModelNode, TencentModelTo3DUVNode, TencentSmartTopologyNode, TencentTextToModelNode
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - 3D / Meshy  (`api_partner_nodes_3d__meshy`)  -  4 workflow(s)  -  source: mixed
-- execution: api (API nodes: GeminiNanoBanana2, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyTextToModelNode, TripoImageToModelNode)
-- when to use: Use to generate a 3D model using Meshy.
-- example request: "build a 3d workflow using Meshy"
-- description: API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology. | API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure. | API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry. | Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model.
-- member workflows:
-    - api_meshy_image_to_model
-    - api_meshy_multi_image_to_model
-    - api_meshy_text_to_model
-    - templates_mjm_image_to_3d
-- node clusters (required structure):
-    - other operations: SaveGLB
-- optional roles: GeminiNanoBanana2, LoadImage, SaveImage, BatchImagesNode, MarkdownNote, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyTextToModelNode, Preview3D, TripoImageToModelNode
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - 3D / Qwen Image  (`api_partner_nodes_3d__qwen_image`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: TencentImageToModelNode)
-- when to use: Use to generate a 3D model using Hunyuan3D, Qwen Image.
-- example request: "build a 3d workflow using Hunyuan3D"
-- description: Use one frontal image to generate a consistent and highly detailed 3D model. Model used: Multiangle QWEN Edit + Hunyuan 3D
-- member workflows:
-    - templates_shane_single_image_to_3d_model
-- node clusters (required structure):
-    - inputs: LoadImage
-    - model loading: CLIPLoader, LoraLoaderModelOnly (x2), UNETLoader, VAELoader
-    - conditioning: TextEncodeQwenImageEditPlus (x2)
-    - latent / canvas: VAEEncode
-    - sampling: KSampler
-    - decoding: VAEDecode
-    - output: SaveImage
-    - other operations: CFGNorm, FluxKontextImageScale, FluxKontextMultiReferenceLatentMethod (x2), MarkdownNote, ModelSamplingAuraFlow, Preview3D, QwenMultiangleCameraNode, TencentImageToModelNode
-- paired/multiple required: FluxKontextMultiReferenceLatentMethod x2, LoraLoaderModelOnly x2, TextEncodeQwenImageEditPlus x2
-- unresolved nodes: MarkdownNote
-
-
-# API / Partner Nodes - Image to Video  (`api_partner_nodes_image_to_video`)  -  28 workflow(s), 9 model(s)
+# API / Partner Nodes - Image to Video  (`api_partner_nodes_image_to_video`)  -  29 workflow(s), 9 model(s)
 
 ## API / Partner Nodes - Image to Video / Generic  (`api_partner_nodes_image_to_video__generic`)  -  13 workflow(s)  -  source: official
 - execution: api (API nodes: ByteDanceImageToVideoNode, GeminiImage2Node, GeminiNanoBanana2, HappyHorseImageToVideoApi, KlingOmniProImageToVideoNode, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, MinimaxImageToVideoNode, PixverseImageToVideoNode, PixverseTemplateNode, RunwayImageToVideoNodeGen4, Vidu2ImageToVideoNode, Vidu3ImageToVideoNode, ViduImageToVideoNode)
@@ -1565,12 +1483,13 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - optional roles: MarkdownNote, BatchImagesNode, ResizeAndPadImage, ByteDanceImageToVideoNode, GeminiImage2Node, GeminiNanoBanana2, HappyHorseImageToVideoApi, KlingOmniProImageToVideoNode, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, MinimaxImageToVideoNode, PixverseImageToVideoNode
 - unresolved nodes: MarkdownNote, PrimitiveNode
 
-## API / Partner Nodes - Image to Video / Kling  (`api_partner_nodes_image_to_video__kling`)  -  6 workflow(s)  -  source: mixed
-- execution: api (API nodes: GeminiImage2Node, GeminiNanoBanana2, GeminiNode, KlingImageToVideoWithAudio, KlingOmniProImageToVideoNode, OpenAIChatConfig, OpenAIChatNode)
+## API / Partner Nodes - Image to Video / Kling  (`api_partner_nodes_image_to_video__kling`)  -  7 workflow(s)  -  source: mixed
+- execution: api (API nodes: ByteDanceSeedreamNodeV2, GeminiImage2Node, GeminiNanoBanana2, GeminiNode, KlingImageToVideoWithAudio, KlingOmniProImageToVideoNode, OpenAIChatConfig, OpenAIChatNode)
 - when to use: Use to generate a video from an input image using Kling, Anima, Nano-Banana.
 - example request: "build a video workflow using Kling"
-- description: API image-to-video via Kling O3 (Kling 3.0). 1 reference image (+ optional audio/text prompt) -> 1 video output. Generates character-consistent video with native audio output and precise storyboard control. | This is the base workflow behind my viral Wes Anderson-style reel on Instagram.  It shows how to go from a simple prompt to a Wes Anderson-style image using a cinematic image model, then enhance it with Nanobanana to improve textures and details, and finally turn it into a video using the current best video model, Kling 3.0. | Transform static images into dynamic videos with Kling O1. Add motion, camera movements, and life to your images using text prompts. | Transform static images into dynamic videos with synchronized dialogue, singing, sound effects, and ambient audio. | Upload a start frame and references of your product. Select total duration and number of shots and automatically generate prompts for each shot. | Upload an image to automatically generate a descriptive script. This script is then used to create a video with the Kling 3.0 Omni model.
+- description: API image-to-video via Kling O3 (Kling 3.0). 1 reference image (+ optional audio/text prompt) -> 1 video output. Generates character-consistent video with native audio output and precise storyboard control. | Local image editing via Kling. 6 image inputs -> 1 video output. Processes and generates content using ComfyUI workflows. | This is the base workflow behind my viral Wes Anderson-style reel on Instagram.  It shows how to go from a simple prompt to a Wes Anderson-style image using a cinematic image model, then enhance it with Nanobanana to improve textures and details, and finally turn it into a video using the current best video model, Kling 3.0. | Transform static images into dynamic videos with Kling O1. Add motion, camera movements, and life to your images using text prompts. | Transform static images into dynamic videos with synchronized dialogue, singing, sound effects, and ambient audio. | Upload a start frame and references of your product. Select total duration and number of shots and automatically generate prompts for each shot. | Upload an image to automatically generate a descriptive script. This script is then used to create a video with the Kling 3.0 Omni model.
 - member workflows:
+    - akagane-video-batch1
     - api_kling2_6_i2v
     - api_kling_o3_i2v
     - api_kling_omni_i2v
@@ -1579,8 +1498,8 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - templates_rob_kling3_0_multishot_llm_product
 - node clusters (required structure):
     - (none resolved)
-- optional roles: RegexExtract, StringToInt, LoadImage, OpenAIChatConfig, OpenAIChatNode, Note, RegexReplace, ResizeAndPadImage, SaveImage, SomethingToString, BatchImagesNode, CLIPLoader
-- unresolved nodes: MarkdownNote, Note, PrimitiveNode, Reroute, StringToInt, Text Multiline
+- optional roles: RegexExtract, LoadImage, StringToInt, AgentYRefNote, OpenAIChatConfig, OpenAIChatNode, AgentYImageCollector, Note, RegexReplace, ResizeAndPadImage, SaveImage, SomethingToString
+- unresolved nodes: AgentYRefNote, MarkdownNote, Note, PrimitiveNode, Reroute, StringToInt, Text Multiline
 
 ## API / Partner Nodes - Image to Video / Anima  (`api_partner_nodes_image_to_video__anima`)  -  2 workflow(s)  -  source: official
 - execution: api (API nodes: HappyHorseImageToVideoApi, LumaConceptsNode, LumaImageToVideoNode)
@@ -1680,7 +1599,89 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
 - unresolved nodes: CM_IntToFloat, DepthAnything_V2, DownloadAndLoadDepthAnythingV2Model, ImageRemoveAlpha+, ImageRemoveBackground+, ImageResize+, MarkdownNote, Note, RemBGSession+, Reroute, SimpleMath+
 
 
-# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  27 workflow(s), 7 model(s)
+# API / Partner Nodes - 3D  (`api_partner_nodes_3d`)  -  28 workflow(s), 4 model(s)
+
+## API / Partner Nodes - 3D / Generic  (`api_partner_nodes_3d__generic`)  -  17 workflow(s)  -  source: official
+- execution: api (API nodes: GeminiImage2Node, RecraftRemoveBackgroundNode, Rodin3D_Detail, Rodin3D_Gen2, Rodin3D_Gen25_Image, Rodin3D_Gen25_Text, Rodin3D_Regular, Rodin3D_Sketch, Rodin3D_Smooth, TripoConversionNode, TripoImageToModelNode, TripoMultiviewToModelNode, TripoP1ImageToModelNode, TripoP1MultiviewToModelNode, TripoP1TextToModelNode, TripoRefineNode, TripoRetargetNode, TripoRigNode, TripoTextToModelNode, TripoTextureNode)
+- when to use: Use to generate a 3D model.
+- example request: "build a 3d workflow"
+- description:  Use an outline reference, and a style reference as input to generate 2D sprite as model textures. Useful for background set dressing in 2D/2.5D game. | Build 3D models from multiple angles with Tripo's advanced scanner. | Craft 3D objects from descriptions with Tripo's text-driven modeling. | Generate detailed 3D models from single photos using Rodin AI. | Generate detailed 4X mesh quality 3D models from photos using Rodin Gen2 | Generate precise 3D models from text with Tripo 3.0's ultra-high resolution geometry and realistic PBR materials. | Generate production-ready 3D hero assets with high-density geometry and PBR materials. Takes text prompts or reference images as input and outputs detailed 3D meshes suitable for close-up renders and game assets. | Generate professional 3D assets from 2D images using Tripo engine. | Input a text description of a 3D model. Generate a game-ready 3D model with clean topology and optimized polygon counts | Input a text description or upload reference images. Generate a detailed 3D model with textures, exportable in multiple formats. | Sculpt comprehensive 3D models using Rodin's multi-angle reconstruction. | Transform images or sketches into 3D models with Tripo 3.0's sharp geometry and production-ready PBR textures. | Upload a reference image of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload a reference image of your subject. Generate a game-ready 3D model with clean topology and optimized polygon budgets | Upload an image or multi-view references to generate a clean low-poly 3D model with controlled polygon count and organized topology, ready for export to game engines. | Upload multiview images of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload single or multi-view images to create a 3D model with adjustable quality and enhanced texture
+- member workflows:
+    - api_rodin3d_gen2_5_image_to_3d
+    - api_rodin3d_gen2_5_text_to_3d
+    - api_rodin_gen2
+    - api_rodin_image_to_model
+    - api_rodin_multiview_to_model
+    - api_tripo3_0_image_to_model
+    - api_tripo3_0_text_to_model
+    - api_tripo3_1_image_to_model
+    - api_tripo3_1_multiview_to_model
+    - api_tripo3_1_text_to_model
+    - api_tripo_image_to_model
+    - api_tripo_multiview_to_model
+    - api_tripo_p1_image_to_model
+    - api_tripo_p1_mv_to_model
+    - api_tripo_p1_text_to_model
+    - api_tripo_text_to_model
+    - templates_3d_match_game_art_style.app
+- node clusters (required structure):
+    - (none resolved)
+- optional roles: LoadImage, Preview3D, MarkdownNote, SaveImage, BatchImagesNode, GeminiImage2Node, ImageCompare, Note, RecraftRemoveBackgroundNode, Rodin3D_Detail, Rodin3D_Gen2, Rodin3D_Gen25_Image
+- unresolved nodes: MarkdownNote, Note
+
+## API / Partner Nodes - 3D / Hunyuan3D  (`api_partner_nodes_3d__hunyuan3d`)  -  6 workflow(s)  -  source: official
+- execution: api (API nodes: Tencent3DPartNode, TencentImageToModelNode, TencentModelTo3DUVNode, TencentSmartTopologyNode, TencentTextToModelNode)
+- when to use: Use to generate a 3D model using Hunyuan3D.
+- example request: "build a 3d workflow using Hunyuan3D"
+- description: Input a dense mesh (from AI generation or photogrammetry scans) and create a light weight model with good topology and unwrapped UV. Great for 3D game assets optimization. | Input a text prompt or upload a reference image to generate a detailed 3D model asset. | Upload a 3D model to automatically segment it into its constituent parts, generating a fully decomposed 3D asset for reuse and editing. | Upload a 3D model to perform UV unwrapping. Generate a processed model with optimized UV layout for texturing. | Upload a high-poly 3D model file. Generate a lower-polygon, topologically optimized 3D model with a specified reduction level. | Upload an image to generate a 3D model with geometry and PBR textures. 
+- member workflows:
+    - api_hunyuan3d_image_to_model
+    - api_hunyuan3d_model2uv
+    - api_hunyuan3d_part
+    - api_hunyuan3d_retopo_uv
+    - api_hunyuan3d_smart_topology
+    - api_hunyuan3d_text_to_model
+- node clusters (required structure):
+    - other operations: SaveGLB
+- optional roles: SaveImage, LoadImage, Load3D, MarkdownNote, Preview3D, Tencent3DPartNode, TencentImageToModelNode, TencentModelTo3DUVNode, TencentSmartTopologyNode, TencentTextToModelNode
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - 3D / Meshy  (`api_partner_nodes_3d__meshy`)  -  4 workflow(s)  -  source: mixed
+- execution: api (API nodes: GeminiNanoBanana2, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyTextToModelNode, TripoImageToModelNode)
+- when to use: Use to generate a 3D model using Meshy.
+- example request: "build a 3d workflow using Meshy"
+- description: API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology. | API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure. | API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry. | Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model.
+- member workflows:
+    - api_meshy_image_to_model
+    - api_meshy_multi_image_to_model
+    - api_meshy_text_to_model
+    - templates_mjm_image_to_3d
+- node clusters (required structure):
+    - other operations: SaveGLB
+- optional roles: GeminiNanoBanana2, LoadImage, SaveImage, BatchImagesNode, MarkdownNote, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyTextToModelNode, Preview3D, TripoImageToModelNode
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - 3D / Qwen Image  (`api_partner_nodes_3d__qwen_image`)  -  1 workflow(s)  -  source: official
+- execution: api (API nodes: TencentImageToModelNode)
+- when to use: Use to generate a 3D model using Hunyuan3D, Qwen Image.
+- example request: "build a 3d workflow using Hunyuan3D"
+- description: Use one frontal image to generate a consistent and highly detailed 3D model. Model used: Multiangle QWEN Edit + Hunyuan 3D
+- member workflows:
+    - templates_shane_single_image_to_3d_model
+- node clusters (required structure):
+    - inputs: LoadImage
+    - model loading: CLIPLoader, LoraLoaderModelOnly (x2), UNETLoader, VAELoader
+    - conditioning: TextEncodeQwenImageEditPlus (x2)
+    - latent / canvas: VAEEncode
+    - sampling: KSampler
+    - decoding: VAEDecode
+    - output: SaveImage
+    - other operations: CFGNorm, FluxKontextImageScale, FluxKontextMultiReferenceLatentMethod (x2), MarkdownNote, ModelSamplingAuraFlow, Preview3D, QwenMultiangleCameraNode, TencentImageToModelNode
+- paired/multiple required: FluxKontextMultiReferenceLatentMethod x2, LoraLoaderModelOnly x2, TextEncodeQwenImageEditPlus x2
+- unresolved nodes: MarkdownNote
+
+
+# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  28 workflow(s), 8 model(s)
 
 ## API / Partner Nodes - Text to Image / Generic  (`api_partner_nodes_text_to_image__generic`)  -  14 workflow(s)  -  source: mixed
 - execution: api (API nodes: ElevenLabsSpeechToText, GrokImageNode, OpenAIDalle2, OpenAIDalle3, OpenAIGPTImageNodeV2, QuiverTextToSVGNode, RecraftColorRGB, RecraftControls, RecraftTextToVectorNode, RecraftV4TextToImageNode, RecraftV4TextToVectorNode, ReveImageCreateNode)
@@ -1781,6 +1782,22 @@ Great for concept exploration, pose variations, camera angles, outfit ideas, and
     - output: SaveImage
     - other operations: MarkdownNote, WanTextToImageApi
 - unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - Text to Image / Z-Image  (`api_partner_nodes_text_to_image__z_image`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: OpenRouterLLMNode)
+- when to use: Use to generate a video using Z-Image.
+- example request: "build a video workflow using Z-Image"
+- description: Local generation via ComfyUI Model. text input -> 1 video output. Processes and generates content using ComfyUI workflows.
+- member workflows:
+    - story_refs_only
+- node clusters (required structure):
+    - model loading: CLIPLoader, UNETLoader, VAELoader
+    - conditioning: CLIPTextEncode (x3)
+    - latent / canvas: EmptySD3LatentImage
+    - sampling: KSampler (x2)
+    - decoding: VAEDecode (x2)
+    - other operations: AgentYPython (x2), ModelSamplingAuraFlow, OpenRouterLLMNode (x2), PrimitiveStringMultiline
+- paired/multiple required: CLIPTextEncode x3, AgentYPython x2, KSampler x2, OpenRouterLLMNode x2, VAEDecode x2
 
 
 # Image Tools  (`image_tools`)  -  26 workflow(s), 4 model(s)

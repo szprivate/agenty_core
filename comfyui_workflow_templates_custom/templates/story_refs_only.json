@@ -1,0 +1,258 @@
+{
+  "1": {
+    "inputs": {
+      "value": "Once upon a time, in a misty mountain village called Thornhaven, lived a young herbalist named Elara with silver braided hair and emerald green eyes. She wore a worn leather apron over a linen dress, always carrying a woven basket of herbs.\n\nOne evening, as crimson sunset painted the sky, Elara discovered a wounded fox spirit near the ancient stone bridge at the village edge. The fox had luminous golden fur and three tails that shimmered like starlight.\n\nElara gently healed the fox spirit using moonpetal salve from her basket. Grateful, the fox spirit led her through the Whispering Forest to a hidden crystal cavern beneath the mountain, where an ancient treasure glowed with ethereal blue light.\n\nThe treasure was a mirror that showed not reflections but possible futures. Elara gazed into it and saw Thornhaven flourishing, protected by the bond between human and spirit. She smiled, knowing her kindness had changed everything."
+    },
+    "class_type": "PrimitiveStringMultiline",
+    "_meta": {
+      "title": "📖 Story Input (paste your story here)"
+    }
+  },
+  "2": {
+    "inputs": {
+      "prompt": [
+        "1",
+        0
+      ],
+      "model": "anthropic/claude-sonnet-4-5",
+      "seed": 42,
+      "system_prompt": "You are a story analyst. Read the story and extract ALL distinct characters and places. Output ONLY valid JSON in this exact format, no markdown, no explanation:\n{\"characters\": [{\"name\": \"character name\", \"visual_description\": \"detailed visual appearance for image generation: clothing, hair, features, accessories\"}], \"places\": [{\"name\": \"place name\", \"visual_description\": \"detailed visual scene description for image generation: architecture, lighting, atmosphere, colors\"}]}\n\nBe specific and visual in descriptions — these will be used as image generation prompts. Include clothing, colors, materials, lighting, mood."
+    },
+    "class_type": "OpenRouterLLMNode",
+    "_meta": {
+      "title": "🔍 Extract Characters & Places"
+    }
+  },
+  "3": {
+    "inputs": {
+      "prompt": [
+        "1",
+        0
+      ],
+      "model": "anthropic/claude-sonnet-4-5",
+      "seed": 42,
+      "system_prompt": "You are a cinematic video director. Read the story and break it into exactly 3 sequential video shots, each up to 7 seconds. Each shot must follow Seedance 2.0 prompt format: Subject then Action then Camera then Style, with [0:00-X:XX] timestamp segments.\n\nOutput ONLY valid JSON array, no markdown, no explanation:\n[{\"shot_number\": 1, \"duration_seconds\": 7, \"prompt\": \"[0:00-0:03] Subject description doing action. Camera movement. Visual style.\\n[0:03-0:07] Next segment...\", \"reference_needed\": \"character or place name from the story that should appear as reference image\"}, ...]\n\nMake shots cinematic with specific camera movements (dolly, pan, tracking, crane). Ensure visual continuity across shots. Each prompt should be self-contained and vividly descriptive."
+    },
+    "class_type": "OpenRouterLLMNode",
+    "_meta": {
+      "title": "🎬 Generate Shot Prompts"
+    }
+  },
+  "4": {
+    "inputs": {
+      "code": "import json\ndata = json.loads(in0)\nchars = data.get('characters', [])\nplaces = data.get('places', [])\nchar_desc = chars[0]['visual_description'] if chars else 'a person'\nchar_name = chars[0]['name'] if chars else 'character'\nplace_desc = places[0]['visual_description'] if places else 'a landscape'\nplace_name = places[0]['name'] if places else 'place'\noutputs = [char_desc, char_name, place_desc, place_name]",
+      "in0": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "AgentYPython",
+    "_meta": {
+      "title": "📋 Parse Entities"
+    }
+  },
+  "5": {
+    "inputs": {
+      "code": "import json\nshots = json.loads(in0)\np1 = shots[0]['prompt'] if len(shots) > 0 else ''\nr1 = shots[0].get('reference_needed', '') if len(shots) > 0 else ''\np2 = shots[1]['prompt'] if len(shots) > 1 else ''\nr2 = shots[1].get('reference_needed', '') if len(shots) > 1 else ''\np3 = shots[2]['prompt'] if len(shots) > 2 else ''\nr3 = shots[2].get('reference_needed', '') if len(shots) > 2 else ''\noutputs = [p1, r1, p2, r2]",
+      "in0": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "AgentYPython",
+    "_meta": {
+      "title": "📋 Parse Shot Prompts"
+    }
+  },
+  "10": {
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Z-Image Turbo UNET"
+    }
+  },
+  "11": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP (Z-Image)"
+    }
+  },
+  "12": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE (Z-Image)"
+    }
+  },
+  "13": {
+    "inputs": {
+      "text": [
+        "4",
+        0
+      ],
+      "clip": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Character Reference Prompt"
+    }
+  },
+  "14": {
+    "inputs": {
+      "text": "low quality, bad anatomy, extra digits, missing digits, extra limbs, blurry, deformed",
+      "clip": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt (Ref Gen)"
+    }
+  },
+  "15": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "Empty Latent (1024x1024)"
+    }
+  },
+  "16": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "Model Sampling"
+    }
+  },
+  "17": {
+    "inputs": {
+      "seed": 42,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "res_multistep",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "positive": [
+        "13",
+        0
+      ],
+      "negative": [
+        "14",
+        0
+      ],
+      "latent_image": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler (Character Ref)"
+    }
+  },
+  "18": {
+    "inputs": {
+      "samples": [
+        "17",
+        0
+      ],
+      "vae": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode (Character Ref)"
+    }
+  },
+  "20": {
+    "inputs": {
+      "text": [
+        "4",
+        2
+      ],
+      "clip": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Place Reference Prompt"
+    }
+  },
+  "21": {
+    "inputs": {
+      "seed": 99,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "res_multistep",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "positive": [
+        "20",
+        0
+      ],
+      "negative": [
+        "14",
+        0
+      ],
+      "latent_image": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler (Place Ref)"
+    }
+  },
+  "22": {
+    "inputs": {
+      "samples": [
+        "21",
+        0
+      ],
+      "vae": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode (Place Ref)"
+    }
+  }
+}
