@@ -1573,6 +1573,33 @@ def get_system_stats() -> str:
 
 
 @tool
+def _dirs_from_comfyui() -> dict:
+    """ComfyUI's own directories, via the agentY ComfyUI extension.
+
+    ``/agent/comfy_dirs`` is served by agentY-comfyuiConnect from inside the
+    ComfyUI process, where ``folder_paths`` can simply be asked. That is the only
+    place the question can be answered: a directory ComfyUI resolved at startup,
+    from flags this process never saw and defaults relative to a root this process
+    cannot see, is not something an outsider can compute.
+
+    Returns {} when the extension is absent or too old - an install without the
+    sidebar is a supported one, and argv still answers whenever the flags were
+    passed explicitly.
+    """
+    try:
+        data = get_client().get("/agent/comfy_dirs")
+    except Exception:  # noqa: BLE001 - no extension, older build, server down
+        return {}
+    if not isinstance(data, dict) or not data.get("ok"):
+        return {}
+    out = {}
+    for key in ("input_dir", "output_dir", "user_dir"):
+        value = str(data.get(key) or "").strip()
+        if value:
+            out[key] = value
+    return out
+
+
 def get_comfyui_dirs() -> str:
     """Return the authoritative ComfyUI server directory paths.
 
@@ -1613,15 +1640,40 @@ def get_comfyui_dirs() -> str:
             if val:
                 result[key] = val
 
-        # Fill in missing dirs with ComfyUI's conventional defaults
-        # (relative to where the server was launched from, typically the ComfyUI root).
+        # Fill in whatever argv did not name. Two sources, in order of how much
+        # they actually know.
         if "input_dir" not in result or "output_dir" not in result or "user_dir" not in result:
             result["source"] = "partial_argv_with_defaults"
-            # Try to infer the ComfyUI root from the argv[0] path
+
+            # 1. Ask ComfyUI. folder_paths is the only thing that knows for
+            #    certain: it accounts for the flags when they are given and for
+            #    the compiled-in defaults when they are not, and it answers with
+            #    absolute paths either way.
+            asked = _dirs_from_comfyui()
+            for key in ("input_dir", "output_dir", "user_dir"):
+                if key not in result and asked.get(key):
+                    result[key] = asked[key]
+                    result["source"] = "argv+comfyui"
+
+            # 2. Failing that, infer from argv[0] - but ONLY when it is absolute.
+            #
+            #    `python main.py` puts "./main.py" there, and resolving a relative
+            #    path uses the CALLER's working directory. The caller is agentY,
+            #    which lives somewhere else entirely, so the old
+            #    `Path(argv[0]).parent.resolve()` did not fail or return nothing:
+            #    it returned <agentY>/user, absolute and confident and wrong.
+            #    Project memory was then written there while the ComfyUI nodes
+            #    read <ComfyUI>/user, and the load-item node said "nothing stored
+            #    yet" about a store that existed and had things in it.
+            #
+            #    "unknown" is the honest answer when nobody can say, and every
+            #    caller already handles it. A wrong path is the one outcome that
+            #    cannot be recovered from downstream.
             comfy_root: str | None = None
-            if argv:
-                import os as _os
-                comfy_root = str(Path(argv[0]).parent.resolve()) if argv[0] else None
+            if argv and argv[0]:
+                first = Path(str(argv[0]))
+                if first.is_absolute():
+                    comfy_root = str(first.parent)
 
             if "input_dir" not in result:
                 result["input_dir"] = str(Path(comfy_root) / "input") if comfy_root else "unknown"
