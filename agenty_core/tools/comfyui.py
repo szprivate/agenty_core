@@ -1910,6 +1910,13 @@ def submit_prompt(workflow_path: str, client_id: str = "") -> str:
             payload["extra_data"] = {"api_key_comfy_org": client.api_key}
         result = client.post("/prompt", json_data=payload)
         if isinstance(result, dict):
+            # Note it as ours, so a Stop can delete this prompt from the queue
+            # without touching work the user queued themselves.
+            try:
+                from agenty_core.queue_ledger import remember as _remember_prompt
+                _remember_prompt(result.get("prompt_id", ""))
+            except Exception:  # noqa: BLE001
+                pass
             # Echo the client_id back so the caller (and the interrupt hook) can
             # use it to subscribe to the matching WebSocket stream.
             result.setdefault("client_id", client_id)
