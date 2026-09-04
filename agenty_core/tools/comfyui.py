@@ -1098,6 +1098,20 @@ def _api_to_graph(workflow: dict) -> dict:
     for k in api:
         _depth(k, set())
     from collections import defaultdict  # noqa: PLC0415
+
+    # Rows: normally one counter per column, but when the graph splits into
+    # several generation stages the rows are reordered so each stage's nodes stay
+    # contiguous and can be boxed. See agenty_core.tools.graph_groups — it
+    # returns {} for a single-stage graph, which leaves the layout exactly as it
+    # was.
+    from agenty_core.tools import graph_groups as _gg  # noqa: PLC0415
+
+    try:
+        grouped_rows, group_boxes = _gg.layout(api, meta, level, oi)
+    except Exception as exc:  # noqa: BLE001 — a graph must open, grouped or not
+        _gg.logger.debug("_api_to_graph: could not group the graph — %s", exc)
+        grouped_rows, group_boxes = {}, []
+
     by_level: dict = defaultdict(list)
     for k in sorted(api, key=lambda x: id_map[x]):
         by_level[level[k]].append(k)
@@ -1105,7 +1119,8 @@ def _api_to_graph(workflow: dict) -> dict:
     nodes: list = []
     order = 0
     for lv in sorted(by_level):
-        for row, k in enumerate(by_level[lv]):
+        for plain_row, k in enumerate(by_level[lv]):
+            row = grouped_rows.get(k, plain_row)
             m = meta[k]
             ins = api[k].get("inputs", {})
             # Widget order for the canvas node's positional widgets_values.
@@ -1140,7 +1155,8 @@ def _api_to_graph(workflow: dict) -> dict:
                     wv.append("fixed")  # frontend's control_after_generate widget
             nodes.append({
                 "id": id_map[k], "type": api[k]["class_type"],
-                "pos": [80 + lv * 360, 80 + row * 240], "size": [300, 210],
+                "pos": [_gg.X0 + lv * _gg.COL_W, _gg.Y0 + row * _gg.ROW_H],
+                "size": [_gg.NODE_W, _gg.NODE_H],
                 "flags": {}, "order": order, "mode": 0,
                 "inputs": [{"name": n, "type": t, "link": in_link.get((k, n))}
                            for n, t in m["conns"]],
@@ -1156,7 +1172,7 @@ def _api_to_graph(workflow: dict) -> dict:
     return {
         "last_node_id": max((n["id"] for n in nodes), default=0),
         "last_link_id": lid, "nodes": nodes, "links": links,
-        "groups": [], "config": {}, "extra": {}, "version": 0.4,
+        "groups": group_boxes, "config": {}, "extra": {}, "version": 0.4,
     }
 
 
