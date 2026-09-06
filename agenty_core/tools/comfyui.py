@@ -122,6 +122,27 @@ def _server_validate(workflow: dict) -> dict:
                     "node_errors": result.get("node_errors", {}),
                 }
             elif "prompt_id" in result:
+                # A prompt_id is NOT a clean bill of health. ComfyUI validates
+                # per output node: when some outputs are good and others are not
+                # it drops the bad ones, keeps the rest, and answers 200 with a
+                # populated `node_errors` and no top-level `error`
+                # (execution.validate_prompt -> server.py). Reading that as valid
+                # is how a graph whose entire video branch was rejected —
+                # CreateVideo.bit_depth=16 against a max of 10 — reported
+                # `valid: true, server_errors: {}` over and over, ran the image
+                # half, and returned "success" with no video and no explanation
+                # anywhere the agent could look.
+                _vnode_errors = result.get("node_errors")
+                if isinstance(_vnode_errors, dict) and _vnode_errors:
+                    server_errors = {
+                        "error": {
+                            "type": "outputs_rejected",
+                            "message": ("ComfyUI rejected some output branches and "
+                                        "would run the rest — those outputs will "
+                                        "silently not be produced."),
+                        },
+                        "node_errors": _vnode_errors,
+                    }
                 _vpid = result["prompt_id"]
                 try:
                     _vc.post("/queue", json_data={"delete": [_vpid]})
@@ -611,7 +632,23 @@ def _value_fits(spec, value) -> bool:
     if typ == "BOOLEAN":
         return isinstance(value, bool)
     if typ in ("INT", "FLOAT"):
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            return False
+        # Honour the declared range. Type alone cannot separate two readings when
+        # both put *a number* in a numeric slot, and that tie is what shipped
+        # CreateVideo.bit_depth=16 into a slot whose max is 10: the frame rate
+        # from the shifted reading looked exactly as plausible as the real 8, so
+        # the tie-break picked the shifted one and ComfyUI silently dropped the
+        # whole video branch. A value outside min/max is the clearest evidence a
+        # mapping has slipped, and it is free.
+        meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
+        if isinstance(meta, dict):
+            lo, hi = meta.get("min"), meta.get("max")
+            if isinstance(lo, (int, float)) and value < lo:
+                return False
+            if isinstance(hi, (int, float)) and value > hi:
+                return False
+        return True
     if typ == "STRING":
         return isinstance(value, str)
     return True
@@ -978,10 +1015,23 @@ def _convert_graph_to_api(workflow: dict) -> dict:
                 incl_slots = _schema_widget_slots(schema, set())
                 without_linked = _map_widget_values(schema_slots, widgets_values, linked_names)
                 with_linked = _map_widget_values(incl_slots, widgets_values, linked_names)
+                incl_score = _mapping_score(with_linked[0], incl_slots)
+                excl_score = _mapping_score(without_linked[0], schema_slots)
+                # Fit decides. When the two readings fit equally well — every
+                # value is *a* number in *a* numeric slot and nothing is out of
+                # range — the one that explains the whole list wins. A wired
+                # widget still occupies its slot in widgets_values, so a reading
+                # that accounts for every value has almost certainly found the
+                # right offset, while a leftover means one value had nowhere to
+                # go. (Leftovers cannot be the primary rule: the longer slot list
+                # always consumes more, so it would win even when every
+                # assignment is wrong. As a tie-break, after fit, it is safe —
+                # measured over the corpus it drops unexplained values 2035 ->
+                # 1207 without adding a single schema violation.)
                 mapped, leftover = (
                     with_linked
-                    if _mapping_score(with_linked[0], incl_slots)
-                    > _mapping_score(without_linked[0], schema_slots)
+                    if (incl_score, -len(with_linked[1]))
+                    > (excl_score, -len(without_linked[1]))
                     else without_linked)
             if not declared and not schema_slots:
                 api_inputs["__widgets_values"] = list(widgets_values)
@@ -1819,13 +1869,22 @@ def get_logs(keyword: str = "", max_lines: int = 100) -> str:
                 if sub:
                     items.append((ts, _ANSI.sub("", sub)))
 
+        # Matched case-INSENSITIVELY, which is the whole point: ComfyUI writes its
+        # level as "[ERROR]", and "Error" is not a substring of "ERROR". Every
+        # validation failure ComfyUI logs — "[ERROR] Failed to validate prompt for
+        # output 4", "[ERROR]   - Value 16 bigger than max of 10: bit_depth" —
+        # was therefore invisible here, and because *something* has to be
+        # returned, this fell back to the newest line that did happen to contain
+        # "Error" and served a four-hour-old AttributeError as the current
+        # failure. The agent believed it and spent two turns repairing a bug that
+        # had been fixed that morning.
         error_markers = (
-            "Error", "FAILED", "Cannot import", "Exception",
-            "Failed to initialize", "Error handling request",
+            "error", "failed", "cannot import", "exception",
+            "traceback", "output will be ignored",
         )
         matches = [
             i for i, (_, line) in enumerate(items)
-            if any(m in line for m in error_markers)
+            if any(m in line.lower() for m in error_markers)
         ]
 
         if keyword:
@@ -1857,6 +1916,13 @@ def get_logs(keyword: str = "", max_lines: int = 100) -> str:
             "execution_interrupted", "keyboardinterrupt",
         )
         _EXC_RE = _re.compile(r"([A-Za-z_][\w.]*(?:Error|Exception|Interrupted))\s*:")
+        # ComfyUI's prompt rejection, in its own words (execution.validate_prompt).
+        # Plain text with no exception class anywhere in it.
+        _VALIDATION_SIGNS = (
+            "failed to validate prompt", "output will be ignored",
+            "invalid prompt", "required input is missing",
+            "bigger than max of", "smaller than min of", "value not in list",
+        )
 
         def _block_lines(ev: list[int]) -> list[str]:
             first = max(0, ev[0] - 5)
@@ -1873,7 +1939,15 @@ def get_logs(keyword: str = "", max_lines: int = 100) -> str:
             """A block is a benign interruption only if it carries an interrupt sign
             AND names no genuine (non-interrupt) exception class — so a real error
             that merely landed in the same 20-line cluster still surfaces."""
-            if not any(s in " ".join(block).lower() for s in _INTERRUPT_SIGNS):
+            joined = " ".join(block).lower()
+            if not any(s in joined for s in _INTERRUPT_SIGNS):
+                return False
+            # A rejected prompt has no exception class to find — ComfyUI logs it
+            # as plain text — so the class scan below cannot see it, and a
+            # validation failure that happened to land near an interrupt was
+            # being thrown away as benign. It is the opposite of benign: the
+            # branch never ran, and the run reports success regardless.
+            if any(s in joined for s in _VALIDATION_SIGNS):
                 return False
             for line in block:
                 for m in _EXC_RE.finditer(line):
@@ -1883,11 +1957,35 @@ def get_logs(keyword: str = "", max_lines: int = 100) -> str:
                     return False  # a genuine exception (KeyError, RuntimeError, …)
             return True
 
+        # Where the most recent submission starts. An error BEFORE it belongs to
+        # an earlier run: the log keeps hours of history, so "the latest error"
+        # and "the error from the run you just did" are different things, and
+        # reading one as the other is how a fixed bug gets repaired twice.
+        last_submit = max(
+            (i for i, (_, line) in enumerate(items) if "got prompt" in line.lower()),
+            default=-1,
+        )
+
         for ev in reversed(events):  # newest → oldest
             block = _block_lines(ev)
             if _is_benign_interrupt(block):
                 continue  # benign stop — not an error; keep looking for a real one
-            return json.dumps({"lines": block, "count": len(block)})
+            out: dict = {"lines": block, "count": len(block)}
+            when = items[ev[-1]][0].strip("[]")
+            if when:
+                out["at"] = when
+            if last_submit >= 0 and ev[-1] < last_submit:
+                out["from_earlier_run"] = True
+                out["note"] = (
+                    f"This error is from BEFORE the most recent submission"
+                    f"{' at ' + items[last_submit][0].strip('[]') if items[last_submit][0] else ''}"
+                    " — the run you are asking about logged no error at all. Do "
+                    "not repair against it. A run that reports success but "
+                    "produces no output usually had a whole output branch "
+                    "REJECTED at submission: check the node_errors on the submit "
+                    "response, or validate_workflow."
+                )
+            return json.dumps(out)
 
         # Every recent error-marker event was an interruption — no real error.
         return "None"
@@ -3600,6 +3698,9 @@ def update_workflow(
     # pass. Reported as repairs, never as errors: the value was a widget-
     # alignment leftover and removing it IS the correct graph.
     stripped_inputs: list[str] = []
+    # What the graph looked like before hardening, so the re-save below can tell
+    # whether the pass actually changed it.
+    _snapshot_before = json.dumps(workflow, sort_keys=True, default=str)
 
     try:
         all_nodes = _get_object_info()
@@ -3636,13 +3737,14 @@ def update_workflow(
                         f"non-existent node '{src_id}'."
                     )
 
-    # The save above happens before this hardening pass, so the file on disk does
-    # not yet reflect it. Re-save only when a link-only scalar was removed: that
-    # value crashes the sampler minutes into a render, so a report saying it was
-    # stripped while the file still carries it would be worse than saying
-    # nothing. Deliberately narrow — the other hardening fixes keep the
-    # in-memory-only behaviour they have always had.
-    if stripped_inputs:
+    # The save above happens BEFORE the hardening pass, so nothing that pass
+    # fixed had been reaching disk: the validation result described a graph the
+    # executor would never see. That gap shipped CreateVideo.bit_depth=16 to
+    # ComfyUI — the clamp had already corrected it to 10 in memory and the
+    # corrected value was discarded — and the whole video branch was rejected at
+    # submission while the run reported success. Re-save whenever the pass
+    # changed anything, so `valid: true` is a statement about the file.
+    if _snapshot_before != json.dumps(workflow, sort_keys=True, default=str):
         path = _save_workflow(workflow, name=Path(workflow_path).stem)
         _patch_last_workflow_path = path
 

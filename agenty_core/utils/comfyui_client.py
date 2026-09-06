@@ -37,6 +37,31 @@ def _reason(entry: dict) -> str:
     return f"{message} ({details})" if details and details != message else message
 
 
+def describe_node_errors(node_errors) -> str:
+    """ComfyUI's per-node rejection dict as one readable line, or ''.
+
+    Shared by the two places that meet it, which is the point: a rejected
+    ``/prompt`` (400, via :func:`describe_error_response`) and an ACCEPTED one
+    that still rejected some outputs (200, ``node_errors`` alongside the
+    ``prompt_id``). The second shape used to be dropped on the floor at both
+    ends — validation called it valid, submission returned only the id — so a
+    graph could lose an entire output branch with nobody ever seeing the reason
+    ComfyUI had already written down.
+    """
+    if not isinstance(node_errors, dict) or not node_errors:
+        return ""
+    parts: list[str] = []
+    for node_id, info in node_errors.items():
+        if not isinstance(info, dict):
+            continue
+        label = f"node {node_id} ({info.get('class_type') or '?'})"
+        reasons = "; ".join(
+            _reason(e) for e in (info.get("errors") or []) if isinstance(e, dict)
+        )
+        parts.append(f"{label}: {reasons}" if reasons else label)
+    return " | ".join(parts)
+
+
 def describe_error_response(resp: requests.Response) -> str:
     """Summarise an error response body, or '' when it says nothing useful.
 
@@ -63,16 +88,9 @@ def describe_error_response(resp: requests.Response) -> str:
     elif error:
         parts.append(_clip(error, _MAX_DETAIL))
 
-    node_errors = body.get("node_errors")
-    if isinstance(node_errors, dict):
-        for node_id, info in node_errors.items():
-            if not isinstance(info, dict):
-                continue
-            label = f"node {node_id} ({info.get('class_type') or '?'})"
-            reasons = "; ".join(
-                _reason(e) for e in (info.get("errors") or []) if isinstance(e, dict)
-            )
-            parts.append(f"{label}: {reasons}" if reasons else label)
+    described = describe_node_errors(body.get("node_errors"))
+    if described:
+        parts.append(described)
 
     if not parts:  # some routes answer {"message": ...} / {"detail": ...}
         for key in ("message", "detail", "reason"):

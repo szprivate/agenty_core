@@ -238,6 +238,86 @@ class ValidateReportsItTest(unittest.TestCase):
         self.assertTrue(out["valid"])
 
 
+# CreateVideo, the second node the same shift broke — this time landing in a
+# plain INT widget, where the link-only rule cannot help. fps is wired, so it
+# drops out of the slot list and bit_depth takes the frame rate 16 against a max
+# of 10. ComfyUI rejected the whole video branch at submission and reported the
+# run as a success.
+CREATE_VIDEO_SCHEMA = {
+    "required": {"images": ["IMAGE", {}],
+                 "fps": ["FLOAT", {"default": 30.0, "min": 1.0, "max": 120.0}]},
+    "optional": {"audio": ["AUDIO", {}],
+                 "bit_depth": ["INT", {"default": 8, "min": 8, "max": 10, "step": 2}]},
+}
+CREATE_VIDEO_WIDGET_VALUES = [16, 8]        # fps, bit_depth
+CREATE_VIDEO_LINKED = {"images", "fps"}     # fps driven by a primitive
+
+
+class RangeAwareScoringTest(unittest.TestCase):
+    """Type alone cannot tell a shifted reading from an aligned one.
+
+    Both put a number in a numeric slot, so both scored the same and the
+    tie-break took the shifted one. The declared range breaks the tie for free.
+    """
+
+    def test_a_value_past_its_max_does_not_fit(self):
+        self.assertFalse(C._value_fits(["INT", {"min": 8, "max": 10}], 16))
+
+    def test_a_value_below_its_min_does_not_fit(self):
+        self.assertFalse(C._value_fits(["INT", {"min": 1, "max": 64}], 0))
+
+    def test_a_value_inside_its_range_fits(self):
+        self.assertTrue(C._value_fits(["INT", {"min": 8, "max": 10}], 8))
+
+    def test_a_slot_with_no_declared_range_still_fits_any_number(self):
+        self.assertTrue(C._value_fits(["INT", {}], 999999))
+
+    def test_a_link_is_always_acceptable(self):
+        self.assertTrue(C._value_fits(["INT", {"min": 8, "max": 10}], ["12", 0]))
+
+    def test_the_shifted_reading_now_loses(self):
+        excl = _schema_widget_slots(CREATE_VIDEO_SCHEMA, CREATE_VIDEO_LINKED)
+        incl = _schema_widget_slots(CREATE_VIDEO_SCHEMA, set())
+        shifted, _ = _map_widget_values(excl, CREATE_VIDEO_WIDGET_VALUES,
+                                        CREATE_VIDEO_LINKED)
+        aligned, _ = _map_widget_values(incl, CREATE_VIDEO_WIDGET_VALUES,
+                                        CREATE_VIDEO_LINKED)
+        self.assertEqual(shifted, {"bit_depth": 16})    # what used to win
+        self.assertEqual(aligned, {"bit_depth": 8})     # what is actually meant
+        self.assertGreater(C._mapping_score(aligned, incl),
+                           C._mapping_score(shifted, excl))
+
+
+class WiredWidgetAlignmentTest(unittest.TestCase):
+    """End to end on the template that broke twice."""
+
+    def _convert(self, name="video_wan2_2_14B_i2v"):
+        import json as _json
+        import pathlib
+        root = pathlib.Path(C.__file__).resolve().parents[2]
+        path = root / "comfyui_workflow_templates_official" / "templates" / f"{name}.json"
+        if not path.is_file():
+            self.skipTest(f"corpus template {name} not present")
+        return C._convert_graph_to_api(_json.loads(path.read_text(encoding="utf-8")))
+
+    def _node(self, api, class_type):
+        for node in api.values():
+            if node.get("class_type") == class_type:
+                return node
+        self.fail(f"{class_type} not in the converted graph")
+
+    def test_create_video_gets_the_bit_depth_not_the_frame_rate(self):
+        node = self._node(self._convert(), "CreateVideo")
+        self.assertEqual(node["inputs"]["bit_depth"], 8)
+        # Every value landed somewhere, so there is nothing left over to park.
+        self.assertEqual((node.get("_meta") or {}).get("unmapped_widgets"), None)
+
+    def test_wan_image_to_video_gets_the_batch_size_not_the_frame_count(self):
+        node = self._node(self._convert(), "WanImageToVideo")
+        self.assertEqual(node["inputs"]["batch_size"], 1)
+        self.assertNotIn("clip_vision_output", node["inputs"])
+
+
 class UpdateWorkflowPersistsTheStrip(unittest.TestCase):
     """Saying "stripped" while the file still carries it would be worse than silence.
 
