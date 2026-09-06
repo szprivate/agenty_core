@@ -40,6 +40,29 @@ def strip_annotation_nodes(workflow: dict) -> list[str]:
 REROUTE_NODE_CLASSES = ("Reroute", "Reroute (rgthree)", "ReroutePrimitive",
                         "Reroute//nodes")
 
+# Input types ComfyUI always wires via links — they never hold a widget value.
+#
+# This set does two jobs that MUST agree, which is why it lives here rather than
+# beside either one: it excludes a socket from positional widget alignment
+# (``_schema_widget_slots`` in comfyui.py) and it strips a scalar that landed in
+# one anyway (:func:`strip_link_only_scalars`). While those two disagreed,
+# ``WanImageToVideo.clip_vision_output`` took the leftover ``1`` from a shifted
+# ``widgets_values`` list, passed every validation ComfyUI can do, and then died
+# six minutes into the render with ``'int' object has no attribute
+# 'penultimate_hidden_states'``.
+#
+# Deliberately curated, not derived. "Is this type some node's output?" looks
+# like the general rule and isn't: COLOR and CURVE are outputs too, and are also
+# genuine socketless widgets that legitimately carry a value. Adding a type here
+# changes how every template aligns, so measure the corpus first —
+# tools/tests/test_link_only_alignment.py does exactly that.
+LINK_ONLY_TYPES: frozenset[str] = frozenset({
+    "MODEL", "CLIP", "VAE", "LATENT", "IMAGE", "MASK", "CONDITIONING",
+    "CONTROL_NET", "EMBEDS", "SAMPLER", "SIGMAS", "AUDIO", "VIDEO",
+    "SEGS", "BBOX", "UPSCALE_MODEL", "CLIPREGION", "PHOTOMAKER",
+    "GEMINI_INPUT_FILES", "CLIP_VISION_OUTPUT",
+})
+
 # Model-file extensions — used to tell a model combo (downloadable) apart from an
 # ordinary enum combo (sampler_name, scheduler, …) when a value can't be snapped.
 _MODEL_EXTS = (".safetensors", ".ckpt", ".pth", ".pt", ".gguf", ".bin", ".onnx", ".sft")
@@ -181,16 +204,19 @@ def _is_model_combo(cval, copts) -> bool:
 
 
 def harden_node_inputs(node: dict, required: dict, missing_models: list | None = None,
-                       optional: dict | None = None) -> list[str]:
+                       optional: dict | None = None,
+                       stripped: list | None = None) -> list[str]:
     """Make one node's inputs valid where it can be done mechanically:
 
     * inject a widget/combo default for a missing required *widget* input
       (ComfyUI needs the value present in API format),
     * snap a present combo value that isn't a valid option to a same-family
-      substitute, and
+      substitute,
     * for a model combo with no same-family match, append the value to
       *missing_models* (if given) so the caller can download it — instead of
-      snapping to an unrelated model file (which would render garbage).
+      snapping to an unrelated model file (which would render garbage), and
+    * delete a scalar left in a link-only socket, describing each into
+      *stripped* (if given). See :func:`strip_link_only_scalars`.
 
     Returns the names of required inputs that remain genuinely missing — the
     *connection* inputs (a bare type, no default) that need real wiring.
@@ -262,7 +288,48 @@ def harden_node_inputs(node: dict, required: dict, missing_models: list | None =
             if clamped != cval:
                 node.setdefault("inputs", {})[cinp] = (
                     int(clamped) if cspec[0] == "INT" else float(clamped))
+    # A scalar sitting in a link-only socket is never something the caller meant.
+    strip_link_only_scalars(node, _spec_by_name, stripped)
     return missing
+
+
+def link_only_scalars(node: dict, specs: dict) -> list[tuple[str, object]]:
+    """``(input_name, value)`` for every LINK_ONLY_TYPES input holding a scalar.
+
+    A socket of one of those types accepts a wire and nothing else, so a bare
+    value there cannot have been intended and cannot work: ComfyUI takes it,
+    validates it, schedules it, and only then reaches into it for an attribute a
+    number does not have. The value is always a widget-alignment leftover.
+
+    *specs* maps input name to its schema spec (required and optional merged).
+    """
+    found: list[tuple[str, object]] = []
+    for name, spec in specs.items():
+        val = (node.get("inputs") or {}).get(name)
+        if val is None or isinstance(val, list):
+            continue  # absent, or a real connection [node_id, slot]
+        typ = spec[0] if isinstance(spec, (list, tuple)) and spec else spec
+        if isinstance(typ, str) and typ in LINK_ONLY_TYPES:
+            found.append((name, val))
+    return found
+
+
+def strip_link_only_scalars(node: dict, specs: dict,
+                            stripped: list | None = None) -> list[str]:
+    """Delete link-only-socket scalars from *node*, in place. Returns the names.
+
+    Removing the key is the whole repair: every such input is optional in
+    practice (a required socket with no wire is already reported as missing), so
+    an absent key is exactly the "not supplied" the node expects. Names are
+    appended to *stripped* when given, so the caller can say what it did.
+    """
+    names: list[str] = []
+    for name, val in link_only_scalars(node, specs):
+        del node["inputs"][name]
+        names.append(name)
+        if stripped is not None:
+            stripped.append(f"{node.get('class_type', '?')}.{name} = {val!r}")
+    return names
 
 
 # Widget/value input types — never a graph connection, so never auto-wired.

@@ -16,16 +16,20 @@ import uuid
 from pathlib import Path
 
 from agenty_core._compat import tool
+from agenty_core.tools._batch import as_list as _as_list, one_or_many as _one_or_many
 
 from agenty_core.utils.comfyui_client import get_client, parse_argv_dir_flag
 # Deterministic-assembly hardening lives in its own module; apply_brainbriefing
 # and update_workflow delegate to it (the LLM brain and the deterministic path
 # share the same robustness).
 from agenty_core.tools.assembly_deterministic import (
+    LINK_ONLY_TYPES as _LINK_ONLY_TYPES_SHARED,
+    _MODEL_EXTS as _MODEL_EXTS_SHARED,
     autowire_dangling_inputs as _autowire_dangling_inputs,
     coerce_dim as _coerce_dim,
     ensure_output_node as _ensure_output_node,
     harden_node_inputs as _harden_node_inputs,
+    link_only_scalars as _link_only_scalars,
     rebind_placeholder_images as _rebind_placeholder_images,
     strip_annotation_nodes as _strip_annotation_nodes,
     strip_reroute_nodes as _strip_reroute_nodes,
@@ -442,13 +446,10 @@ def _is_graph_format(workflow: dict) -> bool:
     return isinstance(workflow.get("nodes"), list)
 
 
-# Input types that ComfyUI always wires via links (never appear as widget values)
-_LINK_ONLY_TYPES: frozenset[str] = frozenset({
-    "MODEL", "CLIP", "VAE", "LATENT", "IMAGE", "MASK", "CONDITIONING",
-    "CONTROL_NET", "EMBEDS", "SAMPLER", "SIGMAS", "AUDIO", "VIDEO",
-    "SEGS", "BBOX", "UPSCALE_MODEL", "CLIPREGION", "PHOTOMAKER",
-    "GEMINI_INPUT_FILES",
-})
+# Input types that ComfyUI always wires via links (never appear as widget values).
+# Defined next to the repair that depends on it, so alignment and repair can never
+# drift apart again — see assembly_deterministic.LINK_ONLY_TYPES.
+_LINK_ONLY_TYPES = _LINK_ONLY_TYPES_SHARED
 
 # The only input types the frontend renders as a widget (plus inline COMBOs,
 # which arrive as a list of options, and the V3 combo/autogrow wrappers handled
@@ -2022,12 +2023,25 @@ def duplicate_workflow(source_path: str) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @tool
-def get_node_schema(node_class: str) -> str:
-    """Get a structured schema for a ComfyUI node: required/optional inputs with types and defaults, output types, and description.
+def get_node_schema(node_class: list) -> str:
+    """Get the schema for one or more ComfyUI nodes: required/optional inputs with types and defaults, output types, and description.
+
+    Ask for EVERY node you need in ONE call — the graph you are about to build or
+    repair is already known, so there is nothing to learn from fetching them one
+    at a time, and each extra call replays the whole conversation as input.
 
     Args:
-        node_class: Exact node class name e.g. 'KSampler', 'CLIPTextEncode', 'SaveImage'.
+        node_class: Exact node class names, e.g.
+            ["KSampler", "CLIPTextEncode", "VAEDecode"]. A single name (as a
+            plain string) returns that node's schema on its own; several return
+            {"schemas": {name: schema}}, with an "error" entry for any name that
+            is not installed — the other schemas still come back.
     """
+    names = _as_list(node_class)
+    return _one_or_many(names, _get_node_schema_one, "schemas")
+
+
+def _get_node_schema_one(node_class: str) -> str:
     try:
         raw = get_client().get(f"/object_info/{node_class}")
         if not raw or node_class not in raw:
@@ -2053,16 +2067,29 @@ def get_node_schema(node_class: str) -> str:
 
 
 @tool
-def get_workflow_node_info(node_id: str, workflow_path: str) -> str:
-    """Return full metadata for a single node inside a saved workflow.
+def get_workflow_node_info(node_id: list, workflow_path: str) -> str:
+    """Return full metadata for one or more nodes inside a saved workflow.
 
-    Combines the node's current state (class_type, title, literal inputs,
+    Combines each node's current state (class_type, title, literal inputs,
     connected inputs, widget values) with the ComfyUI schema for its class.
 
+    Diagnosing a failure usually means reading the failing node AND the nodes
+    feeding it. Ask for all of them at once — they come from the same file, so
+    a second call learns nothing the first could not have returned.
+
     Args:
-        node_id: The node's key inside the workflow JSON, e.g. "6" or "190".
+        node_id: Node keys inside the workflow JSON, e.g. ["25", "5", "13"].
+            A single id (as a plain string) returns that node's info on its own;
+            several return {"nodes": {id: info}}, with an "error" entry for any
+            id that is not in the workflow.
         workflow_path: File path to the workflow JSON.
     """
+    ids = _as_list(node_id)
+    return _one_or_many(ids, lambda one: _get_workflow_node_info_one(one, workflow_path),
+                        "nodes")
+
+
+def _get_workflow_node_info_one(node_id: str, workflow_path: str) -> str:
     try:
         workflow = _load_workflow(workflow_path)
     except (json.JSONDecodeError, FileNotFoundError, OSError) as e:
@@ -2121,13 +2148,21 @@ def get_workflow_node_info(node_id: str, workflow_path: str) -> str:
 
 
 @tool
-def search_nodes(query: str, limit: int = 10) -> str:
+def search_nodes(query: list, limit: int = 10) -> str:
     """Search ComfyUI nodes by keyword across names, descriptions, and categories.
 
     Args:
-        query: Search term e.g. 'upscale', 'mask', 'lora', 'vae decode'.
-        limit: Max results (default 10).
+        query: Search terms, e.g. ["upscale", "mask", "vae decode"]. Pass every
+            term you want to try in one call rather than guessing one at a time.
+            A single term (as a plain string) returns its hits on their own;
+            several return {"searches": {term: hits}}.
+        limit: Max results per term (default 10).
     """
+    terms = _as_list(query)
+    return _one_or_many(terms, lambda one: _search_nodes_one(one, limit), "searches")
+
+
+def _search_nodes_one(query: str, limit: int = 10) -> str:
     try:
         all_nodes = _get_object_info()
         if isinstance(all_nodes, dict) and "error" in all_nodes:
@@ -2585,20 +2620,32 @@ def get_workflow_catalog() -> str:
 
 
 @tool
-def get_workflow_template(template_name: str) -> str:
-    """Load a workflow template by name. Saves the full workflow to a file and returns a compact summary with the file path.
+def get_workflow_template(template_name: list) -> str:
+    """Load one or more workflow templates by name. Saves each full workflow to its own file and returns a compact summary with the file path.
 
-    The returned summary includes: node list (id, class, title, key literal inputs),
-    model info, and io metadata. The full workflow JSON is at the returned
+    Each summary includes: node list (id, class, title, key literal inputs),
+    model info, and io metadata. The full workflow JSON is at that entry's
     ``workflow_path`` — pass that path to validate_workflow / submit_prompt.
+
+    Fetching two templates to fuse them (a text-to-image stage feeding a
+    video stage, say) is ONE call with both names, not two calls.
 
     Results are cached per template name for the lifetime of the session
     (``clear_tool_caches()`` resets the cache at the start of every new pipeline
     session).  Error responses are never cached so transient failures are retried.
 
     Args:
-        template_name: Template name (without .json) from get_workflow_catalog().
+        template_name: Template names (without .json) from get_workflow_catalog(),
+            e.g. ["flux_dev_full_text_to_image", "video_wan2_2_14B_i2v"]. A single
+            name (as a plain string) returns that template's summary on its own;
+            several return {"templates": {name: summary}}, each with its own
+            workflow_path.
     """
+    names = _as_list(template_name)
+    return _one_or_many(names, _get_workflow_template_one, "templates")
+
+
+def _get_workflow_template_one(template_name: str) -> str:
     if _force_build():
         # Build mode: hand back an EMPTY canvas instead of a ready-made scaffold,
         # so the agent assembles every node itself (from the recipe standard) yet
@@ -3549,6 +3596,10 @@ def update_workflow(
     local_errors: list[str] = []
     server_errors: dict = {}
     missing_models: list[str] = []
+    # Scalars found sitting in link-only sockets, deleted by the hardening
+    # pass. Reported as repairs, never as errors: the value was a widget-
+    # alignment leftover and removing it IS the correct graph.
+    stripped_inputs: list[str] = []
 
     try:
         all_nodes = _get_object_info()
@@ -3570,9 +3621,11 @@ def update_workflow(
         optional = node_info.get("input", {}).get("optional", {})
         node_inputs = node.get("inputs", {})
         # Inject widget/combo defaults + snap invalid combo values (collecting any
-        # un-installed model into missing_models); what remains is a
-        # genuinely-missing connection input (needs real wiring).
-        for _missing in _harden_node_inputs(node, required, missing_models, optional):
+        # un-installed model into missing_models), and strip scalars left in
+        # link-only sockets (collecting them into stripped_inputs); what remains
+        # is a genuinely-missing connection input (needs real wiring).
+        for _missing in _harden_node_inputs(node, required, missing_models, optional,
+                                            stripped_inputs):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
@@ -3582,6 +3635,16 @@ def update_workflow(
                         f"Node {nid} ({cls}): input '{inp_name}' references "
                         f"non-existent node '{src_id}'."
                     )
+
+    # The save above happens before this hardening pass, so the file on disk does
+    # not yet reflect it. Re-save only when a link-only scalar was removed: that
+    # value crashes the sampler minutes into a render, so a report saying it was
+    # stripped while the file still carries it would be worse than saying
+    # nothing. Deliberately narrow — the other hardening fixes keep the
+    # in-memory-only behaviour they have always had.
+    if stripped_inputs:
+        path = _save_workflow(workflow, name=Path(workflow_path).stem)
+        _patch_last_workflow_path = path
 
     # Side-effect-free server validation (skips while ComfyUI is busy; never a
     # blanket interrupt / queue clear that would kill a real render). See
@@ -3597,7 +3660,8 @@ def update_workflow(
         "removed_nodes": removed,
         "cleaned_links": cleaned_links,
         "added_nodes": added,
-        "applied_patches": applied,
+        "applied_patches": applied + [f"stripped {s} (link-only socket)"
+                                      for s in stripped_inputs],
         "node_errors": node_errors,
         "valid": is_valid,
         "local_errors": local_errors,
@@ -4042,6 +4106,10 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     local_errors: list[str] = []
     server_errors: dict = {}
     missing_models: list[str] = []
+    # Scalars found sitting in link-only sockets, deleted by the hardening
+    # pass. Reported as repairs, never as errors: the value was a widget-
+    # alignment leftover and removing it IS the correct graph.
+    stripped_inputs: list[str] = []
 
     try:
         all_nodes = _get_object_info()
@@ -4069,9 +4137,11 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         optional = node_info.get("input", {}).get("optional", {})
         node_inputs = node.get("inputs", {})
         # Inject widget/combo defaults + snap invalid combo values (collecting any
-        # un-installed model into missing_models); what remains is a
-        # genuinely-missing connection input (needs real wiring).
-        for _missing in _harden_node_inputs(node, required, missing_models, optional):
+        # un-installed model into missing_models), and strip scalars left in
+        # link-only sockets (collecting them into stripped_inputs); what remains
+        # is a genuinely-missing connection input (needs real wiring).
+        for _missing in _harden_node_inputs(node, required, missing_models, optional,
+                                            stripped_inputs):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
@@ -4098,7 +4168,8 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     return json.dumps({
         "status": "ok" if is_valid else "error",
         "workflow_path": path,
-        "applied": applied,
+        "applied": applied + [f"stripped {s} (link-only socket)"
+                              for s in stripped_inputs],
         "problems": all_problems,
         "valid": is_valid,
         "local_errors": local_errors,
@@ -4253,6 +4324,65 @@ def remove_workflow_node(workflow_path: str, node_id: str) -> str:
         "cleaned_links": cleaned,
         "node_count": len([k for k in workflow if isinstance(workflow.get(k), dict)]),
     })
+
+
+# Lower-cased for the endswith() test in summarize_workflow_graph; the list of
+# extensions itself is assembly_deterministic's, so there is one place to add to.
+_MODEL_EXTS_LOWER = tuple(e.lower() for e in _MODEL_EXTS_SHARED)
+
+
+def summarize_workflow_graph(workflow: dict, max_nodes: int = 60) -> dict:
+    """A compact account of what a graph actually contains, for its builder to report.
+
+    Handing back only ``{"status": "ready", "workflow_path": …}`` tells the caller
+    nothing about what was built, and a caller who cannot see the work does not
+    trust it: one orchestrator answered a ``ready`` by hunting for a template-load
+    tool it does not have, waiting out a 120-second permission prompt, listing 42
+    files and re-reading both workflow JSONs — six calls and ~297K input tokens —
+    only to conclude that the graph had been assembled correctly all along.
+
+    So say it up front. Small on purpose: the class list is what answers "did it
+    really wire both stages together", and it costs a few hundred tokens against
+    the thousands a re-read costs.
+
+    Returns ``{node_count, nodes, models, resolution, outputs, prompt}``, omitting
+    whatever the graph does not have.
+    """
+    nodes = {nid: n for nid, n in (workflow or {}).items() if isinstance(n, dict)}
+    summary: dict = {"node_count": len(nodes)}
+
+    listed = list(nodes.items())[:max_nodes]
+    summary["nodes"] = {nid: n.get("class_type", "unknown") for nid, n in listed}
+    if len(nodes) > max_nodes:
+        summary["nodes_truncated"] = len(nodes) - max_nodes
+
+    models, outputs, prompt, width, height = [], [], "", None, None
+    for nid, node in nodes.items():
+        cls = node.get("class_type", "")
+        for key, val in (node.get("inputs") or {}).items():
+            if not isinstance(val, str):
+                if key == "width" and isinstance(val, int):
+                    width = val
+                elif key == "height" and isinstance(val, int):
+                    height = val
+                continue
+            if val.lower().endswith(_MODEL_EXTS_LOWER) and val not in models:
+                models.append(val)
+            elif key in ("filename_prefix", "output_path", "filename") and val:
+                outputs.append({"node": nid, "class": cls, "path": val})
+            elif key in ("text", "prompt") and len(val) > len(prompt):
+                prompt = val
+
+    if models:
+        summary["models"] = models
+    if outputs:
+        summary["outputs"] = outputs
+    if width and height:
+        summary["resolution"] = f"{width}x{height}"
+    if prompt:
+        summary["prompt"] = prompt[:200] + ("…" if len(prompt) > 200 else "")
+    return summary
+
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4472,6 +4602,20 @@ def validate_workflow(workflow_path: str) -> str:
                         f"Node {nid} ({cls}): input '{inp_name}' references "
                         f"non-existent node '{src_id}'."
                     )
+
+        # A scalar in a link-only socket. ComfyUI's own validation accepts this
+        # and then dies inside the sampler reaching for an attribute the number
+        # does not have — so it has to be caught here or not at all. Say the fix,
+        # because the fix is always the same one.
+        _specs = dict(node_info.get("input", {}).get("optional", {}))
+        _specs.update(required)
+        for _name, _val in _link_only_scalars(node, _specs):
+            local_errors.append(
+                f"Node {nid} ({cls}): input '{_name}' = {_val!r} is a value in a "
+                f"link-only socket ({_specs[_name][0]}) — it accepts a wire or "
+                f"nothing. Set it to null, or wire it to a node that outputs "
+                f"{_specs[_name][0]}."
+            )
 
     invalid_inputs = _invalid_widget_values(workflow, all_nodes)
     for bad in invalid_inputs:
