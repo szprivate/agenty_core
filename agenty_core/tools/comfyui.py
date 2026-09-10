@@ -3698,6 +3698,11 @@ def update_workflow(
     # pass. Reported as repairs, never as errors: the value was a widget-
     # alignment leftover and removing it IS the correct graph.
     stripped_inputs: list[str] = []
+    # Objects written into a dynamic-combo input, unpacked into the dotted keys
+    # ComfyUI binds. Reported as repairs like `stripped_inputs`: the file on disk
+    # is corrected and re-saved below, so "valid" stays a statement about what
+    # the executor will actually submit.
+    reshaped_inputs: list[str] = []
     # What the graph looked like before hardening, so the re-save below can tell
     # whether the pass actually changed it.
     _snapshot_before = json.dumps(workflow, sort_keys=True, default=str)
@@ -3725,9 +3730,20 @@ def update_workflow(
         # un-installed model into missing_models), and strip scalars left in
         # link-only sockets (collecting them into stripped_inputs); what remains
         # is a genuinely-missing connection input (needs real wiring).
+        _reshaped_here: list[str] = []
         for _missing in _harden_node_inputs(node, required, missing_models, optional,
-                                            stripped_inputs):
+                                            stripped_inputs, _reshaped_here):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
+        reshaped_inputs.extend(f"Node {nid} ({cls}): {n}" for n in _reshaped_here)
+        # A shape that cannot be corrected mechanically is a real error. It would
+        # otherwise fail at execution with a message naming neither the input nor
+        # the shape it wanted, which is the one failure worth catching here.
+        from agenty_core.tools.assembly_deterministic import (  # noqa: PLC0415
+            flatten_dynamic_combos as _flatten,
+        )
+        for _bad in _flatten(node, required, optional):
+            local_errors.append(f"Node {nid} ({cls}): {_bad}.")
+        node_inputs = node.get("inputs", {})
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
@@ -3767,6 +3783,7 @@ def update_workflow(
         "node_errors": node_errors,
         "valid": is_valid,
         "local_errors": local_errors,
+        "reshaped_inputs": reshaped_inputs,
         "server_errors": server_errors,
     })
 

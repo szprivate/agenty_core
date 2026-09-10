@@ -203,9 +203,178 @@ def _is_model_combo(cval, copts) -> bool:
     return _isf(cval) or (bool(copts) and _isf(copts[0]))
 
 
+def _dynamic_combo_option_keys(spec) -> list:
+    """The legal values of a ``COMFY_DYNAMICCOMBO_V3`` input: its options' keys."""
+    if not (isinstance(spec, list) and len(spec) >= 2
+            and spec[0] == "COMFY_DYNAMICCOMBO_V3" and isinstance(spec[1], dict)):
+        return []
+    return [str(o.get("key")) for o in (spec[1].get("options") or [])
+            if isinstance(o, dict) and o.get("key") is not None]
+
+
+def _dynamic_combo_sub_inputs(spec, option_key: str) -> set:
+    """The widget names one option of a dynamic combo contributes."""
+    for opt in (spec[1].get("options") or []):
+        if not isinstance(opt, dict) or str(opt.get("key")) != str(option_key):
+            continue
+        inner = opt.get("inputs") or {}
+        return {n for section in ("required", "optional")
+                for n in (inner.get(section) or {})}
+    return set()
+
+
+def dynamic_sub_specs(node: dict, required: dict, optional: dict | None = None) -> tuple:
+    """``(required, optional)`` sub-input specs, dotted, for the options in force.
+
+    A dynamic combo's widgets are declared inside the option they belong to, so
+    they are absent from the class's own required/optional lists — and every
+    repair in this module works off those lists. That is why a missing
+    `model.prompt_optimization` was never defaulted and a `model.height` of 736
+    was never clamped to its minimum of 1024: nothing knew they had specs. With
+    the specs hoisted under their dotted names, defaulting, clamping and combo
+    snapping all reach them exactly as they reach any other input.
+    """
+    node_inputs = node.get("inputs", {})
+    specs = dict(optional or {})
+    specs.update(required or {})
+    req_out: dict = {}
+    opt_out: dict = {}
+    for name, spec in specs.items():
+        if not _dynamic_combo_option_keys(spec):
+            continue
+        chosen = node_inputs.get(name)
+        if not isinstance(chosen, str):
+            continue
+        for opt in (spec[1].get("options") or []):
+            if not isinstance(opt, dict) or str(opt.get("key")) != chosen:
+                continue
+            inner = opt.get("inputs") or {}
+            for sub, sub_spec in (inner.get("required") or {}).items():
+                req_out[f"{name}.{sub}"] = sub_spec
+            for sub, sub_spec in (inner.get("optional") or {}).items():
+                opt_out[f"{name}.{sub}"] = sub_spec
+    return req_out, opt_out
+
+
+def drop_overridden_dimensions(node: dict, required: dict, optional: dict | None = None,
+                               dropped: list | None = None) -> None:
+    """Remove width/height that a chosen size preset already decides.
+
+    These nodes say it themselves: *"Pick a recommended size. Select Custom to
+    use the width and height below."* So unless the preset IS ``Custom`` the
+    node ignores width and height — but ComfyUI still range-checks them, and a
+    1312x736 pair written beside a 16:9 preset failed validation for a height
+    below the 1024 minimum. Clamping them would satisfy the check and quietly
+    produce 1312x1024, which is not the shape anyone asked for. The preset is the
+    answer; the leftovers are noise, so they go.
+
+    Driven off the literal ``Custom`` option in the schema rather than off any
+    node's name, so it applies wherever that convention is used and nowhere else.
+    """
+    node_inputs = node.get("inputs", {})
+    req_sub, opt_sub = dynamic_sub_specs(node, required, optional)
+    sub_specs = {**opt_sub, **req_sub}
+    for name, spec in sub_specs.items():
+        opts = combo_options(spec) or []
+        if "Custom" not in opts:
+            continue
+        value = node_inputs.get(name)
+        if not isinstance(value, str) or value == "Custom":
+            continue
+        prefix = name.rsplit(".", 1)[0] + "." if "." in name else ""
+        for dim in ("width", "height"):
+            key = f"{prefix}{dim}"
+            if key in node_inputs:
+                node_inputs.pop(key)
+                if dropped is not None:
+                    dropped.append(f"'{key}' (decided by '{name}'={value!r})")
+
+
+def flatten_dynamic_combos(node: dict, required: dict, optional: dict | None = None,
+                           reshaped: list | None = None) -> list[str]:
+    """Unpack a dict written into a ``COMFY_DYNAMICCOMBO_V3`` input. Returns errors.
+
+    The API format spells a dynamic combo's widgets as dotted siblings —
+    ``model`` alongside ``model.size_preset`` — and ComfyUI binds them by those
+    names. Handed an object instead::
+
+        "model": {"model": "seedream 5.0 pro", "size_preset": "…", "seed": 47629}
+
+    it binds nothing, and the node dies at execution with
+
+        ByteDanceSeedreamNodeV3.execute() missing 1 required positional argument: 'model'
+
+    which names neither the input that is wrong nor the shape it wanted. Local
+    validation used to pass that graph — it checks class names, missing required
+    inputs and link targets, never the shape of a value — so the agent was told
+    "valid", submitted, met a TypeError it could not map back to anything, and
+    tried to repair a graph that was never structurally wrong.
+
+    Mechanical either way, which is why it belongs here beside the other
+    repairs: the option key becomes the combo's value, a top-level input that got
+    swept into the object is hoisted back out, and the option's own widgets
+    become dotted. A key the selected option does not offer is dropped rather
+    than renamed — moving it would only move the problem. An object naming no
+    known option is NOT guessed at; it comes back as an error that lists the
+    keys, because picking one would run a model nobody asked for.
+    """
+    node_inputs = node.get("inputs", {})
+    if not node_inputs:
+        return []
+    tops = set(required or {}) | set(optional or {})
+    specs = dict(optional or {})
+    specs.update(required or {})
+    errors: list[str] = []
+
+    for name, spec in specs.items():
+        value = node_inputs.get(name)
+        if not isinstance(value, dict):
+            continue
+        keys = _dynamic_combo_option_keys(spec)
+        if not keys:
+            continue
+        inner = dict(value)
+        chosen = None
+        if isinstance(inner.get(name), str) and inner[name] in keys:
+            chosen = inner.pop(name)
+        else:
+            for k, v in list(inner.items()):
+                if isinstance(v, str) and v in keys:
+                    chosen = inner.pop(k)
+                    break
+        if chosen is None:
+            errors.append(
+                f"input '{name}' is an object naming no known option; set it to "
+                f"one of {keys} and put its settings in '{name}.<widget>' keys")
+            continue
+
+        subs = _dynamic_combo_sub_inputs(spec, chosen)
+        node_inputs[name] = chosen
+        moved, dropped = [], []
+        for k, v in inner.items():
+            if v is None or v == {} or v == []:
+                continue                    # a placeholder, not a value
+            if k in tops and k != name:
+                node_inputs[k] = v          # a real input of the node itself
+                moved.append(k)
+            elif k in subs:
+                node_inputs[f"{name}.{k}"] = v
+                moved.append(f"{name}.{k}")
+            else:
+                dropped.append(k)
+        if reshaped is not None:
+            note = (f"input '{name}': unpacked an object into '{name}'="
+                    f"{chosen!r} plus {', '.join(sorted(moved)) or 'nothing'}")
+            if dropped:
+                note += f"; dropped {', '.join(sorted(dropped))} (not offered by {chosen!r})"
+            reshaped.append(note)
+    return errors
+
+
 def harden_node_inputs(node: dict, required: dict, missing_models: list | None = None,
                        optional: dict | None = None,
-                       stripped: list | None = None) -> list[str]:
+                       stripped: list | None = None,
+                       reshaped: list | None = None) -> list[str]:
     """Make one node's inputs valid where it can be done mechanically:
 
     * inject a widget/combo default for a missing required *widget* input
@@ -223,6 +392,19 @@ def harden_node_inputs(node: dict, required: dict, missing_models: list | None =
     """
     node_inputs = node.get("inputs", {})
     missing: list[str] = []
+    # Before anything else: a dict written into a dynamic combo is not a value
+    # this pass can sanitize, it is the wrong shape entirely. Unpacked first so
+    # the steps below see the dotted keys they expect.
+    flatten_dynamic_combos(node, required, optional, reshaped)
+    # A preset that decides the size makes a stray width/height both redundant
+    # and, when it falls outside the input's own range, fatal.
+    drop_overridden_dimensions(node, required, optional, reshaped)
+    # The widgets an option contributes have specs too — hoist them so the
+    # repairs below default, clamp and snap them like anything else.
+    _sub_req, _sub_opt = dynamic_sub_specs(node, required, optional)
+    required = {**required, **_sub_req}
+    optional = {**(optional or {}), **_sub_opt}
+    node_inputs = node.get("inputs", {})
     for req_name, spec in required.items():
         # Variadic / autogrow inputs (COMFY_AUTOGROW_*) are grown dynamically by
         # ComfyUI into per-slot keys (a, b, c… / image1, image2…); the umbrella
