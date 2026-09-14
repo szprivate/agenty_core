@@ -256,6 +256,138 @@ def dynamic_sub_specs(node: dict, required: dict, optional: dict | None = None) 
     return req_out, opt_out
 
 
+def is_autogrow_spec(spec) -> bool:
+    """True for a V3 autogrow group (``COMFY_AUTOGROW_V3``)."""
+    return (isinstance(spec, (list, tuple)) and bool(spec) and isinstance(spec[0], str)
+            and "AUTOGROW" in spec[0].upper())
+
+
+def autogrow_slot_names(spec) -> list[str]:
+    """The slots one autogrow group grows into, as its template names them.
+
+    A ``prefix`` template counts from 0 (``ref_image_0 … ref_image_8``), a
+    ``names`` template lists them — the expansion ComfyUI's ``Autogrow`` performs.
+    Undotted: the prompt addresses each one as ``<group>.<slot>``.
+    """
+    meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
+    tmpl = (meta.get("template") or {}) if isinstance(meta, dict) else {}
+    if isinstance(tmpl.get("names"), list):
+        return [str(n) for n in tmpl["names"]]
+    try:
+        count = int(tmpl.get("max") or 0)
+    except (TypeError, ValueError):
+        count = 0
+    return [f"{tmpl.get('prefix', '')}{i}" for i in range(count)]
+
+
+def is_v3_schema(node_info) -> bool:
+    """True when *node_info* (one ``/object_info`` entry) describes a V3 node.
+
+    Only V3 schemas carry ``price_badge`` — ``None`` on a local node, but present;
+    a V1 entry has no such key. It matters because the two treat an input they
+    never declared differently: a V1 function often takes ``**kwargs`` on purpose
+    (Impact's switches and KJNodes' batchers grow inputs that way), while a V3
+    ``execute`` names every argument and raises on anything else.
+    """
+    return isinstance(node_info, dict) and "price_badge" in node_info
+
+
+def _in_force_specs(node: dict, required: dict, optional: dict | None) -> dict:
+    """Every input spec in force on *node*: the class's own, plus the dotted
+    sub-inputs of each dynamic combo's selected option."""
+    req_sub, opt_sub = dynamic_sub_specs(node, required, optional)
+    return {**(optional or {}), **opt_sub, **(required or {}), **req_sub}
+
+
+def _is_wire(value) -> bool:
+    return (isinstance(value, list) and len(value) == 2
+            and isinstance(value[0], (str, int)) and not isinstance(value[0], bool)
+            and isinstance(value[1], int) and not isinstance(value[1], bool))
+
+
+def declared_input_keys(node: dict, required: dict,
+                        optional: dict | None = None) -> tuple[set, tuple]:
+    """``(keys, open_prefixes)`` — every input key ComfyUI binds for *node*.
+
+    Spelled as the API prompt spells them: each slot of an autogrow group as
+    ``<group>.<slot>`` (plus the group itself, which ComfyUI binds as an empty
+    dict when nothing is wired), a dynamic combo's sub-inputs as
+    ``<combo>.<input>``. A dynamic combo whose value is not a plain option key —
+    wired, absent, or nested inside another option — cannot say which branch is
+    in force, so everything under it is returned as an open prefix instead of
+    being guessed at.
+    """
+    inputs = node.get("inputs") or {}
+    keys: set = set()
+    open_prefixes: list = []
+    for name, spec in _in_force_specs(node, required, optional).items():
+        keys.add(name)
+        if is_autogrow_spec(spec):
+            keys.update(f"{name}.{slot}" for slot in autogrow_slot_names(spec))
+        elif _dynamic_combo_option_keys(spec) and (
+                "." in name or not isinstance(inputs.get(name), str)):
+            open_prefixes.append(name + ".")
+    return keys, tuple(open_prefixes)
+
+
+def normalize_autogrow_keys(node: dict, required: dict, optional: dict | None = None,
+                            reshaped: list | None = None) -> list[str]:
+    """Move a wire written under a bare autogrow slot name to its real address.
+
+    ``MiniMaxH3ReferenceToVideo`` grows ``ref_images`` into slots, and the prompt
+    addresses one as ``ref_images.ref_image_0``. Written bare — ``ref_image_0``,
+    the name the group's own template uses — ComfyUI accepts the graph, validates
+    it, loads every model upstream, and then hands the wire to the node under that
+    name: ``execute() got an unexpected keyword argument 'ref_image_0'``.
+
+    Mechanical when exactly one group in force owns that slot name and its dotted
+    address is still free. A real input of the same name, or two groups sharing a
+    slot name, is left alone for validation to report. Only wires move: a literal
+    under an undeclared name is dropped by ComfyUI and harms nothing. Returns the
+    notes, also appended to *reshaped* when given.
+    """
+    inputs = node.get("inputs") or {}
+    if not inputs:
+        return []
+    specs = _in_force_specs(node, required, optional)
+    owners: dict = {}
+    for name, spec in specs.items():
+        if is_autogrow_spec(spec):
+            for slot in autogrow_slot_names(spec):
+                owners.setdefault(slot, []).append(f"{name}.{slot}")
+    notes: list[str] = []
+    for key in list(inputs):
+        if key in specs or "." in key or not _is_wire(inputs[key]):
+            continue
+        targets = owners.get(key) or []
+        if len(targets) != 1 or targets[0] in inputs:
+            continue
+        inputs[targets[0]] = inputs.pop(key)
+        group = targets[0].rsplit(".", 1)[0]
+        notes.append(f"input '{key}' is a slot of autogrow input '{group}', "
+                     f"addressed '{targets[0]}'")
+    if reshaped is not None:
+        reshaped.extend(notes)
+    return notes
+
+
+def undeclared_wires(node: dict, required: dict, optional: dict | None = None,
+                     node_info: dict | None = None) -> list[str]:
+    """Keys on a V3 node that carry a wire but name no input the node declares.
+
+    ComfyUI binds a *value* only to an input the node declares and silently drops
+    the rest, but it passes a *wire* on under whatever key it sits
+    (``execution.get_input_data``). Each of these therefore reaches ``execute`` as
+    an argument it does not take, and the run fails after everything upstream has
+    already been computed. V1 nodes are not judged: many take ``**kwargs``.
+    """
+    if not is_v3_schema(node_info):
+        return []
+    keys, open_prefixes = declared_input_keys(node, required, optional)
+    return [k for k, v in (node.get("inputs") or {}).items()
+            if _is_wire(v) and k not in keys and not k.startswith(open_prefixes)]
+
+
 def drop_overridden_dimensions(node: dict, required: dict, optional: dict | None = None,
                                dropped: list | None = None) -> None:
     """Remove width/height that a chosen size preset already decides.
@@ -354,12 +486,17 @@ def flatten_dynamic_combos(node: dict, required: dict, optional: dict | None = N
         for k, v in inner.items():
             if v is None or v == {} or v == []:
                 continue                    # a placeholder, not a value
-            if k in tops and k != name:
-                node_inputs[k] = v          # a real input of the node itself
-                moved.append(k)
-            elif k in subs:
+            # The selected option's own input first. SaveVideo has both: a
+            # top-level optional `codec` and a `codec` its format option requires.
+            # Hoisting {"format": "auto", "codec": "auto"} to the top-level one
+            # left `format.codec` missing - reported as an error the agent could
+            # only clear by guessing, three calls later, at the dotted spelling.
+            if k in subs:
                 node_inputs[f"{name}.{k}"] = v
                 moved.append(f"{name}.{k}")
+            elif k in tops and k != name:
+                node_inputs[k] = v          # a real input of the node itself
+                moved.append(k)
             else:
                 dropped.append(k)
         if reshaped is not None:
@@ -396,6 +533,9 @@ def harden_node_inputs(node: dict, required: dict, missing_models: list | None =
     # this pass can sanitize, it is the wrong shape entirely. Unpacked first so
     # the steps below see the dotted keys they expect.
     flatten_dynamic_combos(node, required, optional, reshaped)
+    # Then a wire written under a bare autogrow slot name, moved to the dotted
+    # address ComfyUI binds, so nothing below mistakes it for a stray input.
+    normalize_autogrow_keys(node, required, optional, reshaped)
     # A preset that decides the size makes a stray width/height both redundant
     # and, when it falls outside the input's own range, fatal.
     drop_overridden_dimensions(node, required, optional, reshaped)

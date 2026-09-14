@@ -30,6 +30,13 @@ from agenty_core.tools.assembly_deterministic import (
     ensure_output_node as _ensure_output_node,
     harden_node_inputs as _harden_node_inputs,
     link_only_scalars as _link_only_scalars,
+    _is_wire as _is_wire_value,
+    autogrow_slot_names as _autogrow_slot_names,
+    declared_input_keys as _declared_input_keys,
+    dynamic_sub_specs as _dynamic_sub_specs,
+    is_autogrow_spec as _is_autogrow_group,
+    normalize_autogrow_keys as _normalize_autogrow_keys,
+    undeclared_wires as _undeclared_wires,
     rebind_placeholder_images as _rebind_placeholder_images,
     strip_annotation_nodes as _strip_annotation_nodes,
     strip_reroute_nodes as _strip_reroute_nodes,
@@ -447,16 +454,72 @@ def _save_workflow(workflow: dict, name: str = "") -> str:
     return str(path.resolve())
 
 
+def _edit_target(workflow_path) -> Path | None:
+    """The file an edit to *workflow_path* is written back to, or None.
+
+    Every editing tool loads the file it is handed, and they all used to save to
+    ``<agentY workflows>/<stem>.json`` whatever that was. Handed a path anywhere
+    else, each call therefore started over from the untouched original: an agent
+    re-linked a prompt in one call, fixed another input in the next, and the
+    second call - re-reading a file the first had never written to - discarded
+    the first fix while both results listed their patches as applied. The
+    executor, queued with the path the agent had named, ran that original as
+    well, so a repaired graph was re-queued unrepaired three times over.
+
+    So an edit goes back where it came from. None - keep a copy in the agentY
+    folder, as before - for a raw JSON string, a canvas-format file (a workflow
+    someone saved from ComfyUI: converted, never overwritten), and anything
+    inside the template corpus.
+    """
+    try:
+        p = Path(str(workflow_path or "").strip())
+        if p.suffix.lower() != ".json" or not p.is_file():
+            return None
+        resolved = p.resolve()
+        if resolved.is_relative_to(_corpus_root().resolve()):
+            return None
+        if _is_graph_format(json.loads(resolved.read_text(encoding="utf-8"))):
+            return None
+        return resolved
+    except (OSError, ValueError):
+        return None
+
+
+def _save_edit(workflow: dict, workflow_path: str) -> str:
+    """Save an edited *workflow* back to *workflow_path* - see :func:`_edit_target`."""
+    target = _edit_target(workflow_path)
+    if target is None:
+        return _save_workflow(workflow, name=Path(str(workflow_path or "").strip()).stem)
+    target.write_text(json.dumps(workflow, indent=2), encoding="utf-8")
+    return str(target)
+
+
+def _moved_note(workflow_path: str, saved_path: str) -> str:
+    """A sentence when an edit landed somewhere other than the path passed in."""
+    try:
+        same = Path(str(workflow_path).strip()).resolve() == Path(saved_path).resolve()
+    except (OSError, ValueError):
+        same = False
+    if same:
+        return ""
+    return (f"Saved as {saved_path}, not over the file you passed (a canvas workflow "
+            f"or a template is never overwritten). Use this workflow_path from now "
+            f"on - the original still holds the unedited graph.")
+
+
 def _load_workflow(path_or_json: str) -> dict:
     """Load a workflow from a file path or raw JSON string.
 
     Auto-converts graph-format workflows to API format.
     """
-    p = Path(path_or_json)
-    if p.exists() and p.suffix == ".json":
+    # Paths come from an LLM, sometimes with a newline on either side, and a
+    # stray one made a file that exists look missing.
+    raw = str(path_or_json).strip()
+    p = Path(raw)
+    if p.suffix == ".json" and p.exists():
         data = json.loads(p.read_text(encoding="utf-8"))
     else:
-        data = json.loads(path_or_json)
+        data = json.loads(raw)
     if _is_graph_format(data):
         data = _convert_graph_to_api(data)
     return data
@@ -555,6 +618,13 @@ def _schema_widget_slots(schema: dict, linked_names: set[str]) -> list[tuple]:
             # COMFY_MATCHTYPE_V3 takes whatever type is wired into it (switches,
             # concatenators): a socket wearing a V3 name, never a widget.
             if typ == "COMFY_MATCHTYPE_V3":
+                continue
+            # An autogrow group is a row of sockets, never a widget: the frontend
+            # saves no value for it (video_minimax_h3_r2v declares four groups and
+            # its widgets_values are prompt, width, height, length, ref_image_size).
+            # A slot here wrote a null per group into every graph built from an API
+            # workflow, and could swallow a real value reading one back.
+            if isinstance(typ, str) and "AUTOGROW" in typ.upper():
                 continue
             meta = spec[1] if isinstance(spec, (list, tuple)) and len(spec) > 1 else None
             # forceInput promotes a widget-typed input to a socket-only one, so it
@@ -735,8 +805,13 @@ def _dynamic_combo_suboptions(inp_spec) -> dict | None:
         if not isinstance(opt, dict):
             continue
         inner = opt.get("inputs") or {}
-        names = [n for section in ("required", "optional")
-                 for n in (inner.get(section) or {})]
+        # Only the widgets. An option can bring sockets as well - Nano Banana 2
+        # adds an ``images`` autogrow group and a ``files`` wire - and those take
+        # no place in widgets_values: that template's nine values are prompt,
+        # model, aspect_ratio, resolution, thinking_level, seed, its control,
+        # response_modalities and system_prompt. Counting them put the seed into
+        # model.images and shifted every value after it.
+        names = [n for n, _spec in _schema_widget_slots(inner, set())]
         out[str(opt.get("key"))] = names
     return out
 
@@ -1103,16 +1178,33 @@ def _api_to_graph(workflow: dict) -> dict:
         conns, seen = [], set()
         for name, sp in allspec.items():
             t = sp[0] if isinstance(sp, list) and sp else None
+            if _is_autogrow_group(sp):
+                # A group has no socket of its own. Each wired slot is one, named
+                # as the prompt addresses it and typed by the group's template -
+                # which is how the frontend saves it ('ref_images.ref_image_0',
+                # IMAGE, in video_minimax_h3_r2v).
+                ag = _autogrow_info(sp[1] if len(sp) > 1 and isinstance(sp[1], dict) else {}, name)
+                for key in ag["keys"]:
+                    if _is_link(ins.get(key)):
+                        conns.append((key, ag["grown_type"])); seen.add(key)
+                continue
             if _is_link(ins.get(name)) or (isinstance(t, str) and t in _LINK_ONLY_TYPES):
                 conns.append((name, t if isinstance(t, str) else "*")); seen.add(name)
         for name, v in ins.items():  # linked custom inputs absent from schema
             if _is_link(v) and name not in seen:
                 conns.append((name, "*")); seen.add(name)
-        widgets = (_schema_widget_names(spec, {c[0] for c in conns}) if spec
+        # A widget driven by a wire keeps its place in widgets_values - official
+        # templates hold "" there for a linked prompt - so only true sockets leave
+        # the widget order. Dropping the linked prompt shifted every value of
+        # MiniMaxH3ReferenceToVideo one place left: the canvas showed width 768 and
+        # height 124, and the agent "repaired" it by turning the prompt into a
+        # literal placeholder so the numbers lined up again.
+        sockets = {n for n, _t in conns if not _is_widget_spec(allspec.get(n))}
+        widgets = (_schema_widget_names(spec, sockets) if spec
                    else [n for n, v in ins.items() if not _is_link(v)])
         outs = info.get("output", []) or []
         onames = info.get("output_name", []) or outs
-        meta[k] = {"conns": conns, "widgets": widgets, "spec": spec,
+        meta[k] = {"conns": conns, "widgets": widgets, "spec": spec, "sockets": sockets,
                    "outputs": list(zip(onames, outs))}
 
     # Links + slot bookkeeping.
@@ -1190,8 +1282,7 @@ def _api_to_graph(workflow: dict) -> dict:
             # prompts then land in whichever widgets happen to sit at their index.
             _non_link = [n for n in ins if not _is_link(ins.get(n))]
             if any("." in str(n) for n in _non_link):
-                derived = _dynamic_widget_names(m["spec"], ins,
-                                                {c[0] for c in m["conns"]})
+                derived = _dynamic_widget_names(m["spec"], ins, m["sockets"])
                 # Only trust the schema when it accounts for every value present;
                 # otherwise keep the authored order, which is all we have.
                 _widget_names = (derived if derived and set(_non_link) <= set(derived)
@@ -1199,9 +1290,21 @@ def _api_to_graph(workflow: dict) -> dict:
             else:
                 _widget_names = m["widgets"]
             wv: list = []
+            _specs = {**(m["spec"].get("optional") or {}), **(m["spec"].get("required") or {})}
             for wname in _widget_names:
                 val = ins.get(wname)
-                wv.append(val if (wname in ins and not _is_link(val)) else None)
+                if wname in ins and not _is_link(val):
+                    wv.append(val)
+                elif _is_link(val):
+                    # The wire decides the value; the slot still wants a
+                    # placeholder of the widget's own kind.
+                    wspec = _specs.get(wname)
+                    wmeta = (wspec[1] if isinstance(wspec, list) and len(wspec) > 1
+                             and isinstance(wspec[1], dict) else {})
+                    is_text = isinstance(wspec, list) and bool(wspec) and wspec[0] == "STRING"
+                    wv.append(wmeta.get("default", "" if is_text else None))
+                else:
+                    wv.append(None)
                 if wname in _SEED_INPUT_NAMES:
                     wv.append("fixed")  # frontend's control_after_generate widget
             nodes.append({
@@ -1209,7 +1312,8 @@ def _api_to_graph(workflow: dict) -> dict:
                 "pos": [_gg.X0 + lv * _gg.COL_W, _gg.Y0 + row * _gg.ROW_H],
                 "size": [_gg.NODE_W, _gg.NODE_H],
                 "flags": {}, "order": order, "mode": 0,
-                "inputs": [{"name": n, "type": t, "link": in_link.get((k, n))}
+                "inputs": [{"name": n, "type": t, "link": in_link.get((k, n)),
+                            **({} if n in m["sockets"] else {"widget": {"name": n}})}
                            for n, t in m["conns"]],
                 "outputs": [{"name": (n or t), "type": t, "slot_index": i,
                              "links": out_links.get((k, i)) or None}
@@ -1322,8 +1426,11 @@ def _strip_history(data: dict | list) -> dict | list:
     return stripped
 
 
-def _autogrow_info(meta: dict) -> dict:
+def _autogrow_info(meta: dict, name: str = "") -> dict:
     """Parse a ``COMFY_AUTOGROW_V3`` metadata dict (2nd element of the input spec).
+
+    Pass the group's own *name* to get *keys* as the prompt addresses them
+    (``ref_images.ref_image_0``); *slots* always holds the bare slot names.
 
     V3 dynamic *autogrow* inputs (image batchers, multi-reference encoders, …)
     never appear under their umbrella name (e.g. ``images``): ComfyUI grows them
@@ -1351,7 +1458,14 @@ def _autogrow_info(meta: dict) -> dict:
         mn = int(tmpl.get("min", 0) or 0)
     except (TypeError, ValueError):
         mn = 0
-    return {"grown_type": grown_type, "keys": keys, "min": mn, "max": tmpl.get("max")}
+    slots = keys
+    if name:
+        # ComfyUI binds a slot through its group - finalize_prefix joins the two
+        # with a dot. The bare slot name is what this used to hand out, and a wire
+        # written under it reaches the node as an argument it does not take.
+        keys = [f"{name}.{k}" for k in keys]
+    return {"grown_type": grown_type, "keys": keys, "slots": slots, "min": mn,
+            "max": tmpl.get("max")}
 
 
 def _is_autogrow_spec(spec) -> bool:
@@ -1362,18 +1476,20 @@ def _is_autogrow_spec(spec) -> bool:
 
 def _parse_autogrow(name: str, opts: dict) -> dict:
     """Render a V3 autogrow input legibly so the agent can actually wire it."""
-    ag = _autogrow_info(opts)
+    ag = _autogrow_info(opts, name)
     keys, gtype = ag["keys"], ag["grown_type"]
     sample = keys[:6] + (["…"] if len(keys) > 6 else [])
-    hint = ", ".join(keys[:3]) if keys else "image0, image1"
+    hint = ", ".join(keys[:2]) if keys else f"{name}.image0"
+    bare = ag["slots"][0] if ag["slots"] else "image0"
     entry: dict = {
         "type": gtype,
         "dynamic": True,
         "connect_as": sample,
         "note": (
-            f"Dynamic autogrow input: do NOT use '{name}' as an input key. Connect "
-            f"one or more {gtype} producers by adding numbered/named keys "
-            f"({hint}, …) to this node's 'inputs' — each carries type {gtype}."
+            f"Dynamic autogrow input: wire one {gtype} producer per slot, keyed by the "
+            f"slot's full address ({hint}, …) in this node's 'inputs'. Neither "
+            f"'{name}' alone nor the bare slot name '{bare}' works: ComfyUI hands a "
+            f"wire under an undeclared key to the node, which fails at run time."
         ),
     }
     if ag.get("min") is not None:
@@ -3517,7 +3633,7 @@ def patch_workflow(workflow_path: str, patches: str) -> str:
             applied.append(f"Node {nid}.inputs.{inp_name} → {val_repr}")
 
     # Save back
-    path = _save_workflow(workflow, name=Path(workflow_path).stem)
+    path = _save_edit(workflow, workflow_path)
 
     # Failure guard
     global _patch_fail_count, _patch_last_workflow_path
@@ -3692,7 +3808,7 @@ def update_workflow(
             applied.append(f"Node {nid}.inputs.{inp_name} → {val_repr}")
 
     # ── Save ──────────────────────────────────────────────────────────────────
-    path = _save_workflow(workflow, name=Path(workflow_path).stem)
+    path = _save_edit(workflow, workflow_path)
 
     # Update patch failure guard
     global _patch_fail_count, _patch_last_workflow_path
@@ -3783,6 +3899,8 @@ def update_workflow(
         )
         for _bad in _flatten(node, required, optional):
             local_errors.append(f"Node {nid} ({cls}): {_bad}.")
+        for _key in _undeclared_wires(node, required, optional, node_info):
+            local_errors.append(_undeclared_wire_error(nid, cls, _key, node, required, optional))
         node_inputs = node.get("inputs", {})
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
@@ -3801,7 +3919,7 @@ def update_workflow(
     # submission while the run reported success. Re-save whenever the pass
     # changed anything, so `valid: true` is a statement about the file.
     if _snapshot_before != json.dumps(workflow, sort_keys=True, default=str):
-        path = _save_workflow(workflow, name=Path(workflow_path).stem)
+        path = _save_edit(workflow, workflow_path)
         _patch_last_workflow_path = path
 
     # Side-effect-free server validation (skips while ComfyUI is busy; never a
@@ -3812,6 +3930,7 @@ def update_workflow(
     is_valid = len(local_errors) == 0 and len(server_errors) == 0
     all_errors = node_errors + local_errors
 
+    _note = _moved_note(workflow_path, path)
     return json.dumps({
         "status": "ok" if (is_valid and not node_errors) else "error",
         "workflow_path": path,
@@ -3825,6 +3944,7 @@ def update_workflow(
         "local_errors": local_errors,
         "reshaped_inputs": reshaped_inputs,
         "server_errors": server_errors,
+        **({"note": _note} if _note else {}),
     })
 
 
@@ -4302,6 +4422,8 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
         for _missing in _harden_node_inputs(node, required, missing_models, optional,
                                             stripped_inputs):
             local_errors.append(f"Node {nid} ({cls}): missing required input '{_missing}'.")
+        for _key in _undeclared_wires(node, required, optional, node_info):
+            local_errors.append(_undeclared_wire_error(nid, cls, _key, node, required, optional))
         for inp_name, inp_val in node_inputs.items():
             if isinstance(inp_val, list) and len(inp_val) == 2:
                 src_id = str(inp_val[0])
@@ -4319,7 +4441,7 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
     # Save AFTER hardening so the file the executor submits reflects every
     # deterministic fix (reroutes bypassed, images rebound, combos snapped,
     # widget defaults injected) — not the raw pre-harden template.
-    path = _save_workflow(workflow, name=Path(workflow_path).stem)
+    path = _save_edit(workflow, workflow_path)
 
     all_problems = problems + local_errors
     is_valid = len(all_problems) == 0 and len(server_errors) == 0
@@ -4338,12 +4460,173 @@ def apply_brainbriefing(workflow_path: str, brainbriefing_json: str) -> str:
 
 
 @tool
-def replace_node(workflow_path: str, old_node_id: str, new_class_type: str, new_node_id: str = "", meta_title: str = "") -> str:
-    """Replace a node with a different class_type while preserving all connections.
+def _undeclared_wire_error(nid, cls: str, key: str, node: dict, required: dict,
+                           optional: dict | None) -> str:
+    """The error for a wire under a key *cls* does not declare, naming what it takes."""
+    specs = {**(optional or {}), **(required or {})}
+    keys, _open = _declared_input_keys(node, required, optional)
+    groups = sorted(g for g in keys if _is_autogrow_group(specs.get(g)))
+    shown = [k for k in sorted(keys)
+             if k not in groups and not any(k.startswith(g + ".") for g in groups)]
+    for g in groups:
+        slots = _autogrow_slot_names(specs[g])
+        if slots:
+            shown.append(f"{g}.{slots[0]}..{slots[-1]}")
+    more = f", ... ({len(shown) - 24} more)" if len(shown) > 24 else ""
+    return (f"Node {nid} ({cls}): '{key}' is wired but is not an input of {cls}. "
+            f"ComfyUI passes a wire on under any key, so the run would fail with "
+            f"\"unexpected keyword argument '{key}'\". Inputs it takes: "
+            f"{', '.join(shown[:24])}{more}.")
 
-    Copies every input entry (including link arrays) from the old node to the new
-    node, rewrites every other node's inputs that referenced the old node ID to
-    point at the new node ID instead, then removes the old node.
+
+def normalize_autogrow_wires(workflow: dict) -> list[str]:
+    """Move every wire written under a bare autogrow slot name to its dotted address.
+
+    In place, on a prompt about to be submitted: the last line of defence for a
+    graph that reached the executor without passing through update_workflow.
+    Returns the notes, ``[]`` when ComfyUI's node schemas cannot be read.
+    """
+    try:
+        all_nodes = _get_object_info()
+    except Exception:  # noqa: BLE001
+        return []
+    notes: list[str] = []
+    for nid, node in (workflow or {}).items():
+        if not isinstance(node, dict):
+            continue
+        spec = (all_nodes.get(node.get("class_type", "")) or {}).get("input", {}) or {}
+        for note in _normalize_autogrow_keys(node, spec.get("required") or {},
+                                             spec.get("optional") or {}):
+            notes.append(f"Node {nid} ({node.get('class_type')}): {note}")
+    return notes
+
+
+def _spec_type(spec) -> str:
+    typ = spec[0] if isinstance(spec, (list, tuple)) and spec else spec
+    if isinstance(typ, list):
+        return "COMBO"
+    return typ if isinstance(typ, str) else ""
+
+
+def _types_compatible(given, wanted) -> bool:
+    """Would a *given* output type satisfy a socket that *wanted* one? Unknown is yes."""
+    if not given or not wanted:
+        return True
+    g = {t.strip() for t in str(given).split(",")}
+    w = {t.strip() for t in str(wanted).split(",")}
+    return "*" in g or "*" in w or bool(g & w)
+
+
+def _connection_keys(node: dict, required: dict, optional: dict | None) -> list[tuple[str, str]]:
+    """``[(key, type)]`` for every socket in force on *node*, autogrow slots expanded,
+    required before optional."""
+    req_sub, opt_sub = _dynamic_sub_specs(node, required, optional)
+    out: list[tuple[str, str]] = []
+    for name, spec in {**(required or {}), **req_sub, **(optional or {}), **opt_sub}.items():
+        if _is_autogrow_group(spec):
+            gtype = _autogrow_info(spec[1] if len(spec) > 1 and isinstance(spec[1], dict) else {})["grown_type"]
+            out.extend((f"{name}.{slot}", gtype) for slot in _autogrow_slot_names(spec))
+        elif not _is_widget_spec(spec) and _spec_type(spec):
+            out.append((name, _spec_type(spec)))
+    return out
+
+
+def _input_wire_type(node: dict, name: str, all_nodes: dict) -> str:
+    """The type *node*'s input *name* takes, or "" when the schema cannot say."""
+    spec = (all_nodes.get(node.get("class_type", "")) or {}).get("input", {}) or {}
+    for key, typ in _connection_keys(node, spec.get("required") or {}, spec.get("optional") or {}):
+        if key == name:
+            return typ
+    return ""
+
+
+def _output_type(workflow: dict, wire, all_nodes: dict) -> str:
+    """The type of the output *wire* comes from, or "" when unknown."""
+    producer = workflow.get(str(wire[0])) or {}
+    outs = (all_nodes.get(producer.get("class_type", "")) or {}).get("output") or []
+    slot = int(wire[1])
+    return outs[slot] if 0 <= slot < len(outs) and isinstance(outs[slot], str) else ""
+
+
+def _check_replacement(workflow: dict, old_id: str, new_node: dict, all_nodes: dict,
+                       remap: bool) -> tuple[list, list, list]:
+    """Can *new_node* stand in for node *old_id*? ``(problems, dropped, remapped)``.
+
+    Changes *new_node*'s inputs only to carry out what it reports: literals the new
+    class has no input for are removed, and with *remap* orphaned wires are moved.
+    """
+    cls = new_node["class_type"]
+    info = all_nodes.get(cls)
+    if not info:
+        return [f"'{cls}' is not an installed node class."], [], []
+    spec = info.get("input", {}) or {}
+    required, optional = spec.get("required") or {}, spec.get("optional") or {}
+    inputs = new_node["inputs"]
+    _normalize_autogrow_keys(new_node, required, optional)
+    problems: list[str] = []
+
+    # Every wire leaving the old node must find its output slot, of its type.
+    outs = info.get("output") or []
+    for nid, node in workflow.items():
+        if nid == old_id or not isinstance(node, dict):
+            continue
+        for name, val in (node.get("inputs") or {}).items():
+            if not (_is_wire_value(val) and str(val[0]) == old_id):
+                continue
+            slot = int(val[1])
+            wanted = _input_wire_type(node, name, all_nodes)
+            if slot >= len(outs):
+                problems.append(f"node {nid}.{name} takes output {slot} and {cls} has "
+                                f"only {len(outs)} output(s).")
+            elif not _types_compatible(outs[slot], wanted):
+                problems.append(f"node {nid}.{name} takes a {wanted} from output {slot}, "
+                                f"where {cls} gives {outs[slot]}.")
+
+    # Every wire into the old node needs somewhere to go on the new one.
+    keys, open_prefixes = _declared_input_keys(new_node, required, optional)
+    homeless = [k for k in inputs if k not in keys and not k.startswith(open_prefixes)]
+    dropped = [k for k in homeless if not _is_wire_value(inputs[k])]
+    wires = [k for k in homeless if _is_wire_value(inputs[k])]
+    for k in dropped:
+        del inputs[k]
+    remapped: list[str] = []
+    if wires and remap:
+        free = [(k, t) for k, t in _connection_keys(new_node, required, optional) if k not in inputs]
+        for k in list(wires):
+            given = _output_type(workflow, inputs[k], all_nodes)
+            match = next((f for f in free if given and _types_compatible(given, f[1])), None)
+            if match is None:
+                continue
+            free.remove(match)
+            inputs[match[0]] = inputs.pop(k)
+            remapped.append(f"{k} -> {match[0]}")
+            wires.remove(k)
+    if wires:
+        problems.append(
+            f"{cls} has no input for the wire(s) into {', '.join(repr(w) for w in wires)}"
+            + ("" if remap else "; remap_inputs=true carries wires over by type, if the "
+                                "class genuinely has to change")
+            + ".")
+    return problems, dropped, remapped
+
+
+def replace_node(workflow_path: str, old_node_id: str, new_class_type: str,
+                 new_node_id: str = "", meta_title: str = "",
+                 remap_inputs: bool = False) -> str:
+    """Replace a node with a different class_type, keeping its wiring.
+
+    For a node whose class is missing, renamed or retired and needs an equivalent.
+    It keeps the node's job, so it refuses a swap the wiring cannot survive -
+    writing nothing and saying why:
+
+    * a wire leaving the node from an output the new class lacks, or of another
+      type than the consumer takes;
+    * a wire into the node under an input the new class does not have - unless
+      *remap_inputs* is true, which carries such wires to the new class's free
+      inputs of the same type, in order (``BatchImagesNode`` -> ``ImageBatch``).
+
+    Literal values the new class has no input for are dropped and listed. Never a
+    way round an input that would not wire: fix that input with update_workflow.
 
     Args:
         workflow_path: File path to the workflow JSON.
@@ -4351,6 +4634,7 @@ def replace_node(workflow_path: str, old_node_id: str, new_class_type: str, new_
         new_class_type: class_type for the replacement node.
         new_node_id: ID for the new node.  Defaults to old_node_id (in-place swap).
         meta_title: Optional display title for the new node.
+        remap_inputs: Carry wires with no same-named input over by type, in order.
     """
     try:
         workflow = _load_workflow(workflow_path)
@@ -4379,6 +4663,24 @@ def replace_node(workflow_path: str, old_node_id: str, new_class_type: str, new_
     elif "_meta" in old_node:
         new_node["_meta"] = copy.deepcopy(old_node["_meta"])
 
+    try:
+        all_nodes = _get_object_info()
+    except Exception:  # noqa: BLE001 — no schemas: swap as asked, as before
+        all_nodes = {}
+    problems, dropped, remapped = ([], [], [])
+    if all_nodes:
+        problems, dropped, remapped = _check_replacement(
+            workflow, old_id, new_node, all_nodes, bool(remap_inputs))
+    if problems:
+        return json.dumps({
+            "status": "error",
+            "error": (f"Not replacing node {old_id} ({old_node.get('class_type')}) with "
+                      f"{new_class_type}: " + " ".join(problems)),
+            "hint": ("replace_node swaps a node for an equivalent one. If this node's "
+                     "inputs are what fails, fix them with update_workflow instead of "
+                     "changing what the node does."),
+        })
+
     # Insert the new node (if new_id == old_id this temporarily overwrites it).
     if new_id != old_id:
         del workflow[old_id]
@@ -4395,8 +4697,8 @@ def replace_node(workflow_path: str, old_node_id: str, new_class_type: str, new_
                     inp_val[0] = new_id
                     rewritten.append(f"{nid}.inputs.{inp_name}")
 
-    path = _save_workflow(workflow, name=Path(workflow_path).stem)
-    return json.dumps({
+    path = _save_edit(workflow, workflow_path)
+    result = {
         "status": "ok",
         "workflow_path": path,
         "old_node_id": old_id,
@@ -4404,7 +4706,12 @@ def replace_node(workflow_path: str, old_node_id: str, new_class_type: str, new_
         "new_class_type": new_class_type,
         "inherited_inputs": list(new_node["inputs"].keys()),
         "rewired_downstream": rewritten,
-    })
+    }
+    if dropped:
+        result["dropped_inputs"] = dropped
+    if remapped:
+        result["remapped_inputs"] = remapped
+    return json.dumps(result)
 
 
 @tool
@@ -4436,7 +4743,7 @@ def add_workflow_node(workflow_path: str, node_id: str, class_type: str, inputs:
         node["_meta"] = {"title": meta_title}
 
     workflow[node_id] = node
-    path = _save_workflow(workflow, name=Path(workflow_path).stem)
+    path = _save_edit(workflow, workflow_path)
 
     return json.dumps({
         "workflow_path": path,
@@ -4475,7 +4782,7 @@ def remove_workflow_node(workflow_path: str, node_id: str) -> str:
                 del inputs[inp_name]
                 cleaned += 1
 
-    path = _save_workflow(workflow, name=Path(workflow_path).stem)
+    path = _save_edit(workflow, workflow_path)
 
     return json.dumps({
         "workflow_path": path,
@@ -4726,7 +5033,7 @@ def validate_workflow(workflow_path: str) -> str:
             # Don't flag the umbrella as missing; verify enough grown slots are wired.
             if _is_autogrow_spec(req_spec):
                 meta = req_spec[1] if len(req_spec) > 1 and isinstance(req_spec[1], dict) else {}
-                ag = _autogrow_info(meta)
+                ag = _autogrow_info(meta, req_name)
                 slot_keys = set(ag["keys"])
                 have = sum(1 for k in inputs if k in slot_keys)
                 if ag["min"] and have < ag["min"]:
@@ -4775,6 +5082,17 @@ def validate_workflow(workflow_path: str) -> str:
                 f"nothing. Set it to null, or wire it to a node that outputs "
                 f"{_specs[_name][0]}."
             )
+
+        # A wire under a key the node does not declare. A bare autogrow slot name
+        # is the usual one and has an exact fix; anything else is named together
+        # with the inputs the node does take.
+        _probe = {"class_type": cls, "inputs": dict(inputs)}
+        _opt = node_info.get("input", {}).get("optional", {}) or {}
+        for _note in _normalize_autogrow_keys(_probe, required, _opt):
+            local_errors.append(f"Node {nid} ({cls}): {_note} - write that key "
+                                f"(update_workflow renames it itself).")
+        for _key in _undeclared_wires(_probe, required, _opt, node_info):
+            local_errors.append(_undeclared_wire_error(nid, cls, _key, _probe, required, _opt))
 
     invalid_inputs = _invalid_widget_values(workflow, all_nodes)
     for bad in invalid_inputs:

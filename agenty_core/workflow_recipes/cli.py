@@ -75,16 +75,22 @@ def _sibling_paths(out: str) -> Dict[str, str]:
     }
 
 
-def _write_json(path: str, payload) -> None:
-    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2)
-
-
 def _write_text(path: str, text: str) -> None:
+    """Write *text* to *path* by replacing it whole.
+
+    The database is now rebuilt while agentY is serving (after a template sync on
+    startup), so a turn can read it mid-write; a partial JSON file would read as no
+    recipes at all. A sibling temp file swapped in with os.replace never is.
+    """
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
         f.write(text)
+    os.replace(tmp, path)
+
+
+def _write_json(path: str, payload) -> None:
+    _write_text(path, json.dumps(payload, indent=2))
 
 
 def run(args) -> Dict:

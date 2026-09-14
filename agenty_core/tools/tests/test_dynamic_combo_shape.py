@@ -187,5 +187,31 @@ class TheWholeRepairTogether(unittest.TestCase):
         self.assertEqual(notes, [])
 
 
+class TheOptionsOwnInputWins(unittest.TestCase):
+    """SaveVideo declares `codec` twice: top-level, and inside its format option.
+
+    Written as `{"format": "auto", "codec": "auto"}`, the codec went to the
+    top-level input and `format.codec` - which the option requires - was reported
+    missing. The agent spent three update_workflow calls finding the dotted form.
+    """
+
+    SAVE_REQUIRED = {
+        "filename_prefix": ["STRING", {}],
+        "format": ["COMFY_DYNAMICCOMBO_V3", {"options": [
+            {"key": "auto", "inputs": {"required": {
+                "codec": ["COMBO", {"options": ["auto", "h264"]}]}}}]}],
+    }
+    SAVE_OPTIONAL = {"codec": ["COMFY_DYNAMICCOMBO_V3", {"options": [{"key": "auto"}]}]}
+
+    def test_a_name_the_option_declares_goes_under_the_option(self):
+        n = node({"format": {"format": "auto", "codec": "auto"}})
+        self.assertEqual(flatten_dynamic_combos(n, self.SAVE_REQUIRED, self.SAVE_OPTIONAL), [])
+        self.assertEqual(n["inputs"], {"format": "auto", "format.codec": "auto"})
+
+    def test_hardening_then_has_nothing_missing(self):
+        n = node({"filename_prefix": "v", "format": {"format": "auto", "codec": "auto"}})
+        self.assertEqual(harden_node_inputs(n, self.SAVE_REQUIRED, None, self.SAVE_OPTIONAL), [])
+
+
 if __name__ == "__main__":
     unittest.main()
