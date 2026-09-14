@@ -1667,6 +1667,37 @@ def _dirs_from_comfyui() -> dict:
     return out
 
 
+# Model kinds get_comfyui_dirs reports. /internal/folder_paths lists some sixty
+# categories, most of them custom-node folders (fonts, ultralytics, sam, …) that
+# nobody downloads into by hand; all of them would be ~6000 characters per call.
+_MODEL_DIR_CATEGORIES = (
+    "checkpoints", "diffusion_models", "text_encoders", "vae", "loras", "controlnet",
+    "clip_vision", "upscale_models", "latent_upscale_models", "embeddings",
+    "model_patches", "audio_encoders", "style_models",
+)
+
+
+def _model_dirs() -> dict:
+    """``{category: [folder, ...]}`` ComfyUI loads each model kind from, or ``{}``.
+
+    From the running server, so it includes extra model paths configured at startup
+    — which on this kind of setup is where the models actually are. An agent asked
+    to fetch a model once spent a whole turn hunting for that config file on disk.
+    """
+    try:
+        raw = get_client().get("/internal/folder_paths")
+    except Exception:  # noqa: BLE001
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    out: dict = {}
+    for category in _MODEL_DIR_CATEGORIES:
+        paths = raw.get(category)
+        if isinstance(paths, list) and paths:
+            out[category] = [str(path) for path in paths]
+    return out
+
+
 def get_comfyui_dirs() -> str:
     """Return the authoritative ComfyUI server directory paths.
 
@@ -1679,9 +1710,14 @@ def get_comfyui_dirs() -> str:
     - Where ComfyUI will save generated outputs (output_dir) — use this path
       when populating ``output_nodes[].output_path`` in the brainbriefing.
     - Where workflow JSON files are stored (user_dir/workflows/).
+    - Where each kind of model is loaded from (model_dirs) — including extra
+      model paths configured at startup, which may be on other drives.
 
     Returns a JSON object with keys ``input_dir``, ``output_dir``, ``user_dir``,
-    and ``source`` ("argv" when resolved from server flags, "default" otherwise).
+    ``source`` ("argv" when resolved from server flags, "default" otherwise), and
+    ``model_dirs`` — ``{category: [absolute folder, ...]}`` for the model kinds
+    (checkpoints, diffusion_models, text_encoders, vae, loras, …): every folder
+    ComfyUI loads that kind from, including extra model paths on other drives.
 
     Results are cached for the lifetime of the session (``clear_tool_caches()``
     resets the cache at the start of every new pipeline session).
@@ -1696,7 +1732,7 @@ def get_comfyui_dirs() -> str:
             return json.dumps({"error": "Unexpected /system_stats response format"})
 
         argv: list = stats.get("system", {}).get("argv", [])
-        result: dict[str, str] = {"source": "argv"}
+        result: dict = {"source": "argv"}
 
         for key, flag in (
             ("input_dir", "--input-directory"),
@@ -1748,6 +1784,10 @@ def get_comfyui_dirs() -> str:
                 result["output_dir"] = str(Path(comfy_root) / "output") if comfy_root else "unknown"
             if "user_dir" not in result:
                 result["user_dir"] = str(Path(comfy_root) / "user") if comfy_root else "unknown"
+
+        models = _model_dirs()
+        if models:
+            result["model_dirs"] = models
 
         result_json = json.dumps(result)
         with _tool_cache_lock:

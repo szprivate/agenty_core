@@ -166,6 +166,32 @@ def _inside(path: Path, roots: list[Path]) -> bool:
     return False
 
 
+def split_command(command: str, *, windows: bool | None = None) -> list[str]:
+    """Split *command* into the argv a program should receive.
+
+    POSIX rules strip quotes but treat backslashes as escapes, which is wrong on
+    Windows, where every path is full of them. Non-POSIX ``shlex`` keeps the
+    backslashes but also KEEPS THE QUOTES: ``python -c "print('hi')"`` handed
+    Python the code ``"print('hi')"`` quotes included — a string literal, which it
+    evaluated, printed nothing for, and exited 0. Every inline ``-c`` the agent ran
+    on Windows came back empty with no error, and it concluded, reasonably, that
+    the shell was broken. So on Windows the outer pair of matching quotes comes off
+    each token, which is what the program would have received from a real command
+    line.
+    """
+    windows = (os.name == "nt") if windows is None else windows
+    if not windows:
+        return shlex.split(command, posix=True)
+    return [_unquote(token) for token in shlex.split(command, posix=False)]
+
+
+def _unquote(token: str) -> str:
+    """*token* without one enclosing pair of matching quotes, if it has one."""
+    if len(token) >= 2 and token[0] == token[-1] and token[0] in "\"'":
+        return token[1:-1]
+    return token
+
+
 def check_command(command: str, *, cwd: Path | None = None
                   ) -> tuple[list[str] | None, str]:
     """Vet *command*. Returns ``(argv, "")`` to run it, or ``(None, why)``.
@@ -182,7 +208,7 @@ def check_command(command: str, *, cwd: Path | None = None
                       "script to a file with write_text_file and run that file.")
 
     try:
-        argv = shlex.split(raw, posix=(os.name != "nt"))
+        argv = split_command(raw)
     except ValueError as exc:
         return None, f"could not parse the command ({exc}). Check the quoting."
     if not argv:
