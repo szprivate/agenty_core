@@ -46,26 +46,43 @@ import re
 
 logger = logging.getLogger("agenty_core.graph_groups")
 
-# Placement geometry, shared with `_api_to_graph` so a box and the nodes it is
-# drawn around cannot disagree. Changing a value here moves both.
 X0, Y0 = 80, 80
-COL_W, ROW_H = 360, 240
-NODE_W, NODE_H = 300, 210
+
+# ── Node sizes ────────────────────────────────────────────────────────────────
+#
+# Every node used to be written 300x210 on a fixed 360x240 grid: a VAE loader the
+# size of a sampler, a prompt box squeezed to a loader's height. A person reads a
+# graph partly by those shapes, and the canvas gives a node the size its own "add
+# node" does - LiteGraph's computeSize() plus the padding ComfyUI adds for widgets
+# (setInitialSize). So sizes are estimated from the schema the way the frontend
+# computes them, and columns, rows and boxes are spaced around them. The sidebar
+# extension swaps the estimate for the canvas's own measurement when it opens the
+# graph; the estimate is what the saved file carries.
+#
+# Frontend constants (LiteGraphGlobal, BaseWidget, setInitialSize, addMultilineWidget):
+TITLE_BAR = 30               # NODE_TITLE_HEIGHT - drawn ABOVE a node's pos
+SLOT_H = 20                  # NODE_SLOT_HEIGHT
+WIDGET_H = 20                # NODE_WIDGET_HEIGHT; a widget takes this + 4
+NODE_MIN_W = 140             # NODE_WIDTH, x1.5 for a node with widgets
+WIDGET_PADDING = 60          # added to a widget node's width on creation
+VALUE_W = 104                # minValueWidth + 2 * (margin + arrowMargin + arrowWidth)
+CHAR_W = 8.4                 # computeSize's own label fallback: 14px font x 0.6
+MULTILINE_H = 60             # a textarea's share of the height
+MULTILINE_MIN = (400, 200)   # minNodeSize of a node holding a textarea
+
+# Clear space between columns, between a node and the title bar of the one below,
+# and between two bands of groups. H_GAP must stay above 2 * PAD, or two boxes in
+# neighbouring columns touch.
+H_GAP = 60
+V_GAP = 30
+BAND_GAP = 60
 
 # Padding around a group's nodes, and the room its title bar needs above them.
 PAD = 24
 TITLE_H = 32
 
-# Blank rows between one band and the next. A box reaches PAD + TITLE_H above its
-# highest node, and the gutter between rows is only ROW_H - NODE_H = 30px — so
-# without this the title bar of one band is drawn through the bottom of the band
-# above, and dragging either group takes the other's nodes with it.
-BAND_ROW_GAP = 1
-
 # Columns of clear air required between two groups sharing a band. Zero, because
-# the geometry already guarantees the gap: columns are 360 apart and nodes are
-# 300 wide, so two boxes in adjacent columns are 60 - 2*PAD apart. It only has to
-# be more than zero if PAD ever grows past 30.
+# H_GAP already keeps their boxes apart.
 BAND_GAP_COLS = 0
 
 # ComfyUI's own default group colour. Deliberately uniform: colour means
@@ -348,53 +365,126 @@ def pack_bands(groups: list) -> list:
     return out
 
 
-def layout(api: dict, meta: dict, level: dict, object_info: dict) -> tuple:
-    """``(row_of, groups)`` — the row each node takes, and the boxes to draw.
+def _text_w(text) -> float:
+    return CHAR_W * len(str(text or ""))
 
-    ``row_of`` replaces the plain per-column counter the auto-layout used: nodes
-    of one group are kept contiguous so a rectangle can actually enclose them.
-    Nodes in no group (there are none unless the graph has anchors it cannot
-    reach) fall below everything else, ungrouped and undisturbed.
+
+def estimate_size(title: str, slots: list, outputs: list, widgets: list,
+                  wired_widgets: list = (), multiline: int = 0) -> list:
+    """``[w, h]`` a node opens at on the canvas, from what it shows.
+
+    Mirrors ``LGraphNode.computeSize`` and ComfyUI's ``setInitialSize``: a row per
+    slot, a row per widget (a textarea taller, and a node holding one at least
+    400x200), the width of the longest labels, the title, or a floor that grows
+    when there are widgets, plus the padding widget nodes get. An estimate - the
+    browser measures labels in its own font - which the extension replaces on open.
+
+    *slots* are the input sockets shown, *outputs* the output labels, *widgets*
+    the widget names in order (a seed's control_after_generate counted as one),
+    *wired_widgets* those driven by a wire, *multiline* how many are textareas.
+    """
+    rows = max(len(slots), len(outputs), 1)
+    in_w = max((_text_w(n) for n in slots), default=0)
+    out_w = max((_text_w(n) for n in outputs), default=0)
+    width = max(
+        in_w + out_w + 2 * SLOT_H + (5 if in_w and out_w else 0),
+        (max(_text_w(n) for n in wired_widgets) + VALUE_W) if wired_widgets else 0,
+        TITLE_BAR + _text_w(title) + TITLE_BAR * 0.33,
+        NODE_MIN_W * (1.5 if widgets else 1),
+    )
+    height = rows * SLOT_H
+    if widgets:
+        plain = len(widgets) - multiline
+        height += plain * (WIDGET_H + 4) + multiline * (MULTILINE_H + 4) + 8
+        width += WIDGET_PADDING
+    height += 6
+    if multiline:
+        width, height = max(width, MULTILINE_MIN[0]), max(height, MULTILINE_MIN[1])
+    return [int(round(width)), int(round(height))]
+
+
+def arrange(slots: dict, sizes: dict, grouped_bands: set) -> dict:
+    """``{node: [x, y]}`` for nodes at ``slots[node] = (band, column, row)``.
+
+    Each column is as wide as its widest node. Within a band a column stacks its
+    nodes in row order, each below the bottom of the one above; a band holding
+    groups leaves room for their boxes' padding and titles, and the next band
+    starts below the tallest column. The sidebar extension runs this same
+    arrangement again with the sizes the canvas measures, so keep the two alike.
+    """
+    if not slots:
+        return {}
+    columns = sorted({col for _band, col, _row in slots.values()})
+    width = {c: max(sizes[k][0] for k, s in slots.items() if s[1] == c) for c in columns}
+    x_of: dict = {}
+    x = X0
+    for c in columns:
+        x_of[c] = x
+        x += width[c] + H_GAP
+    positions: dict = {}
+    top = Y0
+    for band in sorted({b for b, _col, _row in slots.values()}):
+        head = PAD + TITLE_H if band in grouped_bands else 0
+        bottom = top
+        for c in columns:
+            members = sorted((s[2], k) for k, s in slots.items() if s[0] == band and s[1] == c)
+            y = top + head + TITLE_BAR
+            for _row, k in members:
+                positions[k] = [x_of[c], y]
+                bottom = max(bottom, y + sizes[k][1])
+                y += sizes[k][1] + TITLE_BAR + V_GAP
+        top = bottom + (PAD if band in grouped_bands else 0) + BAND_GAP
+    return positions
+
+
+def place(api: dict, meta: dict, level: dict, object_info: dict, sizes: dict) -> tuple:
+    """``(positions, boxes, hint)`` for a graph whose nodes are *sizes* big.
+
+    Columns come from *level*. When the graph splits into stages, each group gets
+    a contiguous band (see :func:`pack_bands`) and its box is drawn round its
+    nodes' real rectangles; nodes in no group - every node of a one-stage graph -
+    share a band of their own below. *hint* is the arrangement without pixels:
+    ``(band, column, row)`` per node and each group's members, which the sidebar
+    extension feeds back through :func:`arrange` with measured sizes.
     """
     groups = plan_groups(api, meta, level, object_info)
-    if not groups:
-        return {}, []
-    band_of = pack_bands(groups)
+    bands = pack_bands(groups)
+    slots: dict = {}
+    next_row: dict = {}
 
-    # Rows within a band, counted per column so two groups sharing a band each
-    # start at the band's own first row.
-    row_of: dict = {}
-    local: dict = {}          # (band, column) -> next free row inside the band
-    height: dict = {}         # band -> rows used
-    for group, band in zip(groups, band_of):
+    def _put(node_id, band):
+        col = level.get(node_id, 0)
+        row = next_row.get((band, col), 0)
+        next_row[(band, col)] = row + 1
+        slots[node_id] = (band, col, row)
+
+    for group, band in zip(groups, bands):
         for node_id in group["members"]:
-            col = level.get(node_id, 0)
-            row = local.get((band, col), 0)
-            local[(band, col)] = row + 1
-            row_of[node_id] = (band, row)
-            height[band] = max(height.get(band, 0), row + 1)
+            _put(node_id, band)
+    loose = max(bands) + 1 if bands else 0
+    for node_id in sorted(api, key=_node_sort_key):
+        if node_id not in slots:
+            _put(node_id, loose)
 
-    base: dict = {}
-    running = 0
-    for band in sorted(height):
-        base[band] = running
-        running += height[band] + BAND_ROW_GAP
-
-    absolute = {k: base[b] + r for k, (b, r) in row_of.items()}
-    for node_id in api:
-        if node_id not in absolute:
-            absolute[node_id] = running
-            running += 1
-
+    grouped_bands = sorted(set(bands))
+    positions = arrange(slots, sizes, set(grouped_bands))
     boxes: list = []
-    for index, (group, band) in enumerate(zip(groups, band_of), start=1):
-        rows = [absolute[k] for k in group["members"]]
-        lo_col, hi_col = group["columns"]
-        x = X0 + lo_col * COL_W - PAD
-        y = Y0 + min(rows) * ROW_H - PAD - TITLE_H
-        w = (hi_col - lo_col) * COL_W + NODE_W + 2 * PAD
-        h = (max(rows) - min(rows)) * ROW_H + NODE_H + 2 * PAD + TITLE_H
+    for index, group in enumerate(groups, start=1):
+        members = group["members"]
+        x0 = min(positions[k][0] for k in members) - PAD
+        y0 = min(positions[k][1] for k in members) - TITLE_BAR - PAD - TITLE_H
+        x1 = max(positions[k][0] + sizes[k][0] for k in members) + PAD
+        y1 = max(positions[k][1] + sizes[k][1] for k in members) + PAD
         boxes.append({"id": index, "title": group["title"],
-                      "bounding": [x, y, w, h], "color": GROUP_COLOR,
+                      "bounding": [x0, y0, x1 - x0, y1 - y0], "color": GROUP_COLOR,
                       "font_size": FONT_SIZE, "flags": {}})
-    return absolute, boxes
+    hint = {
+        "version": 1,
+        "origin": [X0, Y0],
+        "gaps": {"column": H_GAP, "node": V_GAP, "band": BAND_GAP, "pad": PAD,
+                 "group_title": TITLE_H, "title_bar": TITLE_BAR},
+        "slots": {k: list(v) for k, v in slots.items()},
+        "grouped_bands": grouped_bands,
+        "groups": [list(g["members"]) for g in groups],
+    }
+    return positions, boxes, hint

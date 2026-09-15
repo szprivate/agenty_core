@@ -1136,6 +1136,31 @@ def _convert_graph_to_api(workflow: dict) -> dict:
     return api_workflow
 
 
+def _canvas_node_size(title: str, spec: dict, conns: list, inputs: dict,
+                      widget_names: list, outputs: list) -> list:
+    """The size the canvas opens this node at, estimated - see graph_groups.estimate_size."""
+    from agenty_core.tools import graph_groups as _gg  # noqa: PLC0415
+    allspec = {**(spec.get("optional") or {}), **(spec.get("required") or {})}
+    slots: list = []
+    for name, sp in allspec.items():
+        meta = sp[1] if isinstance(sp, list) and len(sp) > 1 and isinstance(sp[1], dict) else {}
+        if _is_autogrow_group(sp):
+            # The wired slots, and the one empty slot the frontend adds after them.
+            ag = _autogrow_info(meta, name)
+            wired = sum(1 for key in ag["keys"] if isinstance(inputs.get(key), list))
+            slots.extend(ag["slots"][:min(len(ag["slots"]), wired + 1)])
+        elif not _is_widget_spec(sp) or meta.get("forceInput"):
+            slots.append(name)
+    slots.extend(n for n, _t in conns if n not in allspec and "." not in n)
+    widgets = list(widget_names) + [n for n in widget_names if n in _SEED_INPUT_NAMES]
+    wired = [n for n in widget_names if isinstance(inputs.get(n), list)]
+    multiline = sum(1 for n in widget_names
+                    if isinstance(allspec.get(n), list) and allspec[n] and allspec[n][0] == "STRING"
+                    and len(allspec[n]) > 1 and isinstance(allspec[n][1], dict)
+                    and allspec[n][1].get("multiline"))
+    return _gg.estimate_size(title, slots, [n for n, _t in outputs], widgets, wired, multiline)
+
+
 def _api_to_graph(workflow: dict) -> dict:
     """Build a ComfyUI *graph*-format workflow (nodes + links, auto-laid-out) from
     an API/prompt-format workflow, so the exact thing the agent ran can be opened
@@ -1240,94 +1265,109 @@ def _api_to_graph(workflow: dict) -> dict:
 
     for k in api:
         _depth(k, set())
-    from collections import defaultdict  # noqa: PLC0415
 
-    # Rows: normally one counter per column, but when the graph splits into
-    # several generation stages the rows are reordered so each stage's nodes stay
-    # contiguous and can be boxed. See agenty_core.tools.graph_groups — it
-    # returns {} for a single-stage graph, which leaves the layout exactly as it
-    # was.
     from agenty_core.tools import graph_groups as _gg  # noqa: PLC0415
 
-    try:
-        grouped_rows, group_boxes = _gg.layout(api, meta, level, oi)
-    except Exception as exc:  # noqa: BLE001 — a graph must open, grouped or not
-        _gg.logger.debug("_api_to_graph: could not group the graph — %s", exc)
-        grouped_rows, group_boxes = {}, []
+    # Widget values first: they decide what each node shows, and so its size.
+    built: dict = {}
+    for k in api:
+        m = meta[k]
+        ins = api[k].get("inputs", {})
+        # Widget order for the canvas node's positional widgets_values.
+        # Normally object_info's schema order (m["widgets"]). Dynamic-combo
+        # nodes (e.g. OpenAIGPTImageNodeV2, Wan2ImageToVideoApi) also expose
+        # dotted sub-widgets (model.prompt, model.size, …) which m["widgets"]
+        # omits — it carries only the top-level combo — so using it as-is drops
+        # every dotted value and shifts the rest into the wrong slots.
+        #
+        # The sub-widgets ARE derivable: the selected option's own inputs, in
+        # schema order, right after the combo — the same expansion
+        # _map_widget_values uses to read them back. Deriving beats trusting
+        # the API dict's key order, which only matches the canvas while nothing
+        # has rewritten the node: dropping and re-adding an input (as splicing
+        # a canvas hook off a widget-backed input does) appends it, and the
+        # prompts then land in whichever widgets happen to sit at their index.
+        _non_link = [n for n in ins if not _is_link(ins.get(n))]
+        if any("." in str(n) for n in _non_link):
+            derived = _dynamic_widget_names(m["spec"], ins, m["sockets"])
+            # Only trust the schema when it accounts for every value present;
+            # otherwise keep the authored order, which is all we have.
+            _widget_names = (derived if derived and set(_non_link) <= set(derived)
+                             else _non_link)
+        else:
+            _widget_names = m["widgets"]
+        wv: list = []
+        _specs = {**(m["spec"].get("optional") or {}), **(m["spec"].get("required") or {})}
+        for wname in _widget_names:
+            val = ins.get(wname)
+            if wname in ins and not _is_link(val):
+                wv.append(val)
+            elif _is_link(val):
+                # The wire decides the value; the slot still wants a
+                # placeholder of the widget's own kind.
+                wspec = _specs.get(wname)
+                wmeta = (wspec[1] if isinstance(wspec, list) and len(wspec) > 1
+                         and isinstance(wspec[1], dict) else {})
+                is_text = isinstance(wspec, list) and bool(wspec) and wspec[0] == "STRING"
+                wv.append(wmeta.get("default", "" if is_text else None))
+            else:
+                wv.append(None)
+            if wname in _SEED_INPUT_NAMES:
+                wv.append("fixed")  # frontend's control_after_generate widget
+        built[k] = (_widget_names, wv)
 
-    by_level: dict = defaultdict(list)
-    for k in sorted(api, key=lambda x: id_map[x]):
-        by_level[level[k]].append(k)
+    sizes: dict = {}
+    for k in api:
+        cls = api[k]["class_type"]
+        title = ((api[k].get("_meta") or {}).get("title")
+                 or (oi.get(cls) or {}).get("display_name") or cls)
+        sizes[k] = _canvas_node_size(title, meta[k]["spec"], meta[k]["conns"],
+                                     api[k].get("inputs", {}), built[k][0], meta[k]["outputs"])
+
+    # Columns by depth, each node below the one above it at its own height, and -
+    # when the graph splits into stages - a band and a box per group. See
+    # agenty_core.tools.graph_groups.
+    try:
+        positions, group_boxes, hint = _gg.place(api, meta, level, oi, sizes)
+    except Exception as exc:  # noqa: BLE001 — a graph must open, grouped or not
+        _gg.logger.debug("_api_to_graph: could not lay out the graph — %s", exc)
+        positions, group_boxes, hint = {}, [], None
 
     nodes: list = []
-    order = 0
-    for lv in sorted(by_level):
-        for plain_row, k in enumerate(by_level[lv]):
-            row = grouped_rows.get(k, plain_row)
-            m = meta[k]
-            ins = api[k].get("inputs", {})
-            # Widget order for the canvas node's positional widgets_values.
-            # Normally object_info's schema order (m["widgets"]). Dynamic-combo
-            # nodes (e.g. OpenAIGPTImageNodeV2, Wan2ImageToVideoApi) also expose
-            # dotted sub-widgets (model.prompt, model.size, …) which m["widgets"]
-            # omits — it carries only the top-level combo — so using it as-is drops
-            # every dotted value and shifts the rest into the wrong slots.
-            #
-            # The sub-widgets ARE derivable: the selected option's own inputs, in
-            # schema order, right after the combo — the same expansion
-            # _map_widget_values uses to read them back. Deriving beats trusting
-            # the API dict's key order, which only matches the canvas while nothing
-            # has rewritten the node: dropping and re-adding an input (as splicing
-            # a canvas hook off a widget-backed input does) appends it, and the
-            # prompts then land in whichever widgets happen to sit at their index.
-            _non_link = [n for n in ins if not _is_link(ins.get(n))]
-            if any("." in str(n) for n in _non_link):
-                derived = _dynamic_widget_names(m["spec"], ins, m["sockets"])
-                # Only trust the schema when it accounts for every value present;
-                # otherwise keep the authored order, which is all we have.
-                _widget_names = (derived if derived and set(_non_link) <= set(derived)
-                                 else _non_link)
-            else:
-                _widget_names = m["widgets"]
-            wv: list = []
-            _specs = {**(m["spec"].get("optional") or {}), **(m["spec"].get("required") or {})}
-            for wname in _widget_names:
-                val = ins.get(wname)
-                if wname in ins and not _is_link(val):
-                    wv.append(val)
-                elif _is_link(val):
-                    # The wire decides the value; the slot still wants a
-                    # placeholder of the widget's own kind.
-                    wspec = _specs.get(wname)
-                    wmeta = (wspec[1] if isinstance(wspec, list) and len(wspec) > 1
-                             and isinstance(wspec[1], dict) else {})
-                    is_text = isinstance(wspec, list) and bool(wspec) and wspec[0] == "STRING"
-                    wv.append(wmeta.get("default", "" if is_text else None))
-                else:
-                    wv.append(None)
-                if wname in _SEED_INPUT_NAMES:
-                    wv.append("fixed")  # frontend's control_after_generate widget
-            nodes.append({
-                "id": id_map[k], "type": api[k]["class_type"],
-                "pos": [_gg.X0 + lv * _gg.COL_W, _gg.Y0 + row * _gg.ROW_H],
-                "size": [_gg.NODE_W, _gg.NODE_H],
-                "flags": {}, "order": order, "mode": 0,
-                "inputs": [{"name": n, "type": t, "link": in_link.get((k, n)),
-                            **({} if n in m["sockets"] else {"widget": {"name": n}})}
-                           for n, t in m["conns"]],
-                "outputs": [{"name": (n or t), "type": t, "slot_index": i,
-                             "links": out_links.get((k, i)) or None}
-                            for i, (n, t) in enumerate(m["outputs"])],
-                "properties": {"Node name for S&R": api[k]["class_type"]},
-                "widgets_values": wv,
-                "title": (api[k].get("_meta") or {}).get("title"),
-            })
-            order += 1
+    ordered = sorted(api, key=lambda k: (level.get(k, 0), (positions.get(k) or [0, 0])[1], id_map[k]))
+    for order, k in enumerate(ordered):
+        m = meta[k]
+        wv = built[k][1]
+        nodes.append({
+            "id": id_map[k], "type": api[k]["class_type"],
+            "pos": positions.get(k) or [_gg.X0 + level.get(k, 0) * 420, _gg.Y0 + order * 60],
+            "size": sizes[k],
+            "flags": {}, "order": order, "mode": 0,
+            "inputs": [{"name": n, "type": t, "link": in_link.get((k, n)),
+                        **({} if n in m["sockets"] else {"widget": {"name": n}})}
+                       for n, t in m["conns"]],
+            "outputs": [{"name": (n or t), "type": t, "slot_index": i,
+                         "links": out_links.get((k, i)) or None}
+                        for i, (n, t) in enumerate(m["outputs"])],
+            "properties": {"Node name for S&R": api[k]["class_type"]},
+            "widgets_values": wv,
+            "title": (api[k].get("_meta") or {}).get("title"),
+        })
 
+    extra: dict = {}
+    if hint:
+        # The arrangement without the pixels, keyed by canvas node id, so the
+        # sidebar extension can lay the graph out again with the sizes the canvas
+        # itself measures.
+        extra["agentY_layout"] = {
+            **hint,
+            "slots": {str(id_map[k]): v for k, v in hint["slots"].items()},
+            "groups": [[id_map[k] for k in members] for members in hint["groups"]],
+        }
     return {
         "last_node_id": max((n["id"] for n in nodes), default=0),
         "last_link_id": lid, "nodes": nodes, "links": links,
-        "groups": group_boxes, "config": {}, "extra": {}, "version": 0.4,
+        "groups": group_boxes, "config": {}, "extra": extra, "version": 0.4,
     }
 
 

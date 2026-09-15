@@ -253,32 +253,60 @@ class GroupsTest(unittest.TestCase):
         self.assertIn("1", groups[0]["members"])
 
 
+# Deliberately uneven, as real nodes are: the layout must space around each one.
+SIZES = {k: [180 + 45 * (int(k) % 5), 70 + 55 * (int(k) % 4)] for k in API}
+
+
+def node_rect(positions, sizes, k):
+    """A node's rectangle on the canvas - its title bar is drawn above its pos."""
+    x, y = positions[k]
+    w, h = sizes[k]
+    return x, y - gg.TITLE_BAR, x + w, y + h
+
+
+def overlap(a, b):
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+
 class GeometryTest(unittest.TestCase):
     """A box is something the user drags. Overlap is worse than no groups."""
 
     def setUp(self):
-        self.rows, self.boxes = gg.layout(API, META, LEVEL, {})
+        self.positions, self.boxes, self.hint = gg.place(API, META, LEVEL, {}, SIZES)
         self.groups = gg.plan_groups(API, META, LEVEL, {})
 
     def test_no_two_boxes_overlap(self):
         for i in range(len(self.boxes)):
             for j in range(i + 1, len(self.boxes)):
-                a, b = rect(self.boxes[i]), rect(self.boxes[j])
-                overlap = a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
-                self.assertFalse(overlap,
+                self.assertFalse(overlap(rect(self.boxes[i]), rect(self.boxes[j])),
                                  f"{self.boxes[i]['title']} / {self.boxes[j]['title']}")
+
+    def test_no_two_nodes_overlap(self):
+        ids = sorted(API, key=int)
+        for i, a in enumerate(ids):
+            for b in ids[i + 1:]:
+                self.assertFalse(overlap(node_rect(self.positions, SIZES, a),
+                                         node_rect(self.positions, SIZES, b)), f"{a} / {b}")
 
     def test_every_node_sits_inside_its_own_box_and_no_other(self):
         owner = {k: g["title"] for g in self.groups for k in g["members"]}
-        for node_id, row in self.rows.items():
-            x = gg.X0 + LEVEL[node_id] * gg.COL_W
-            y = gg.Y0 + row * gg.ROW_H
+        for node_id in API:
+            x, y, x2, y2 = node_rect(self.positions, SIZES, node_id)
             for box in self.boxes:
                 x0, y0, x1, y1 = rect(box)
-                inside = (x0 <= x and x + gg.NODE_W <= x1
-                          and y0 <= y and y + gg.NODE_H <= y1)
+                inside = x0 <= x and x2 <= x1 and y0 <= y and y2 <= y1
                 self.assertEqual(inside, owner[node_id] == box["title"],
                                  f"node {node_id} vs {box['title']}")
+
+    def test_a_column_starts_clear_of_the_widest_node_before_it(self):
+        by_col: dict = {}
+        for k in API:
+            by_col.setdefault(LEVEL[k], []).append(k)
+        cols = sorted(by_col)
+        for left, right in zip(cols, cols[1:]):
+            edge = max(self.positions[k][0] + SIZES[k][0] for k in by_col[left])
+            start = min(self.positions[k][0] for k in by_col[right])
+            self.assertEqual(start, edge + gg.H_GAP)
 
     def test_a_stages_loaders_sit_beside_its_sampler_not_below(self):
         # The whole point of packing bands: two groups share rows when their
@@ -295,6 +323,73 @@ class GeometryTest(unittest.TestCase):
             self.assertEqual(len(box["bounding"]), 4)
             self.assertTrue(all(isinstance(v, (int, float)) for v in box["bounding"]))
 
+    def test_the_hint_rebuilds_the_same_layout(self):
+        # The extension redoes the arrangement from the hint with measured sizes;
+        # with the same sizes it must land every node exactly where this did.
+        self.assertEqual(set(self.hint["slots"]), set(API))
+        self.assertEqual(self.hint["groups"], [g["members"] for g in self.groups])
+        slots = {k: tuple(v) for k, v in self.hint["slots"].items()}
+        self.assertEqual(gg.arrange(slots, SIZES, set(self.hint["grouped_bands"])),
+                         self.positions)
+
+
+class SizesTest(unittest.TestCase):
+    """Nodes open at the size the canvas gives them, not one size for all."""
+
+    def test_a_node_with_more_to_show_is_taller(self):
+        loader = gg.estimate_size("Load VAE", [], ["VAE"], ["vae_name"])
+        sampler = gg.estimate_size(
+            "KSampler", ["model", "positive", "negative", "latent_image"], ["LATENT"],
+            ["seed", "control_after_generate", "steps", "cfg", "sampler_name",
+             "scheduler", "denoise"])
+        self.assertLess(loader[1], sampler[1])
+
+    def test_a_textarea_node_opens_at_least_400_by_200(self):
+        w, h = gg.estimate_size("CLIP Text Encode (Prompt)", ["clip"], ["CONDITIONING"],
+                                ["text"], multiline=1)
+        self.assertGreaterEqual(w, 400)
+        self.assertGreaterEqual(h, 200)
+
+    def test_widgets_widen_a_node(self):
+        bare = gg.estimate_size("VAE Decode", ["samples", "vae"], ["IMAGE"], [])
+        with_widget = gg.estimate_size("VAE Decode", ["samples", "vae"], ["IMAGE"], ["tile"])
+        self.assertLess(bare[0], with_widget[0])
+
+    def test_a_built_graph_is_not_one_size_everywhere(self):
+        from unittest import mock
+
+        from agenty_core.tools import comfyui as C
+
+        oi = {
+            "CheckpointLoaderSimple": {
+                "input": {"required": {"ckpt_name": [["sd.safetensors"], {}]}},
+                "output": ["MODEL", "CLIP", "VAE"], "output_name": ["MODEL", "CLIP", "VAE"],
+                "display_name": "Load Checkpoint"},
+            "CLIPTextEncode": {
+                "input": {"required": {"text": ["STRING", {"multiline": True}],
+                                       "clip": ["CLIP", {}]}},
+                "output": ["CONDITIONING"], "output_name": ["CONDITIONING"],
+                "display_name": "CLIP Text Encode (Prompt)"},
+            "VAEDecode": {
+                "input": {"required": {"samples": ["LATENT", {}], "vae": ["VAE", {}]}},
+                "output": ["IMAGE"], "output_name": ["IMAGE"], "display_name": "VAE Decode"},
+        }
+        api = {"1": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": "sd.safetensors"}},
+               "2": {"class_type": "CLIPTextEncode", "inputs": {"text": "a cat", "clip": ["1", 1]}},
+               "3": {"class_type": "CLIPTextEncode", "inputs": {"text": "", "clip": ["1", 1]}},
+               "4": {"class_type": "VAEDecode", "inputs": {"samples": ["2", 0], "vae": ["1", 2]}}}
+        with mock.patch.object(C, "_get_object_info", return_value=oi):
+            graph = C._api_to_graph(api)
+        nodes = {str(n["id"]): n for n in graph["nodes"]}
+        self.assertEqual(len({tuple(n["size"]) for n in nodes.values()}), 3)
+        self.assertGreaterEqual(nodes["2"]["size"][0], 400)            # the prompt box
+        self.assertLess(nodes["4"]["size"][1], nodes["2"]["size"][1])  # a decode is short
+        positions = {k: n["pos"] for k, n in nodes.items()}
+        sizes = {k: n["size"] for k, n in nodes.items()}
+        # Two prompts in one column: the second starts below the first, not on it.
+        self.assertFalse(overlap(node_rect(positions, sizes, "2"), node_rect(positions, sizes, "3")))
+        self.assertEqual(set(graph["extra"]["agentY_layout"]["slots"]), set(nodes))
+
 
 class NeverChangesWhatRunsTest(unittest.TestCase):
     """Groups are cosmetic. Nothing here may touch the graph itself."""
@@ -306,30 +401,31 @@ class NeverChangesWhatRunsTest(unittest.TestCase):
 
         with mock.patch.object(C, "_get_object_info", return_value={}):
             plain = C._api_to_graph(API)
-            with mock.patch.object(gg, "layout",
+            with mock.patch.object(gg, "place",
                                    return_value=({}, [{"id": 1, "title": "t",
                                                        "bounding": [0, 0, 1, 1],
                                                        "color": "#000",
                                                        "font_size": 24,
-                                                       "flags": {}}])):
+                                                       "flags": {}}], None)):
                 grouped = C._api_to_graph(API)
         self.assertEqual(len(plain["nodes"]), len(grouped["nodes"]))
         self.assertEqual(plain["links"], grouped["links"])
-        self.assertEqual([n["type"] for n in plain["nodes"]],
-                         [n["type"] for n in grouped["nodes"]])
+        self.assertEqual(sorted(n["type"] for n in plain["nodes"]),
+                         sorted(n["type"] for n in grouped["nodes"]))
         self.assertEqual(plain["groups"], [])
         self.assertEqual(len(grouped["groups"]), 1)
 
-    def test_a_grouper_that_raises_still_opens_the_graph(self):
+    def test_a_layout_that_raises_still_opens_the_graph(self):
         from unittest import mock
 
         from agenty_core.tools import comfyui as C
 
-        with mock.patch.object(gg, "layout", side_effect=RuntimeError("boom")), \
+        with mock.patch.object(gg, "place", side_effect=RuntimeError("boom")), \
              mock.patch.object(C, "_get_object_info", return_value={}):
             graph = C._api_to_graph(API)
         self.assertEqual(len(graph["nodes"]), len(API))
         self.assertEqual(graph["groups"], [])
+        self.assertNotIn("agentY_layout", graph["extra"])
 
 
 if __name__ == "__main__":
