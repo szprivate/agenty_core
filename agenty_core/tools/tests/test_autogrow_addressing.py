@@ -242,6 +242,14 @@ class TheCanvasGraph(unittest.TestCase):
         self.assertEqual(inputs["prompt"]["widget"], {"name": "prompt"})
         self.assertNotIn("widget", inputs["clip"])
 
+    def test_reference_slots_show_their_short_label(self):
+        # Without it the canvas shows 'ref_images.ref_image_0' next to the
+        # frontend's own empty 'ref_image_1', as if the agent had added a slot.
+        inputs = {i["name"]: i for i in self.node9["inputs"]}
+        self.assertEqual(inputs["ref_images.ref_image_1"]["label"], "ref_image_1")
+        self.assertEqual(inputs["ref_images.ref_image_1"]["shape"], 7)
+        self.assertNotIn("label", inputs["clip"])
+
     def test_it_reads_back_to_the_same_prompt(self):
         back = C._convert_graph_to_api(self.graph)["9"]["inputs"]
         for key in ("width", "height", "length", "ref_image_size"):

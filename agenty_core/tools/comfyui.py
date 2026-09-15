@@ -1200,7 +1200,7 @@ def _api_to_graph(workflow: dict) -> dict:
         spec = info.get("input", {})
         allspec = {**(spec.get("required") or {}), **(spec.get("optional") or {})}
         ins = nd.get("inputs", {})
-        conns, seen = [], set()
+        conns, seen, grown = [], set(), set()
         for name, sp in allspec.items():
             t = sp[0] if isinstance(sp, list) and sp else None
             if _is_autogrow_group(sp):
@@ -1211,7 +1211,7 @@ def _api_to_graph(workflow: dict) -> dict:
                 ag = _autogrow_info(sp[1] if len(sp) > 1 and isinstance(sp[1], dict) else {}, name)
                 for key in ag["keys"]:
                     if _is_link(ins.get(key)):
-                        conns.append((key, ag["grown_type"])); seen.add(key)
+                        conns.append((key, ag["grown_type"])); seen.add(key); grown.add(key)
                 continue
             if _is_link(ins.get(name)) or (isinstance(t, str) and t in _LINK_ONLY_TYPES):
                 conns.append((name, t if isinstance(t, str) else "*")); seen.add(name)
@@ -1230,7 +1230,7 @@ def _api_to_graph(workflow: dict) -> dict:
         outs = info.get("output", []) or []
         onames = info.get("output_name", []) or outs
         meta[k] = {"conns": conns, "widgets": widgets, "spec": spec, "sockets": sockets,
-                   "outputs": list(zip(onames, outs))}
+                   "grown": grown, "outputs": list(zip(onames, outs))}
 
     # Links + slot bookkeeping.
     links: list = []
@@ -1343,7 +1343,11 @@ def _api_to_graph(workflow: dict) -> dict:
             "pos": positions.get(k) or [_gg.X0 + level.get(k, 0) * 420, _gg.Y0 + order * 60],
             "size": sizes[k],
             "flags": {}, "order": order, "mode": 0,
+            # An autogrow slot carries its short label and the optional-socket
+            # shape, as the frontend saves it; without the label the canvas shows
+            # 'ref_images.ref_image_0' beside its own 'ref_image_1'.
             "inputs": [{"name": n, "type": t, "link": in_link.get((k, n)),
+                        **({"label": n.rsplit(".", 1)[-1], "shape": 7} if n in m["grown"] else {}),
                         **({} if n in m["sockets"] else {"widget": {"name": n}})}
                        for n, t in m["conns"]],
             "outputs": [{"name": (n or t), "type": t, "slot_index": i,
