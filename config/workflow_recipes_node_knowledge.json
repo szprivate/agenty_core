@@ -1,9 +1,9 @@
 {
   "generated_from": {
-    "workflow_count": 637,
-    "node_class_count": 579,
+    "workflow_count": 608,
+    "node_class_count": 527,
     "custom_classes": 19,
-    "unresolved_classes": 11
+    "unresolved_classes": 10
   },
   "nodes": [
     {
@@ -183,40 +183,6 @@
       "occurrences": 3
     },
     {
-      "class": "ApplyTextureToMesh",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "base_color",
-          "mesh"
-        ],
-        "optional": [
-          "metallic",
-          "normal_map",
-          "occlusion",
-          "roughness"
-        ],
-        "types": {
-          "mesh": "MESH",
-          "base_color": "IMAGE",
-          "metallic": "IMAGE",
-          "roughness": "IMAGE",
-          "occlusion": "IMAGE",
-          "normal_map": "IMAGE"
-        }
-      },
-      "outputs": [
-        "MESH"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "AudioAdjustVolume",
       "role": "other",
       "role_description": "unclassified node role",
@@ -264,10 +230,9 @@
         "AUDIO"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_video_to_video__generic",
         "image_to_video__wan"
       ],
-      "occurrences": 2
+      "occurrences": 1
     },
     {
       "class": "AudioEncoderEncode",
@@ -350,104 +315,6 @@
       "occurrences": 2
     },
     {
-      "class": "BakeAmbientOcclusion",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "bias",
-          "high_poly",
-          "low_poly",
-          "max_distance",
-          "resolution",
-          "samples",
-          "strength"
-        ],
-        "optional": [],
-        "types": {
-          "low_poly": "MESH",
-          "high_poly": "MESH",
-          "resolution": "INT",
-          "samples": "INT",
-          "max_distance": "FLOAT",
-          "strength": "FLOAT",
-          "bias": "FLOAT"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "BakeNormalMapFromMesh",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "cage_distance",
-          "high_poly",
-          "ignore_backfaces",
-          "low_poly",
-          "resolution"
-        ],
-        "optional": [],
-        "types": {
-          "low_poly": "MESH",
-          "high_poly": "MESH",
-          "resolution": "INT",
-          "cage_distance": "FLOAT",
-          "ignore_backfaces": "BOOLEAN"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "BakeTextureFromVoxel",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "mesh",
-          "texture_size",
-          "voxel_colors"
-        ],
-        "optional": [
-          "reference_mesh"
-        ],
-        "types": {
-          "mesh": "MESH",
-          "voxel_colors": "VOXEL",
-          "texture_size": "INT",
-          "reference_mesh": "MESH"
-        }
-      },
-      "outputs": [
-        "IMAGE",
-        "IMAGE",
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "BasicGuider",
       "role": "guidance",
       "role_description": "guider / sigma / scheduler",
@@ -476,14 +343,13 @@
         "image_edit_with_controlnet__qwen_image",
         "image_edit_with_controlnet__z_image",
         "image_to_video__anima",
-        "image_to_video__wan",
         "preprocessors_estimation__lotus",
         "text_to_image__flux_2",
         "text_to_video__generic",
         "text_to_video__hunyuan3d",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 21
+      "occurrences": 20
     },
     {
       "class": "BasicScheduler",
@@ -538,7 +404,7 @@
         "video_to_video__ltx_2",
         "video_to_video__wan"
       ],
-      "occurrences": 59
+      "occurrences": 56
     },
     {
       "class": "BatchImagesNode",
@@ -570,7 +436,6 @@
         "api_partner_nodes_image_to_video__generic",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_text_to_video__generic",
-        "api_partner_nodes_video_to_video__generic",
         "api_partner_nodes_video_to_video__kling",
         "first_last_frame_to_video__wan_2_2",
         "image_to_video__bernini",
@@ -581,7 +446,7 @@
         "video_to_video__wan_vace",
         "video_tools__generic"
       ],
-      "occurrences": 55
+      "occurrences": 53
     },
     {
       "class": "BatchMasksNode",
@@ -751,104 +616,6 @@
       ],
       "used_in_type_ids": [
         "text_to_image__generic"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "BriaEraser",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "image",
-          "mask",
-          "mask_type",
-          "moderation"
-        ],
-        "optional": [],
-        "types": {
-          "image": "IMAGE",
-          "mask": "MASK",
-          "mask_type": "COMBO",
-          "moderation": "COMFY_DYNAMICCOMBO_V3"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_edit__wan"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "BriaExpandImage",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "expand_mode",
-          "image",
-          "moderation",
-          "negative_prompt",
-          "prompt",
-          "seed"
-        ],
-        "optional": [],
-        "types": {
-          "image": "IMAGE",
-          "expand_mode": "COMFY_DYNAMICCOMBO_V3",
-          "prompt": "STRING",
-          "negative_prompt": "STRING",
-          "seed": "INT",
-          "moderation": "COMFY_DYNAMICCOMBO_V3"
-        }
-      },
-      "outputs": [
-        "IMAGE",
-        "STRING"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_edit__generic"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "BriaGenFill",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "image",
-          "mask",
-          "moderation",
-          "negative_prompt",
-          "prompt",
-          "refine_prompt",
-          "seed"
-        ],
-        "optional": [],
-        "types": {
-          "image": "IMAGE",
-          "mask": "MASK",
-          "prompt": "STRING",
-          "negative_prompt": "STRING",
-          "refine_prompt": "BOOLEAN",
-          "seed": "INT",
-          "moderation": "COMFY_DYNAMICCOMBO_V3"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_edit__generic"
       ],
       "occurrences": 1
     },
@@ -1071,40 +838,6 @@
       "occurrences": 1
     },
     {
-      "class": "BuildPoseFile",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "camera_translation",
-          "format",
-          "fps",
-          "pose_data",
-          "track_index"
-        ],
-        "optional": [
-          "sam3d_body_model"
-        ],
-        "types": {
-          "pose_data": "MHR_POSE_DATA,KIMODO_POSE_DATA",
-          "format": "COMFY_DYNAMICCOMBO_V3",
-          "fps": "FLOAT",
-          "camera_translation": "COMBO",
-          "track_index": "INT",
-          "sam3d_body_model": "SAM3D_BODY_MODEL"
-        }
-      },
-      "outputs": [
-        "FILE_3D"
-      ],
-      "used_in_type_ids": [
-        "video_to_video__sam3"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "ByteDance2FirstLastFrameNode",
       "role": "other",
       "role_description": "unclassified node role",
@@ -1167,36 +900,7 @@
         "api_partner_nodes_video_to_video__gemini",
         "api_partner_nodes_video_to_video__generic"
       ],
-      "occurrences": 8
-    },
-    {
-      "class": "ByteDance2ReferenceNodeV2",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model",
-          "seed",
-          "watermark"
-        ],
-        "optional": [],
-        "types": {
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "seed": "INT",
-          "watermark": "BOOLEAN"
-        }
-      },
-      "outputs": [
-        "VIDEO"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_to_video__anima",
-        "api_partner_nodes_text_to_video__generic",
-        "api_partner_nodes_video_to_video__generic"
-      ],
-      "occurrences": 4
+      "occurrences": 10
     },
     {
       "class": "ByteDance2TextToVideoNode",
@@ -1223,7 +927,7 @@
       "used_in_type_ids": [
         "api_partner_nodes_text_to_video__generic"
       ],
-      "occurrences": 5
+      "occurrences": 4
     },
     {
       "class": "ByteDanceCreateImageAsset",
@@ -1598,37 +1302,6 @@
       "occurrences": 2
     },
     {
-      "class": "ByteDanceVideoEnhanceNode",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "bitrate_level",
-          "fps",
-          "resolution",
-          "tool_version",
-          "video"
-        ],
-        "optional": [],
-        "types": {
-          "video": "VIDEO",
-          "tool_version": "COMFY_DYNAMICCOMBO_V3",
-          "resolution": "COMFY_DYNAMICCOMBO_V3",
-          "fps": "COMBO",
-          "bitrate_level": "COMBO"
-        }
-      },
-      "outputs": [
-        "VIDEO"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_upscale__generic"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "CFGGuider",
       "role": "guidance",
       "role_description": "guider / sigma / scheduler",
@@ -1733,10 +1406,9 @@
         "MODEL"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "text_to_image__ideogram"
       ],
-      "occurrences": 5
+      "occurrences": 3
     },
     {
       "class": "CFGZeroStar",
@@ -1792,12 +1464,10 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_text_to_image__z_image",
-        "audio__generic",
         "audio__qwen_image",
         "audio__stable_audio",
         "character__qwen_image",
         "character__scail",
-        "first_last_frame_to_video__ltx_2",
         "first_last_frame_to_video__wan",
         "first_last_frame_to_video__wan_2_2",
         "first_last_frame_to_video__wan_vace",
@@ -1853,7 +1523,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 218
+      "occurrences": 208
     },
     {
       "class": "CLIPTextEncode",
@@ -1947,7 +1617,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 436
+      "occurrences": 421
     },
     {
       "class": "CLIPTextEncodeFlux",
@@ -2011,7 +1681,7 @@
         "image_to_video__wan",
         "video_to_video__wan"
       ],
-      "occurrences": 49
+      "occurrences": 45
     },
     {
       "class": "CLIPVisionLoader",
@@ -2032,7 +1702,6 @@
         "CLIP_VISION"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "3d__triposplat",
         "character__scail",
         "first_last_frame_to_video__wan",
@@ -2043,7 +1712,7 @@
         "image_to_video__wan",
         "video_to_video__wan"
       ],
-      "occurrences": 31
+      "occurrences": 28
     },
     {
       "class": "Canny",
@@ -2129,7 +1798,7 @@
         "video_to_video__sdpose",
         "video_to_video__wan"
       ],
-      "occurrences": 78
+      "occurrences": 76
     },
     {
       "class": "ChromaRadianceOptions",
@@ -2279,7 +1948,6 @@
       "used_in_type_ids": [
         "3d__moge",
         "api_partner_nodes_audio__ltx",
-        "api_partner_nodes_upscale__generic",
         "audio__qwen_image",
         "audio__stable_audio",
         "character__scail",
@@ -2305,7 +1973,7 @@
         "video_to_video__wan",
         "video_tools__generic"
       ],
-      "occurrences": 144
+      "occurrences": 127
     },
     {
       "class": "ComfyNumberConvert",
@@ -2358,13 +2026,10 @@
         "3d__moge",
         "3d__triposplat",
         "api_partner_nodes_image_edit__generic",
-        "api_partner_nodes_video_to_video__generic",
-        "audio__generic",
         "audio__qwen_image",
         "audio__stable_audio",
         "character__qwen_image",
         "character__scail",
-        "first_last_frame_to_video__ltx_2",
         "image_edit__bernini",
         "image_edit__firered",
         "image_edit__flux_2",
@@ -2373,7 +2038,6 @@
         "image_edit__qwen_image",
         "image_edit_with_controlnet__anima",
         "image_edit_with_controlnet__qwen_image",
-        "image_to_video__anima",
         "image_to_video__bernini",
         "image_to_video__ltx_2",
         "image_to_video__wan",
@@ -2387,7 +2051,6 @@
         "text_to_image__flux_krea",
         "text_to_image__qwen_image",
         "text_to_image__z_image",
-        "text_to_video__generic",
         "text_to_video__ltx_2",
         "text_to_video__wan_2_2",
         "upscale__generic",
@@ -2401,7 +2064,7 @@
         "video_to_video__wan",
         "video_tools__generic"
       ],
-      "occurrences": 253
+      "occurrences": 231
     },
     {
       "class": "ConditioningZeroOut",
@@ -2425,7 +2088,6 @@
         "api_partner_nodes_audio__ace_step",
         "api_partner_nodes_image_to_video__kling",
         "audio__ace_step",
-        "audio__generic",
         "image_edit__flux",
         "image_edit__flux_2_klein",
         "image_edit__flux_krea",
@@ -2447,7 +2109,7 @@
         "upscale__flux",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 65
+      "occurrences": 64
     },
     {
       "class": "ContextWindowsManual",
@@ -2494,7 +2156,7 @@
       "used_in_type_ids": [
         "video_to_video__wan"
       ],
-      "occurrences": 4
+      "occurrences": 2
     },
     {
       "class": "ControlNetApplyAdvanced",
@@ -2689,15 +2351,13 @@
         ],
         "optional": [
           "audio",
-          "bit_depth",
-          "color_space"
+          "bit_depth"
         ],
         "types": {
           "images": "IMAGE",
           "fps": "FLOAT",
           "audio": "AUDIO",
-          "bit_depth": "COMBO",
-          "color_space": "COMBO"
+          "bit_depth": "INT"
         }
       },
       "outputs": [
@@ -2710,7 +2370,6 @@
         "api_partner_nodes_first_last_frame_to_video__anima",
         "api_partner_nodes_first_last_frame_to_video__wan_2_2",
         "api_partner_nodes_text_to_video__generic",
-        "api_partner_nodes_upscale__generic",
         "api_partner_nodes_video_to_video__generic",
         "first_last_frame_to_video__ltx_2",
         "first_last_frame_to_video__wan",
@@ -2738,7 +2397,6 @@
         "video_to_video__depth_anything",
         "video_to_video__generic",
         "video_to_video__ltx_2",
-        "video_to_video__sam3",
         "video_to_video__sdpose",
         "video_to_video__wan",
         "video_to_video__wan_2_2",
@@ -2746,7 +2404,7 @@
         "video_tools__depth_anything",
         "video_tools__generic"
       ],
-      "occurrences": 126
+      "occurrences": 117
     },
     {
       "class": "CurveEditor",
@@ -2869,33 +2527,6 @@
         "video_tools__depth_anything"
       ],
       "occurrences": 5
-    },
-    {
-      "class": "DecimateMesh",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "mesh",
-          "placement_mode",
-          "target_face_count"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH",
-          "target_face_count": "INT",
-          "placement_mode": "COMFY_DYNAMICCOMBO_V3"
-        }
-      },
-      "outputs": [
-        "MESH"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
     },
     {
       "class": "DifferentialDiffusion",
@@ -3494,10 +3125,9 @@
         "AUDIO"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_video_to_video__generic",
         "video_tools__generic"
       ],
-      "occurrences": 2
+      "occurrences": 1
     },
     {
       "class": "EmptyChromaRadianceLatentImage",
@@ -3710,7 +3340,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 29
+      "occurrences": 26
     },
     {
       "class": "EmptyLatentAudio",
@@ -3798,32 +3428,7 @@
         "text_to_image__flux_krea",
         "text_to_image__generic"
       ],
-      "occurrences": 25
-    },
-    {
-      "class": "EmptyMiniMaxMusic3LatentAudio",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "batch_size",
-          "seconds"
-        ],
-        "optional": [],
-        "types": {
-          "seconds": "FLOAT",
-          "batch_size": "INT"
-        }
-      },
-      "outputs": [
-        "LATENT"
-      ],
-      "used_in_type_ids": [
-        "audio__generic"
-      ],
-      "occurrences": 1
+      "occurrences": 24
     },
     {
       "class": "EmptyQwenImageLayeredLatentImage",
@@ -3897,29 +3502,6 @@
         "upscale__flux"
       ],
       "occurrences": 51
-    },
-    {
-      "class": "EmptyTrellis2LatentStructure",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "batch_size"
-        ],
-        "optional": [],
-        "types": {
-          "batch_size": "INT"
-        }
-      },
-      "outputs": [
-        "LATENT"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
     },
     {
       "class": "FeatherMask",
@@ -4449,41 +4031,6 @@
       "occurrences": 1
     },
     {
-      "class": "FluxVideoUpscaleNode",
-      "role": "upscale",
-      "role_description": "upscale / resize",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "auto_downscale",
-          "mode",
-          "prompt",
-          "safety_tolerance",
-          "seed",
-          "upscale_factor",
-          "video"
-        ],
-        "optional": [],
-        "types": {
-          "video": "VIDEO",
-          "upscale_factor": "FLOAT",
-          "mode": "COMBO",
-          "prompt": "STRING",
-          "auto_downscale": "BOOLEAN",
-          "safety_tolerance": "INT",
-          "seed": "INT"
-        }
-      },
-      "outputs": [
-        "VIDEO"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_upscale__flux"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "FrameInterpolate",
       "role": "other",
       "role_description": "unclassified node role",
@@ -4777,11 +4324,10 @@
         "api_partner_nodes_first_last_frame_to_video__anima",
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__nano_banana",
-        "api_partner_nodes_image_edit__wan",
         "api_partner_nodes_text_to_image__nano_banana",
         "api_partner_nodes_text_to_video__generic"
       ],
-      "occurrences": 10
+      "occurrences": 9
     },
     {
       "class": "GeminiNode",
@@ -4994,7 +4540,6 @@
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_image_to_video__generic",
-        "api_partner_nodes_upscale__generic",
         "api_partner_nodes_upscale__topaz",
         "api_partner_nodes_video_to_video__generic",
         "character__scail",
@@ -5025,7 +4570,7 @@
         "video_to_video__wan",
         "video_tools__generic"
       ],
-      "occurrences": 114
+      "occurrences": 105
     },
     {
       "class": "GetImageSizeAndCount",
@@ -5054,30 +4599,6 @@
       "occurrences": 1
     },
     {
-      "class": "GetMeshInfo",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "mesh"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH"
-        }
-      },
-      "outputs": [
-        "MESH",
-        "STRING"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "GetVideoComponents",
       "role": "other",
       "role_description": "unclassified node role",
@@ -5096,8 +4617,7 @@
         "IMAGE",
         "AUDIO",
         "FLOAT",
-        "COMBO",
-        "COMBO"
+        "INT"
       ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__generic",
@@ -5112,7 +4632,6 @@
         "api_partner_nodes_text_to_video__kling",
         "api_partner_nodes_text_to_video__ltx_2",
         "api_partner_nodes_text_to_video__wan_2_6",
-        "api_partner_nodes_upscale__generic",
         "api_partner_nodes_video_to_video__gemini",
         "api_partner_nodes_video_to_video__generic",
         "api_partner_nodes_video_to_video__kling",
@@ -5146,7 +4665,7 @@
         "video_tools__depth_anything",
         "video_tools__generic"
       ],
-      "occurrences": 99
+      "occurrences": 89
     },
     {
       "class": "GrokImageEditNode",
@@ -5186,33 +4705,6 @@
       "occurrences": 14
     },
     {
-      "class": "GrokImageEditNodeV2",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model",
-          "prompt",
-          "seed"
-        ],
-        "optional": [],
-        "types": {
-          "prompt": "STRING",
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "seed": "INT"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_edit__generic"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "GrokImageNode",
       "role": "other",
       "role_description": "unclassified node role",
@@ -5227,7 +4719,6 @@
           "seed"
         ],
         "optional": [
-          "quality",
           "resolution"
         ],
         "types": {
@@ -5236,8 +4727,7 @@
           "aspect_ratio": "COMBO",
           "number_of_images": "INT",
           "seed": "INT",
-          "resolution": "COMBO",
-          "quality": "COMBO"
+          "resolution": "COMBO"
         }
       },
       "outputs": [
@@ -5249,7 +4739,7 @@
         "api_partner_nodes_image_edit__z_image",
         "api_partner_nodes_text_to_image__generic"
       ],
-      "occurrences": 6
+      "occurrences": 5
     },
     {
       "class": "GrokVideoEditNode",
@@ -6278,7 +5768,7 @@
         "upscale__generic",
         "upscale__z_image"
       ],
-      "occurrences": 34
+      "occurrences": 32
     },
     {
       "class": "ImageCompositeMasked",
@@ -6340,42 +5830,7 @@
       "used_in_type_ids": [
         "api_partner_nodes_image_edit__seedream"
       ],
-      "occurrences": 1
-    },
-    {
-      "class": "ImageCropToMask",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "background",
-          "grow_mask",
-          "height",
-          "images",
-          "masks",
-          "pad_factor",
-          "width"
-        ],
-        "optional": [],
-        "types": {
-          "images": "IMAGE",
-          "masks": "MASK",
-          "width": "INT",
-          "height": "INT",
-          "pad_factor": "FLOAT",
-          "grow_mask": "INT",
-          "background": "COLOR"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "class": "ImageCropV2",
@@ -6440,7 +5895,7 @@
         "video_to_video__wan",
         "video_tools__generic"
       ],
-      "occurrences": 56
+      "occurrences": 50
     },
     {
       "class": "ImageHistogram",
@@ -6801,14 +6256,13 @@
         "api_partner_nodes_first_last_frame_to_video__wan_2_2",
         "api_partner_nodes_image_edit__flux",
         "api_partner_nodes_text_to_video__generic",
-        "api_partner_nodes_upscale__generic",
         "image_edit__flux",
         "image_tools__generic",
         "video_to_video__wan",
         "video_to_video__wan_vace",
         "video_tools__generic"
       ],
-      "occurrences": 18
+      "occurrences": 16
     },
     {
       "class": "ImageToMask",
@@ -7008,7 +6462,6 @@
       "used_in_type_ids": [
         "3d__triposplat",
         "api_partner_nodes_image_edit__generic",
-        "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_video_to_video__generic",
         "image_edit__sam3",
         "image_tools__birefnet",
@@ -7016,7 +6469,7 @@
         "text_to_video__wan",
         "upscale__generic"
       ],
-      "occurrences": 11
+      "occurrences": 10
     },
     {
       "class": "JsonExtractString",
@@ -7085,7 +6538,6 @@
       ],
       "used_in_type_ids": [
         "3d__hunyuan3d",
-        "3d__moge",
         "3d__triposplat",
         "api_partner_nodes_audio__ace_step",
         "api_partner_nodes_image_edit__flux_2_klein",
@@ -7094,7 +6546,6 @@
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_text_to_image__z_image",
         "audio__ace_step",
-        "audio__generic",
         "audio__qwen_image",
         "audio__stable_audio",
         "character__qwen_image",
@@ -7142,7 +6593,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 197
+      "occurrences": 191
     },
     {
       "class": "KSamplerAdvanced",
@@ -7252,7 +6703,7 @@
         "video_to_video__ltx_2",
         "video_to_video__wan"
       ],
-      "occurrences": 120
+      "occurrences": 113
     },
     {
       "class": "Kandinsky5ImageToVideo",
@@ -7295,6 +6746,38 @@
         "text_to_video__generic"
       ],
       "occurrences": 2
+    },
+    {
+      "class": "KlingAvatarNode",
+      "role": "other",
+      "role_description": "unclassified node role",
+      "resolved": true,
+      "is_custom": false,
+      "inputs": {
+        "required": [
+          "image",
+          "mode",
+          "seed",
+          "sound_file"
+        ],
+        "optional": [
+          "prompt"
+        ],
+        "types": {
+          "image": "IMAGE",
+          "sound_file": "AUDIO",
+          "mode": "COMBO",
+          "seed": "INT",
+          "prompt": "STRING"
+        }
+      },
+      "outputs": [
+        "VIDEO"
+      ],
+      "used_in_type_ids": [
+        "api_partner_nodes_text_to_video__kling"
+      ],
+      "occurrences": 1
     },
     {
       "class": "KlingFirstLastFrameNode",
@@ -7907,7 +7390,7 @@
         "image_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 19
+      "occurrences": 17
     },
     {
       "class": "LTXVAudioVAEDecode",
@@ -7936,7 +7419,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 28
+      "occurrences": 25
     },
     {
       "class": "LTXVAudioVAEEncode",
@@ -8018,7 +7501,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 49
+      "occurrences": 44
     },
     {
       "class": "LTXVConditioning",
@@ -8050,7 +7533,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 30
+      "occurrences": 27
     },
     {
       "class": "LTXVCropGuides",
@@ -8083,40 +7566,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 25
-    },
-    {
-      "class": "LTXVDualCFGGuider",
-      "role": "guidance",
-      "role_description": "guider / sigma / scheduler",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "audio_cfg",
-          "model",
-          "negative",
-          "positive",
-          "video_cfg"
-        ],
-        "optional": [],
-        "types": {
-          "model": "MODEL",
-          "positive": "CONDITIONING",
-          "negative": "CONDITIONING",
-          "video_cfg": "FLOAT",
-          "audio_cfg": "FLOAT"
-        }
-      },
-      "outputs": [
-        "GUIDER"
-      ],
-      "used_in_type_ids": [
-        "first_last_frame_to_video__ltx_2",
-        "image_to_video__ltx_2",
-        "text_to_video__ltx_2"
-      ],
-      "occurrences": 5
+      "occurrences": 24
     },
     {
       "class": "LTXVEmptyLatentAudio",
@@ -8148,7 +7598,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 26
+      "occurrences": 23
     },
     {
       "class": "LTXVImgToVideo",
@@ -8223,7 +7673,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 37
+      "occurrences": 35
     },
     {
       "class": "LTXVLatentUpsampler",
@@ -8253,7 +7703,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 21
+      "occurrences": 19
     },
     {
       "class": "LTXVPreprocess",
@@ -8281,7 +7731,7 @@
         "image_to_video__ltx_2",
         "text_to_video__ltx_2"
       ],
-      "occurrences": 21
+      "occurrences": 18
     },
     {
       "class": "LTXVReferenceAudio",
@@ -8384,7 +7834,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 49
+      "occurrences": 44
     },
     {
       "class": "LatentApplyOperationCFG",
@@ -8463,11 +7913,9 @@
         "LATENT"
       ],
       "used_in_type_ids": [
-        "image_edit__qwen_image",
-        "image_edit_with_controlnet__wan",
         "image_to_video__wan_2_2"
       ],
-      "occurrences": 5
+      "occurrences": 2
     },
     {
       "class": "LatentCutToBatch",
@@ -8547,7 +7995,43 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 23
+      "occurrences": 21
+    },
+    {
+      "class": "LayersFromBoundingBoxes",
+      "role": "other",
+      "role_description": "unclassified node role",
+      "resolved": true,
+      "is_custom": false,
+      "inputs": {
+        "required": [
+          "bboxes",
+          "image"
+        ],
+        "optional": [
+          "canvas_height",
+          "canvas_width",
+          "crop_to_content",
+          "layers",
+          "mask"
+        ],
+        "types": {
+          "image": "IMAGE",
+          "bboxes": "BOUNDING_BOX,ARRAY,STRING",
+          "mask": "MASK",
+          "layers": "LAYERS",
+          "crop_to_content": "BOOLEAN",
+          "canvas_width": "INT",
+          "canvas_height": "INT"
+        }
+      },
+      "outputs": [
+        "LAYERS"
+      ],
+      "used_in_type_ids": [
+        "api_partner_nodes_image_edit__seedream"
+      ],
+      "occurrences": 1
     },
     {
       "class": "Load3D",
@@ -8609,6 +8093,7 @@
         "api_partner_nodes_image_to_video__wan",
         "api_partner_nodes_text_to_image__generic",
         "api_partner_nodes_text_to_video__generic",
+        "api_partner_nodes_text_to_video__kling",
         "api_partner_nodes_text_to_video__wan",
         "api_partner_nodes_video_to_video__anima",
         "audio__ace_step",
@@ -8618,7 +8103,7 @@
         "image_to_video__wan_2_2",
         "image_tools__generic"
       ],
-      "occurrences": 22
+      "occurrences": 23
     },
     {
       "class": "LoadBackgroundRemovalModel",
@@ -8639,12 +8124,11 @@
         "BACKGROUND_REMOVAL"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "3d__triposplat",
         "image_tools__birefnet",
         "preprocessors_estimation__birefnet"
       ],
-      "occurrences": 5
+      "occurrences": 4
     },
     {
       "class": "LoadDA3Model",
@@ -8706,7 +8190,6 @@
         "api_partner_nodes_first_last_frame_to_video__anima",
         "api_partner_nodes_first_last_frame_to_video__generic",
         "api_partner_nodes_first_last_frame_to_video__kling",
-        "api_partner_nodes_first_last_frame_to_video__ltx_2",
         "api_partner_nodes_first_last_frame_to_video__wan_2_2",
         "api_partner_nodes_image_edit__flux",
         "api_partner_nodes_image_edit__flux_2",
@@ -8717,7 +8200,6 @@
         "api_partner_nodes_image_edit__kling",
         "api_partner_nodes_image_edit__magnific",
         "api_partner_nodes_image_edit__nano_banana",
-        "api_partner_nodes_image_edit__qwen_image",
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_image_edit__wan",
         "api_partner_nodes_image_edit__z_image",
@@ -8799,7 +8281,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 494
+      "occurrences": 474
     },
     {
       "class": "LoadMediaPipeFaceLandmarker",
@@ -8845,10 +8327,9 @@
       "used_in_type_ids": [
         "3d__moge",
         "preprocessors_estimation__moge",
-        "video_to_video__ltx_2",
-        "video_to_video__sam3"
+        "video_to_video__ltx_2"
       ],
-      "occurrences": 9
+      "occurrences": 7
     },
     {
       "class": "LoadVideo",
@@ -8870,7 +8351,6 @@
       ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__generic",
-        "api_partner_nodes_upscale__flux",
         "api_partner_nodes_upscale__generic",
         "api_partner_nodes_upscale__topaz",
         "api_partner_nodes_video_to_video__anima",
@@ -8896,7 +8376,7 @@
         "video_to_video__wan_vace",
         "video_tools__depth_anything"
       ],
-      "occurrences": 64
+      "occurrences": 59
     },
     {
       "class": "LoraLoader",
@@ -8974,7 +8454,6 @@
         "image_edit__qwen_image",
         "image_edit_with_controlnet__anima",
         "image_edit_with_controlnet__qwen_image",
-        "image_to_video__anima",
         "image_to_video__bernini",
         "image_to_video__generic",
         "image_to_video__ltx_2",
@@ -8987,7 +8466,6 @@
         "text_to_image__flux_krea",
         "text_to_image__qwen_image",
         "text_to_image__z_image",
-        "text_to_video__generic",
         "text_to_video__ltx_2",
         "text_to_video__wan",
         "text_to_video__wan_2_2",
@@ -8999,7 +8477,7 @@
         "video_to_video__wan",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 175
+      "occurrences": 171
     },
     {
       "class": "LotusConditioning",
@@ -9025,66 +8503,6 @@
         "video_to_video__ltx_2"
       ],
       "occurrences": 9
-    },
-    {
-      "class": "LtxApi25ImageToVideo",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "image",
-          "model",
-          "prompt",
-          "seed"
-        ],
-        "optional": [
-          "last_frame"
-        ],
-        "types": {
-          "image": "IMAGE",
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "prompt": "STRING",
-          "seed": "INT",
-          "last_frame": "IMAGE"
-        }
-      },
-      "outputs": [
-        "VIDEO"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_first_last_frame_to_video__ltx_2",
-        "api_partner_nodes_image_to_video__ltx_2"
-      ],
-      "occurrences": 2
-    },
-    {
-      "class": "LtxApi25TextToVideo",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model",
-          "prompt",
-          "seed"
-        ],
-        "optional": [],
-        "types": {
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "prompt": "STRING",
-          "seed": "INT"
-        }
-      },
-      "outputs": [
-        "VIDEO"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_text_to_video__ltx_2"
-      ],
-      "occurrences": 1
     },
     {
       "class": "LtxvApiImageToVideo",
@@ -9764,7 +9182,7 @@
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 39
+      "occurrences": 34
     },
     {
       "class": "MarkdownNote",
@@ -9796,7 +9214,6 @@
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_image_edit__seedream",
-        "api_partner_nodes_image_edit__wan",
         "api_partner_nodes_image_edit_with_controlnet__generic",
         "api_partner_nodes_image_to_video__anima",
         "api_partner_nodes_image_to_video__gemini",
@@ -9807,13 +9224,11 @@
         "api_partner_nodes_inpaint_outpaint__generic",
         "api_partner_nodes_text_to_image__generic",
         "api_partner_nodes_text_to_image__ideogram",
-        "api_partner_nodes_text_to_image__qwen_image",
         "api_partner_nodes_text_to_image__wan",
         "api_partner_nodes_text_to_video__gemini",
         "api_partner_nodes_text_to_video__generic",
         "api_partner_nodes_text_to_video__kling",
         "api_partner_nodes_text_to_video__wan",
-        "api_partner_nodes_upscale__flux",
         "api_partner_nodes_upscale__generic",
         "api_partner_nodes_upscale__topaz",
         "api_partner_nodes_upscale__z_image",
@@ -9821,11 +9236,9 @@
         "api_partner_nodes_video_to_video__generic",
         "api_partner_nodes_video_to_video__kling",
         "audio__ace_step",
-        "audio__generic",
         "audio__qwen_image",
         "audio__stable_audio",
         "character__qwen_image",
-        "first_last_frame_to_video__ltx_2",
         "first_last_frame_to_video__wan",
         "first_last_frame_to_video__wan_2_2",
         "image_edit__bernini",
@@ -9897,7 +9310,7 @@
         "video_to_video__wan_2_2",
         "video_tools__depth_anything"
       ],
-      "occurrences": 574
+      "occurrences": 541
     },
     {
       "class": "MaskComposite",
@@ -9949,7 +9362,6 @@
         "MASK"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "image_edit__sam3",
         "image_tools__generic",
         "inpaint_outpaint__qwen_image",
@@ -9961,7 +9373,7 @@
         "video_inpaint__wan_vace",
         "video_to_video__sam3"
       ],
-      "occurrences": 28
+      "occurrences": 27
     },
     {
       "class": "MaskToImage",
@@ -10050,81 +9462,6 @@
       "occurrences": 2
     },
     {
-      "class": "MeshSmoothNormals",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "crease_angle",
-          "mesh"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH",
-          "crease_angle": "FLOAT"
-        }
-      },
-      "outputs": [
-        "MESH"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 2
-    },
-    {
-      "class": "MeshToFile3D",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "mesh"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH"
-        }
-      },
-      "outputs": [
-        "FILE_3D_GLB"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 3
-    },
-    {
-      "class": "MeshyAnimateModelNode",
-      "role": "api_node",
-      "role_description": "external API generation node",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "action_id",
-          "rig_task_id"
-        ],
-        "optional": [],
-        "types": {
-          "rig_task_id": "MESHY_RIGGED_TASK_ID",
-          "action_id": "INT"
-        }
-      },
-      "outputs": [
-        "STRING",
-        "FILE_3D_GLB",
-        "FILE_3D_FBX"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_3d__meshy"
-      ],
-      "occurrences": 2
-    },
-    {
       "class": "MeshyImageToModelNode",
       "role": "api_node",
       "role_description": "external API generation node",
@@ -10138,8 +9475,7 @@
           "seed",
           "should_remesh",
           "should_texture",
-          "symmetry_mode",
-          "ultra_mode"
+          "symmetry_mode"
         ],
         "optional": [],
         "types": {
@@ -10149,8 +9485,7 @@
           "symmetry_mode": "COMBO",
           "should_texture": "COMFY_DYNAMICCOMBO_V3",
           "pose_mode": "COMBO",
-          "seed": "INT",
-          "ultra_mode": "BOOLEAN"
+          "seed": "INT"
         }
       },
       "outputs": [
@@ -10162,7 +9497,7 @@
       "used_in_type_ids": [
         "api_partner_nodes_3d__meshy"
       ],
-      "occurrences": 2
+      "occurrences": 1
     },
     {
       "class": "MeshyMultiImageToModelNode",
@@ -10203,74 +9538,6 @@
       "occurrences": 1
     },
     {
-      "class": "MeshyRefineNode",
-      "role": "api_node",
-      "role_description": "external API generation node",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "enable_pbr",
-          "meshy_task_id",
-          "model",
-          "texture_prompt",
-          "texture_resolution"
-        ],
-        "optional": [
-          "texture_image"
-        ],
-        "types": {
-          "model": "COMBO",
-          "meshy_task_id": "MESHY_TASK_ID",
-          "enable_pbr": "BOOLEAN",
-          "texture_prompt": "STRING",
-          "texture_resolution": "COMBO",
-          "texture_image": "IMAGE"
-        }
-      },
-      "outputs": [
-        "STRING",
-        "MESHY_TASK_ID",
-        "FILE_3D_GLB",
-        "FILE_3D_FBX"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_3d__meshy"
-      ],
-      "occurrences": 2
-    },
-    {
-      "class": "MeshyRigModelNode",
-      "role": "api_node",
-      "role_description": "external API generation node",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "height_meters",
-          "meshy_task_id"
-        ],
-        "optional": [
-          "texture_image"
-        ],
-        "types": {
-          "meshy_task_id": "MESHY_TASK_ID",
-          "height_meters": "FLOAT",
-          "texture_image": "IMAGE"
-        }
-      },
-      "outputs": [
-        "STRING",
-        "MESHY_RIGGED_TASK_ID",
-        "FILE_3D_GLB",
-        "FILE_3D_FBX"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_3d__meshy"
-      ],
-      "occurrences": 2
-    },
-    {
       "class": "MeshyTextToModelNode",
       "role": "api_node",
       "role_description": "external API generation node",
@@ -10284,8 +9551,7 @@
           "seed",
           "should_remesh",
           "style",
-          "symmetry_mode",
-          "ultra_mode"
+          "symmetry_mode"
         ],
         "optional": [],
         "types": {
@@ -10295,8 +9561,7 @@
           "should_remesh": "COMFY_DYNAMICCOMBO_V3",
           "symmetry_mode": "COMBO",
           "pose_mode": "COMBO",
-          "seed": "INT",
-          "ultra_mode": "BOOLEAN"
+          "seed": "INT"
         }
       },
       "outputs": [
@@ -10308,46 +9573,7 @@
       "used_in_type_ids": [
         "api_partner_nodes_3d__meshy"
       ],
-      "occurrences": 2
-    },
-    {
-      "class": "MeshyTextureNode",
-      "role": "api_node",
-      "role_description": "external API generation node",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "enable_original_uv",
-          "meshy_task_id",
-          "model",
-          "pbr",
-          "text_style_prompt",
-          "texture_resolution"
-        ],
-        "optional": [
-          "image_style"
-        ],
-        "types": {
-          "model": "COMBO",
-          "meshy_task_id": "MESHY_TASK_ID",
-          "enable_original_uv": "BOOLEAN",
-          "pbr": "BOOLEAN",
-          "text_style_prompt": "STRING",
-          "texture_resolution": "COMBO",
-          "image_style": "IMAGE"
-        }
-      },
-      "outputs": [
-        "STRING",
-        "MESHY_TASK_ID",
-        "FILE_3D_GLB",
-        "FILE_3D_FBX"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_3d__meshy"
-      ],
-      "occurrences": 2
+      "occurrences": 1
     },
     {
       "class": "MiniMaxH3ImageToVideo",
@@ -10385,10 +9611,9 @@
       ],
       "used_in_type_ids": [
         "image_to_video__anima",
-        "image_to_video__wan",
         "text_to_video__generic"
       ],
-      "occurrences": 3
+      "occurrences": 2
     },
     {
       "class": "MiniMaxH3ReferenceToVideo",
@@ -10434,42 +9659,6 @@
       ],
       "used_in_type_ids": [
         "image_to_video__anima"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "MiniMaxMusic3TextEncode",
-      "role": "text_encode",
-      "role_description": "prompt text encoding",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "caption",
-          "cfg_scale",
-          "clip",
-          "lyrics",
-          "max_duration",
-          "seed",
-          "top_k"
-        ],
-        "optional": [],
-        "types": {
-          "clip": "CLIP",
-          "caption": "STRING",
-          "lyrics": "STRING",
-          "seed": "INT",
-          "max_duration": "FLOAT",
-          "cfg_scale": "FLOAT",
-          "top_k": "INT"
-        }
-      },
-      "outputs": [
-        "CONDITIONING",
-        "FLOAT"
-      ],
-      "used_in_type_ids": [
-        "audio__generic"
       ],
       "occurrences": 1
     },
@@ -10594,35 +9783,6 @@
       "occurrences": 3
     },
     {
-      "class": "MoGeGeometryToFOV",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "axis",
-          "moge_geometry",
-          "unit"
-        ],
-        "optional": [],
-        "types": {
-          "moge_geometry": "MOGE_GEOMETRY",
-          "axis": "COMBO",
-          "unit": "COMBO"
-        }
-      },
-      "outputs": [
-        "FLOAT",
-        "FLOAT"
-      ],
-      "used_in_type_ids": [
-        "3d__moge",
-        "video_to_video__sam3"
-      ],
-      "occurrences": 2
-    },
-    {
       "class": "MoGeInference",
       "role": "other",
       "role_description": "unclassified node role",
@@ -10655,10 +9815,9 @@
       "used_in_type_ids": [
         "3d__moge",
         "preprocessors_estimation__moge",
-        "video_to_video__ltx_2",
-        "video_to_video__sam3"
+        "video_to_video__ltx_2"
       ],
-      "occurrences": 8
+      "occurrences": 6
     },
     {
       "class": "MoGePanoramaInference",
@@ -10907,7 +10066,6 @@
         "MODEL"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "api_partner_nodes_first_last_frame_to_video__wan_2_2",
         "audio__ace_step",
         "character__scail",
@@ -10931,7 +10089,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 91
+      "occurrences": 88
     },
     {
       "class": "NormalizeVideoLatentStart",
@@ -10973,7 +10131,6 @@
       },
       "outputs": [],
       "used_in_type_ids": [
-        "3d__moge",
         "api_partner_nodes_3d__generic",
         "api_partner_nodes_audio__generic",
         "api_partner_nodes_first_last_frame_to_video__anima",
@@ -11005,7 +10162,7 @@
         "video_inpaint__wan_2_2",
         "video_to_video__sam3"
       ],
-      "occurrences": 96
+      "occurrences": 91
     },
     {
       "class": "OpenAIChatConfig",
@@ -11273,31 +10430,6 @@
       "occurrences": 2
     },
     {
-      "class": "PaintMesh",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "mesh",
-          "voxel_colors"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH",
-          "voxel_colors": "VOXEL"
-        }
-      },
-      "outputs": [
-        "MESH"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "Painter",
       "role": "other",
       "role_description": "unclassified node role",
@@ -11326,13 +10458,11 @@
         "MASK"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__seedream",
-        "api_partner_nodes_image_edit__wan",
         "image_to_video__wan",
         "inpaint_outpaint__wan"
       ],
-      "occurrences": 6
+      "occurrences": 4
     },
     {
       "class": "PiDConditioning",
@@ -11360,34 +10490,6 @@
       ],
       "used_in_type_ids": [
         "upscale__flux"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "Pixal3DConditioning",
-      "role": "conditioning_op",
-      "role_description": "conditioning combine / edit",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "camera_angle_x",
-          "clip_vision_model",
-          "image"
-        ],
-        "optional": [],
-        "types": {
-          "clip_vision_model": "CLIP_VISION",
-          "image": "IMAGE",
-          "camera_angle_x": "FLOAT"
-        }
-      },
-      "outputs": [
-        "CONDITIONING",
-        "CONDITIONING"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
       ],
       "occurrences": 1
     },
@@ -11515,48 +10617,9 @@
       "used_in_type_ids": [
         "api_partner_nodes_3d__generic",
         "api_partner_nodes_3d__hunyuan3d",
-        "api_partner_nodes_3d__meshy",
-        "video_to_video__sam3"
+        "api_partner_nodes_3d__meshy"
       ],
-      "occurrences": 24
-    },
-    {
-      "class": "Preview3DAdvanced",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "height",
-          "model_3d",
-          "viewport_state",
-          "width"
-        ],
-        "optional": [
-          "camera_info",
-          "model_3d_info"
-        ],
-        "types": {
-          "model_3d": "FILE_3D_GLB,FILE_3D_GLTF,FILE_3D_FBX,FILE_3D_OBJ,FILE_3D_STL,FILE_3D_USDZ,FILE_3D",
-          "viewport_state": "LOAD_3D",
-          "width": "INT",
-          "height": "INT",
-          "model_3d_info": "LOAD3D_MODEL_INFO",
-          "camera_info": "LOAD3D_CAMERA"
-        }
-      },
-      "outputs": [
-        "FILE_3D",
-        "LOAD3D_MODEL_INFO",
-        "LOAD3D_CAMERA",
-        "INT",
-        "INT"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 2
+      "occurrences": 21
     },
     {
       "class": "PreviewAny",
@@ -11598,7 +10661,6 @@
         "api_partner_nodes_video_to_video__generic",
         "audio__qwen_image",
         "audio__stable_audio",
-        "first_last_frame_to_video__ltx_2",
         "image_edit__bernini",
         "image_edit__flux_krea",
         "image_edit__generic",
@@ -11620,7 +10682,7 @@
         "video_to_video__ltx_2",
         "video_to_video__wan"
       ],
-      "occurrences": 144
+      "occurrences": 140
     },
     {
       "class": "PreviewImage",
@@ -11679,7 +10741,7 @@
         "video_to_video__wan_vace",
         "video_tools__depth_anything"
       ],
-      "occurrences": 99
+      "occurrences": 92
     },
     {
       "class": "PrimitiveBoolean",
@@ -11700,14 +10762,11 @@
         "BOOLEAN"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "api_partner_nodes_audio__ltx",
-        "api_partner_nodes_video_to_video__generic",
         "audio__qwen_image",
         "audio__stable_audio",
         "character__qwen_image",
         "character__scail",
-        "first_last_frame_to_video__ltx_2",
         "image_edit__bernini",
         "image_edit__firered",
         "image_edit__flux_2",
@@ -11716,7 +10775,6 @@
         "image_edit__qwen_image",
         "image_edit_with_controlnet__anima",
         "image_edit_with_controlnet__qwen_image",
-        "image_to_video__anima",
         "image_to_video__bernini",
         "image_to_video__ltx_2",
         "image_to_video__wan",
@@ -11729,7 +10787,6 @@
         "text_to_image__flux_krea",
         "text_to_image__qwen_image",
         "text_to_image__z_image",
-        "text_to_video__generic",
         "text_to_video__ltx_2",
         "text_to_video__wan_2_2",
         "upscale__generic",
@@ -11743,7 +10800,7 @@
         "video_to_video__wan",
         "video_tools__generic"
       ],
-      "occurrences": 116
+      "occurrences": 103
     },
     {
       "class": "PrimitiveBoundingBox",
@@ -11826,7 +10883,7 @@
         "video_to_video__ltx_2",
         "video_to_video__wan"
       ],
-      "occurrences": 194
+      "occurrences": 193
     },
     {
       "class": "PrimitiveInt",
@@ -11847,7 +10904,6 @@
         "INT"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "api_partner_nodes_audio__ltx",
         "audio__ace_step",
         "character__qwen_image",
@@ -11862,7 +10918,6 @@
         "image_edit__sdpose",
         "image_edit_with_controlnet__anima",
         "image_edit_with_controlnet__qwen_image",
-        "image_to_video__anima",
         "image_to_video__bernini",
         "image_to_video__generic",
         "image_to_video__ltx_2",
@@ -11877,7 +10932,6 @@
         "text_to_image__generic",
         "text_to_image__ideogram",
         "text_to_image__qwen_image",
-        "text_to_video__generic",
         "text_to_video__ltx_2",
         "text_to_video__wan_2_2",
         "text_tools__generic",
@@ -11893,7 +10947,7 @@
         "video_to_video__wan_vace",
         "video_tools__generic"
       ],
-      "occurrences": 303
+      "occurrences": 282
     },
     {
       "class": "PrimitiveNode",
@@ -11976,7 +11030,6 @@
         "api_partner_nodes_video_to_video__gemini",
         "audio__qwen_image",
         "audio__stable_audio",
-        "first_last_frame_to_video__ltx_2",
         "image_edit__bernini",
         "image_edit__flux_krea",
         "image_edit__generic",
@@ -11996,10 +11049,9 @@
         "text_to_video__ltx_2",
         "upscale__flux",
         "video_to_video__bernini",
-        "video_to_video__depth_anything",
-        "video_to_video__wan"
+        "video_to_video__depth_anything"
       ],
-      "occurrences": 100
+      "occurrences": 95
     },
     {
       "class": "QuadrupleCLIPLoader",
@@ -12128,70 +11180,6 @@
       "occurrences": 6
     },
     {
-      "class": "QwenImageEditApi",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model",
-          "n",
-          "prompt_extend",
-          "seed",
-          "size",
-          "watermark"
-        ],
-        "optional": [],
-        "types": {
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "size": "COMFY_DYNAMICCOMBO_V3",
-          "n": "INT",
-          "seed": "INT",
-          "prompt_extend": "BOOLEAN",
-          "watermark": "BOOLEAN"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_edit__qwen_image"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "QwenImageTextToImageApi",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model",
-          "n",
-          "prompt_extend",
-          "seed",
-          "watermark"
-        ],
-        "optional": [],
-        "types": {
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "n": "INT",
-          "seed": "INT",
-          "prompt_extend": "BOOLEAN",
-          "watermark": "BOOLEAN"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_text_to_image__qwen_image"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "RTDETR_detect",
       "role": "other",
       "role_description": "unclassified node role",
@@ -12220,10 +11208,9 @@
       "used_in_type_ids": [
         "image_edit__sdpose",
         "preprocessors_estimation__sdpose",
-        "video_to_video__sam3",
         "video_to_video__sdpose"
       ],
-      "occurrences": 5
+      "occurrences": 4
     },
     {
       "class": "RandomNoise",
@@ -12269,7 +11256,7 @@
         "video_inpaint__wan",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 95
+      "occurrences": 89
     },
     {
       "class": "RebatchImages",
@@ -12850,45 +11837,6 @@
       "occurrences": 10
     },
     {
-      "class": "RemeshMesh",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "band",
-          "drop_small_components",
-          "fix_poles",
-          "mesh",
-          "precluster_max_verts",
-          "project_back",
-          "resolution",
-          "sign_mode",
-          "smooth_iters"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH",
-          "resolution": "INT",
-          "sign_mode": "COMFY_DYNAMICCOMBO_V3",
-          "band": "FLOAT",
-          "project_back": "FLOAT",
-          "fix_poles": "BOOLEAN",
-          "smooth_iters": "INT",
-          "drop_small_components": "FLOAT",
-          "precluster_max_verts": "INT"
-        }
-      },
-      "outputs": [
-        "MESH"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "RemoveBackground",
       "role": "other",
       "role_description": "unclassified node role",
@@ -12909,12 +11857,11 @@
         "MASK"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "3d__triposplat",
         "image_tools__birefnet",
         "preprocessors_estimation__birefnet"
       ],
-      "occurrences": 5
+      "occurrences": 4
     },
     {
       "class": "RenderSplat",
@@ -12960,31 +11907,6 @@
       ],
       "used_in_type_ids": [
         "3d__triposplat"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "RenderUVAtlas",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "mesh",
-          "resolution"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH",
-          "resolution": "INT"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
       ],
       "occurrences": 1
     },
@@ -13073,31 +11995,6 @@
       "occurrences": 45
     },
     {
-      "class": "RescaleCFG",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model",
-          "multiplier"
-        ],
-        "optional": [],
-        "types": {
-          "model": "MODEL",
-          "multiplier": "FLOAT"
-        }
-      },
-      "outputs": [
-        "MODEL"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 2
-    },
-    {
       "class": "ResizeAndPadImage",
       "role": "other",
       "role_description": "unclassified node role",
@@ -13128,12 +12025,11 @@
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_image_to_video__generic",
-        "api_partner_nodes_video_to_video__generic",
         "image_to_video__generic",
         "image_to_video__ltx_2",
         "video_tools__generic"
       ],
-      "occurrences": 13
+      "occurrences": 12
     },
     {
       "class": "ResizeImageMaskNode",
@@ -13159,7 +12055,6 @@
       ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__ltx",
-        "api_partner_nodes_upscale__generic",
         "character__scail",
         "first_last_frame_to_video__ltx_2",
         "image_edit__firered",
@@ -13183,7 +12078,7 @@
         "video_to_video__wan",
         "video_tools__generic"
       ],
-      "occurrences": 70
+      "occurrences": 61
     },
     {
       "class": "ResizeImagesByLongerEdge",
@@ -13239,21 +12134,17 @@
         "INT"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_text_to_image__qwen_image",
         "image_edit__flux_krea",
         "image_to_video__anima",
-        "image_to_video__ltx_2",
-        "image_to_video__wan",
         "text_to_image__anima",
         "text_to_image__flux_krea",
         "text_to_image__generic",
         "text_to_image__ideogram",
         "text_to_image__longcat",
         "text_to_image__z_image",
-        "text_to_video__generic",
-        "text_to_video__ltx_2"
+        "text_to_video__generic"
       ],
-      "occurrences": 22
+      "occurrences": 18
     },
     {
       "class": "Rodin3D_Detail",
@@ -13660,169 +12551,6 @@
       "occurrences": 2
     },
     {
-      "class": "SAM3DBody_FaceExpression",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "blendshape_smooth_window",
-          "brow_strength",
-          "eye_strength",
-          "image",
-          "input_threshold",
-          "mhr_pose_data",
-          "mouth_strength",
-          "sam3d_body_model",
-          "strength"
-        ],
-        "optional": [],
-        "types": {
-          "sam3d_body_model": "SAM3D_BODY_MODEL",
-          "mhr_pose_data": "MHR_POSE_DATA",
-          "image": "IMAGE",
-          "strength": "FLOAT",
-          "mouth_strength": "FLOAT",
-          "eye_strength": "FLOAT",
-          "brow_strength": "FLOAT",
-          "input_threshold": "FLOAT",
-          "blendshape_smooth_window": "INT"
-        }
-      },
-      "outputs": [
-        "MHR_POSE_DATA"
-      ],
-      "used_in_type_ids": [
-        "video_to_video__sam3"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "SAM3DBody_Loader",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model_file"
-        ],
-        "optional": [],
-        "types": {
-          "model_file": "COMBO"
-        }
-      },
-      "outputs": [
-        "SAM3D_BODY_MODEL"
-      ],
-      "used_in_type_ids": [
-        "video_to_video__sam3"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "SAM3DBody_Predict",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "batch_size",
-          "fov",
-          "image",
-          "run_hand_refinement",
-          "sam3d_body_model"
-        ],
-        "optional": [
-          "bboxes",
-          "track_data"
-        ],
-        "types": {
-          "sam3d_body_model": "SAM3D_BODY_MODEL",
-          "image": "IMAGE",
-          "run_hand_refinement": "BOOLEAN",
-          "fov": "FLOAT",
-          "batch_size": "INT",
-          "track_data": "SAM3_TRACK_DATA",
-          "bboxes": "BOUNDING_BOX"
-        }
-      },
-      "outputs": [
-        "MHR_POSE_DATA"
-      ],
-      "used_in_type_ids": [
-        "video_to_video__sam3"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "SAM3DBody_Render",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "height",
-          "pose_data",
-          "render_style",
-          "width"
-        ],
-        "optional": [
-          "background",
-          "camera_info"
-        ],
-        "types": {
-          "pose_data": "MHR_POSE_DATA,KIMODO_POSE_DATA",
-          "width": "INT",
-          "height": "INT",
-          "render_style": "COMFY_DYNAMICCOMBO_V3",
-          "background": "IMAGE",
-          "camera_info": "LOAD3D_CAMERA"
-        }
-      },
-      "outputs": [
-        "IMAGE"
-      ],
-      "used_in_type_ids": [
-        "video_to_video__sam3"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "SAM3DBody_Smooth",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "method",
-          "mhr_pose_data",
-          "rotation_threshold_degrees",
-          "strength",
-          "window"
-        ],
-        "optional": [],
-        "types": {
-          "mhr_pose_data": "MHR_POSE_DATA",
-          "strength": "FLOAT",
-          "method": "COMBO",
-          "window": "INT",
-          "rotation_threshold_degrees": "FLOAT"
-        }
-      },
-      "outputs": [
-        "MHR_POSE_DATA"
-      ],
-      "used_in_type_ids": [
-        "video_to_video__sam3"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "SAM3_Detect",
       "role": "other",
       "role_description": "unclassified node role",
@@ -13901,10 +12629,9 @@
       ],
       "used_in_type_ids": [
         "character__scail",
-        "video_to_video__sam3",
         "video_to_video__wan"
       ],
-      "occurrences": 13
+      "occurrences": 12
     },
     {
       "class": "SCAIL2ColoredMask",
@@ -14156,7 +12883,7 @@
         "video_to_video__depth_anything",
         "video_to_video__wan"
       ],
-      "occurrences": 29
+      "occurrences": 27
     },
     {
       "class": "SamplerCustomAdvanced",
@@ -14216,7 +12943,7 @@
         "video_inpaint__wan",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 108
+      "occurrences": 102
     },
     {
       "class": "SamplerEulerAncestral",
@@ -14242,7 +12969,7 @@
         "first_last_frame_to_video__ltx_2",
         "image_to_video__ltx_2"
       ],
-      "occurrences": 5
+      "occurrences": 4
     },
     {
       "class": "SamplerLCM",
@@ -14268,46 +12995,6 @@
       ],
       "used_in_type_ids": [
         "image_edit__generic"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "Save3DAdvanced",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "filename_prefix",
-          "height",
-          "model_3d",
-          "viewport_state",
-          "width"
-        ],
-        "optional": [
-          "camera_info",
-          "model_3d_info"
-        ],
-        "types": {
-          "model_3d": "FILE_3D_GLB,FILE_3D_GLTF,FILE_3D_FBX,FILE_3D_OBJ,FILE_3D_STL,FILE_3D_USDZ,FILE_3D",
-          "filename_prefix": "STRING",
-          "viewport_state": "LOAD_3D",
-          "width": "INT",
-          "height": "INT",
-          "model_3d_info": "LOAD3D_MODEL_INFO",
-          "camera_info": "LOAD3D_CAMERA"
-        }
-      },
-      "outputs": [
-        "FILE_3D",
-        "LOAD3D_MODEL_INFO",
-        "LOAD3D_CAMERA",
-        "INT",
-        "INT"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
       ],
       "occurrences": 1
     },
@@ -14369,10 +13056,9 @@
         "AUDIO"
       ],
       "used_in_type_ids": [
-        "api_partner_nodes_audio__generic",
-        "audio__generic"
+        "api_partner_nodes_audio__generic"
       ],
-      "occurrences": 7
+      "occurrences": 6
     },
     {
       "class": "SaveAudioMP3",
@@ -14459,7 +13145,7 @@
         "api_partner_nodes_3d__hunyuan3d",
         "api_partner_nodes_3d__meshy"
       ],
-      "occurrences": 43
+      "occurrences": 39
     },
     {
       "class": "SaveImage",
@@ -14497,7 +13183,6 @@
         "api_partner_nodes_image_edit__kling",
         "api_partner_nodes_image_edit__magnific",
         "api_partner_nodes_image_edit__nano_banana",
-        "api_partner_nodes_image_edit__qwen_image",
         "api_partner_nodes_image_edit__seedream",
         "api_partner_nodes_image_edit__wan",
         "api_partner_nodes_image_edit__z_image",
@@ -14511,7 +13196,6 @@
         "api_partner_nodes_text_to_image__ideogram",
         "api_partner_nodes_text_to_image__kling",
         "api_partner_nodes_text_to_image__nano_banana",
-        "api_partner_nodes_text_to_image__qwen_image",
         "api_partner_nodes_text_to_image__seedream",
         "api_partner_nodes_text_to_image__wan",
         "api_partner_nodes_text_to_video__generic",
@@ -14563,7 +13247,7 @@
         "upscale__generic",
         "upscale__z_image"
       ],
-      "occurrences": 293
+      "occurrences": 288
     },
     {
       "class": "SaveImageAdvanced",
@@ -14591,8 +13275,6 @@
         "api_partner_nodes_image_edit__generic",
         "api_partner_nodes_image_edit__nano_banana",
         "api_partner_nodes_image_edit__seedream",
-        "api_partner_nodes_image_edit__wan",
-        "api_partner_nodes_text_to_image__generic",
         "api_partner_nodes_text_to_image__ideogram",
         "api_partner_nodes_text_to_image__nano_banana",
         "api_partner_nodes_text_to_image__seedream",
@@ -14603,7 +13285,7 @@
         "text_to_image__generic",
         "text_to_image__z_image"
       ],
-      "occurrences": 23
+      "occurrences": 19
     },
     {
       "class": "SaveSVGNode",
@@ -14669,17 +13351,16 @@
       "is_custom": false,
       "inputs": {
         "required": [
+          "codec",
           "filename_prefix",
           "format",
           "video"
         ],
-        "optional": [
-          "codec"
-        ],
+        "optional": [],
         "types": {
           "video": "VIDEO",
           "filename_prefix": "STRING",
-          "format": "COMFY_DYNAMICCOMBO_V3",
+          "format": "COMBO",
           "codec": "COMFY_DYNAMICCOMBO_V3"
         }
       },
@@ -14693,14 +13374,12 @@
         "api_partner_nodes_first_last_frame_to_video__anima",
         "api_partner_nodes_first_last_frame_to_video__generic",
         "api_partner_nodes_first_last_frame_to_video__kling",
-        "api_partner_nodes_first_last_frame_to_video__ltx_2",
         "api_partner_nodes_first_last_frame_to_video__wan_2_2",
         "api_partner_nodes_image_to_video__anima",
         "api_partner_nodes_image_to_video__flux",
         "api_partner_nodes_image_to_video__gemini",
         "api_partner_nodes_image_to_video__generic",
         "api_partner_nodes_image_to_video__kling",
-        "api_partner_nodes_image_to_video__ltx_2",
         "api_partner_nodes_image_to_video__veo",
         "api_partner_nodes_image_to_video__wan",
         "api_partner_nodes_text_to_video__anima",
@@ -14708,10 +13387,8 @@
         "api_partner_nodes_text_to_video__gemini",
         "api_partner_nodes_text_to_video__generic",
         "api_partner_nodes_text_to_video__kling",
-        "api_partner_nodes_text_to_video__ltx_2",
         "api_partner_nodes_text_to_video__veo",
         "api_partner_nodes_text_to_video__wan",
-        "api_partner_nodes_upscale__flux",
         "api_partner_nodes_upscale__generic",
         "api_partner_nodes_upscale__topaz",
         "api_partner_nodes_video_to_video__anima",
@@ -14721,7 +13398,6 @@
         "api_partner_nodes_video_to_video__topaz",
         "api_partner_nodes_video_to_video__wan",
         "api_partner_nodes_video_to_video__wan_2_6",
-        "first_last_frame_to_video__ltx_2",
         "first_last_frame_to_video__wan",
         "first_last_frame_to_video__wan_2_2",
         "image_to_video__anima",
@@ -14743,14 +13419,13 @@
         "video_to_video__bernini",
         "video_to_video__generic",
         "video_to_video__ltx_2",
-        "video_to_video__sam3",
         "video_to_video__sdpose",
         "video_to_video__wan",
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace",
         "video_tools__depth_anything"
       ],
-      "occurrences": 225
+      "occurrences": 206
     },
     {
       "class": "SaveWEBM",
@@ -14815,29 +13490,6 @@
       ],
       "used_in_type_ids": [
         "image_edit__generic"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "SeedNode",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "seed"
-        ],
-        "optional": [],
-        "types": {
-          "seed": "INT"
-        }
-      },
-      "outputs": [
-        "INT"
-      ],
-      "used_in_type_ids": [
-        "audio__generic"
       ],
       "occurrences": 1
     },
@@ -16116,12 +14768,11 @@
       ],
       "used_in_type_ids": [
         "api_partner_nodes_audio__ltx",
-        "first_last_frame_to_video__ltx_2",
         "image_to_video__ltx_2",
         "text_to_video__ltx_2",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 9
+      "occurrences": 6
     },
     {
       "class": "ThresholdMask",
@@ -16304,123 +14955,6 @@
       "occurrences": 2
     },
     {
-      "class": "Trellis2Conditioning",
-      "role": "conditioning_op",
-      "role_description": "conditioning combine / edit",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "clip_vision_model",
-          "image"
-        ],
-        "optional": [],
-        "types": {
-          "clip_vision_model": "CLIP_VISION",
-          "image": "IMAGE"
-        }
-      },
-      "outputs": [
-        "CONDITIONING",
-        "CONDITIONING"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "Trellis2ShapeStage",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "negative",
-          "positive",
-          "voxel"
-        ],
-        "optional": [],
-        "types": {
-          "positive": "CONDITIONING",
-          "negative": "CONDITIONING",
-          "voxel": "VOXEL"
-        }
-      },
-      "outputs": [
-        "CONDITIONING",
-        "CONDITIONING",
-        "LATENT"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "Trellis2TextureStage",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "negative",
-          "positive",
-          "shape_latent"
-        ],
-        "optional": [],
-        "types": {
-          "positive": "CONDITIONING",
-          "negative": "CONDITIONING",
-          "shape_latent": "LATENT"
-        }
-      },
-      "outputs": [
-        "CONDITIONING",
-        "CONDITIONING",
-        "LATENT"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "Trellis2UpsampleStage",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "negative",
-          "positive",
-          "shape_latent",
-          "target_resolution",
-          "vae"
-        ],
-        "optional": [],
-        "types": {
-          "positive": "CONDITIONING",
-          "negative": "CONDITIONING",
-          "shape_latent": "LATENT",
-          "vae": "VAE",
-          "target_resolution": "INT"
-        }
-      },
-      "outputs": [
-        "CONDITIONING",
-        "CONDITIONING",
-        "LATENT"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "TrimAudioDuration",
       "role": "other",
       "role_description": "unclassified node role",
@@ -16478,7 +15012,7 @@
         "video_to_video__wan",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 13
+      "occurrences": 11
     },
     {
       "class": "TripoConversionNode",
@@ -16773,14 +15307,22 @@
       "class": "TripoRefineNode",
       "role": "other",
       "role_description": "unclassified node role",
-      "resolved": false,
+      "resolved": true,
       "is_custom": false,
       "inputs": {
-        "required": [],
+        "required": [
+          "model_task_id"
+        ],
         "optional": [],
-        "types": {}
+        "types": {
+          "model_task_id": "MODEL_TASK_ID"
+        }
       },
-      "outputs": [],
+      "outputs": [
+        "STRING",
+        "MODEL_TASK_ID",
+        "FILE_3D_GLB"
+      ],
       "used_in_type_ids": [
         "api_partner_nodes_3d__generic"
       ],
@@ -17040,7 +15582,6 @@
         "MODEL"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "3d__triposplat",
         "api_partner_nodes_audio__ace_step",
         "api_partner_nodes_first_last_frame_to_video__wan_2_2",
@@ -17050,10 +15591,8 @@
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_text_to_image__z_image",
         "audio__ace_step",
-        "audio__generic",
         "character__qwen_image",
         "character__scail",
-        "first_last_frame_to_video__ltx_2",
         "first_last_frame_to_video__wan",
         "first_last_frame_to_video__wan_2_2",
         "first_last_frame_to_video__wan_vace",
@@ -17080,7 +15619,6 @@
         "image_to_video__bernini",
         "image_to_video__generic",
         "image_to_video__hunyuan3d",
-        "image_to_video__ltx_2",
         "image_to_video__wan",
         "image_to_video__wan_2_2",
         "inpaint_outpaint__flux",
@@ -17101,7 +15639,6 @@
         "text_to_image__z_image",
         "text_to_video__generic",
         "text_to_video__hunyuan3d",
-        "text_to_video__ltx_2",
         "text_to_video__wan",
         "text_to_video__wan_2_2",
         "text_to_video__wan_vace",
@@ -17115,13 +15652,12 @@
         "video_to_video__bernini",
         "video_to_video__depth_anything",
         "video_to_video__ltx_2",
-        "video_to_video__sam3",
         "video_to_video__sdpose",
         "video_to_video__wan",
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 281
+      "occurrences": 271
     },
     {
       "class": "UNetTemporalAttentionMultiply",
@@ -17256,37 +15792,6 @@
       "occurrences": 1
     },
     {
-      "class": "UnwrapMesh",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "mesh",
-          "padding",
-          "resolution",
-          "segmenter",
-          "weld_distance"
-        ],
-        "optional": [],
-        "types": {
-          "mesh": "MESH",
-          "segmenter": "COMBO",
-          "resolution": "INT",
-          "padding": "INT",
-          "weld_distance": "FLOAT"
-        }
-      },
-      "outputs": [
-        "MESH"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "UpscaleModelLoader",
       "role": "model_loader",
       "role_description": "diffusion model / UNET loader",
@@ -17406,7 +15911,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 273
+      "occurrences": 269
     },
     {
       "class": "VAEDecodeAudio",
@@ -17431,43 +15936,12 @@
       "used_in_type_ids": [
         "api_partner_nodes_audio__ace_step",
         "audio__ace_step",
-        "audio__generic",
         "audio__qwen_image",
         "audio__stable_audio",
         "image_to_video__anima",
-        "image_to_video__wan",
         "text_to_video__generic"
       ],
-      "occurrences": 21
-    },
-    {
-      "class": "VAEDecodeAudioTiled",
-      "role": "vae_decode",
-      "role_description": "latent -> pixel decode",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "overlap",
-          "samples",
-          "tile_size",
-          "vae"
-        ],
-        "optional": [],
-        "types": {
-          "samples": "LATENT",
-          "vae": "VAE",
-          "tile_size": "INT",
-          "overlap": "INT"
-        }
-      },
-      "outputs": [
-        "AUDIO"
-      ],
-      "used_in_type_ids": [
-        "audio__generic"
-      ],
-      "occurrences": 1
+      "occurrences": 19
     },
     {
       "class": "VAEDecodeHunyuan3D",
@@ -17536,7 +16010,7 @@
         "upscale__generic",
         "video_to_video__ltx_2"
       ],
-      "occurrences": 34
+      "occurrences": 31
     },
     {
       "class": "VAEDecodeTripoSplat",
@@ -17689,7 +16163,6 @@
         "VAE"
       ],
       "used_in_type_ids": [
-        "3d__moge",
         "3d__triposplat",
         "api_partner_nodes_audio__ace_step",
         "api_partner_nodes_first_last_frame_to_video__wan_2_2",
@@ -17699,10 +16172,8 @@
         "api_partner_nodes_image_to_video__kling",
         "api_partner_nodes_text_to_image__z_image",
         "audio__ace_step",
-        "audio__generic",
         "character__qwen_image",
         "character__scail",
-        "first_last_frame_to_video__ltx_2",
         "first_last_frame_to_video__wan",
         "first_last_frame_to_video__wan_2_2",
         "first_last_frame_to_video__wan_vace",
@@ -17728,7 +16199,6 @@
         "image_to_video__bernini",
         "image_to_video__generic",
         "image_to_video__hunyuan3d",
-        "image_to_video__ltx_2",
         "image_to_video__wan",
         "image_to_video__wan_2_2",
         "inpaint_outpaint__flux",
@@ -17748,7 +16218,6 @@
         "text_to_image__z_image",
         "text_to_video__generic",
         "text_to_video__hunyuan3d",
-        "text_to_video__ltx_2",
         "text_to_video__wan",
         "text_to_video__wan_2_2",
         "text_to_video__wan_vace",
@@ -17766,7 +16235,7 @@
         "video_to_video__wan_2_2",
         "video_to_video__wan_vace"
       ],
-      "occurrences": 257
+      "occurrences": 244
     },
     {
       "class": "VHS_LoadImagePath",
@@ -18054,86 +16523,6 @@
       "occurrences": 2
     },
     {
-      "class": "VaeDecodeShapeTrellis",
-      "role": "vae_decode",
-      "role_description": "latent -> pixel decode",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "samples",
-          "vae"
-        ],
-        "optional": [],
-        "types": {
-          "samples": "LATENT",
-          "vae": "VAE"
-        }
-      },
-      "outputs": [
-        "MESH",
-        "SHAPE_SUBDIVIDES"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "VaeDecodeStructureTrellis2",
-      "role": "vae_decode",
-      "role_description": "latent -> pixel decode",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "resolution",
-          "samples",
-          "vae"
-        ],
-        "optional": [],
-        "types": {
-          "samples": "LATENT",
-          "vae": "VAE",
-          "resolution": "COMBO"
-        }
-      },
-      "outputs": [
-        "VOXEL"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "VaeDecodeTextureTrellis",
-      "role": "vae_decode",
-      "role_description": "latent -> pixel decode",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "samples",
-          "shape_subdivides",
-          "vae"
-        ],
-        "optional": [],
-        "types": {
-          "samples": "LATENT",
-          "vae": "VAE",
-          "shape_subdivides": "SHAPE_SUBDIVIDES"
-        }
-      },
-      "outputs": [
-        "VOXEL"
-      ],
-      "used_in_type_ids": [
-        "3d__moge"
-      ],
-      "occurrences": 1
-    },
-    {
       "class": "Veo3VideoGenerationNode",
       "role": "api_node",
       "role_description": "external API generation node",
@@ -18250,10 +16639,9 @@
         "upscale__generic",
         "video_to_video__bernini",
         "video_to_video__ltx_2",
-        "video_to_video__sam3",
         "video_tools__depth_anything"
       ],
-      "occurrences": 12
+      "occurrences": 10
     },
     {
       "class": "VideoLinearCFGGuidance",
@@ -18685,10 +17073,9 @@
         "MESH"
       ],
       "used_in_type_ids": [
-        "3d__hunyuan3d",
-        "3d__moge"
+        "3d__hunyuan3d"
       ],
-      "occurrences": 6
+      "occurrences": 5
     },
     {
       "class": "Wan22FunControlToVideo",
@@ -18893,65 +17280,6 @@
       "occurrences": 1
     },
     {
-      "class": "Wan3ImageToVideoApi",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "first_frame",
-          "model",
-          "seed",
-          "watermark"
-        ],
-        "optional": [
-          "last_frame"
-        ],
-        "types": {
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "first_frame": "IMAGE",
-          "seed": "INT",
-          "watermark": "BOOLEAN",
-          "last_frame": "IMAGE"
-        }
-      },
-      "outputs": [
-        "VIDEO"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_image_to_video__wan"
-      ],
-      "occurrences": 1
-    },
-    {
-      "class": "Wan3ReferenceToVideoApi",
-      "role": "other",
-      "role_description": "unclassified node role",
-      "resolved": true,
-      "is_custom": false,
-      "inputs": {
-        "required": [
-          "model",
-          "seed",
-          "watermark"
-        ],
-        "optional": [],
-        "types": {
-          "model": "COMFY_DYNAMICCOMBO_V3",
-          "seed": "INT",
-          "watermark": "BOOLEAN"
-        }
-      },
-      "outputs": [
-        "VIDEO"
-      ],
-      "used_in_type_ids": [
-        "api_partner_nodes_text_to_video__wan"
-      ],
-      "occurrences": 2
-    },
-    {
       "class": "WanAnimate2Cache",
       "role": "other",
       "role_description": "unclassified node role",
@@ -18976,7 +17304,7 @@
       "used_in_type_ids": [
         "video_to_video__wan"
       ],
-      "occurrences": 4
+      "occurrences": 2
     },
     {
       "class": "WanAnimate2ToVideo",
@@ -19039,7 +17367,7 @@
       "used_in_type_ids": [
         "video_to_video__wan"
       ],
-      "occurrences": 4
+      "occurrences": 2
     },
     {
       "class": "WanCameraEmbedding",

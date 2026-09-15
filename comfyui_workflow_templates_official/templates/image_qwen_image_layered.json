@@ -1,8 +1,8 @@
 {
   "id": "91f6bbe2-ed41-4fd6-bac7-71d5b5864ecb",
   "revision": 0,
-  "last_node_id": 141,
-  "last_link_id": 198,
+  "last_node_id": 139,
+  "last_link_id": 196,
   "nodes": [
     {
       "id": 79,
@@ -550,8 +550,8 @@
         "version": 1,
         "state": {
           "lastGroupId": 3,
-          "lastNodeId": 141,
-          "lastLinkId": 198,
+          "lastNodeId": 139,
+          "lastLinkId": 196,
           "lastRerouteId": 0
         },
         "revision": 0,
@@ -1055,61 +1055,6 @@
             ]
           },
           {
-            "id": 140,
-            "type": "LatentCut",
-            "pos": [
-              980,
-              -60
-            ],
-            "size": [
-              270,
-              170
-            ],
-            "flags": {},
-            "order": 14,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "samples",
-                "name": "samples",
-                "type": "LATENT",
-                "link": 142
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "LATENT",
-                "name": "LATENT",
-                "type": "LATENT",
-                "links": [
-                  197
-                ]
-              }
-            ],
-            "properties": {
-              "enableTabs": false,
-              "tabWidth": 65,
-              "tabXOffset": 10,
-              "hasSecondTab": false,
-              "secondTabText": "Send Back",
-              "secondTabOffset": 80,
-              "secondTabWidth": 65,
-              "cnr_id": "comfy-core",
-              "ver": "0.5.1",
-              "Node name for S&R": "LatentCut",
-              "ue_properties": {
-                "widget_ue_connectable": {},
-                "version": "7.7",
-                "input_ue_unconnectable": {}
-              }
-            },
-            "widgets_values": [
-              "t",
-              1,
-              16384
-            ]
-          },
-          {
             "id": 76,
             "type": "LatentCutToBatch",
             "pos": [
@@ -1128,7 +1073,7 @@
                 "localized_name": "samples",
                 "name": "samples",
                 "type": "LATENT",
-                "link": 197
+                "link": 142
               }
             ],
             "outputs": [
@@ -1759,7 +1704,7 @@
             "id": 142,
             "origin_id": 3,
             "origin_slot": 0,
-            "target_id": 140,
+            "target_id": 76,
             "target_slot": 0,
             "type": "LATENT"
           },
@@ -1898,14 +1843,6 @@
             "target_id": 39,
             "target_slot": 0,
             "type": "COMBO"
-          },
-          {
-            "id": 197,
-            "origin_id": 140,
-            "origin_slot": 0,
-            "target_id": 76,
-            "target_slot": 0,
-            "type": "LATENT"
           }
         ],
         "extra": {
@@ -1917,8 +1854,8 @@
         "version": 1,
         "state": {
           "lastGroupId": 3,
-          "lastNodeId": 141,
-          "lastLinkId": 198,
+          "lastNodeId": 139,
+          "lastLinkId": 196,
           "lastRerouteId": 0
         },
         "revision": 0,
@@ -2323,61 +2260,6 @@
             ]
           },
           {
-            "id": 141,
-            "type": "LatentCut",
-            "pos": [
-              830,
-              -50
-            ],
-            "size": [
-              270,
-              170
-            ],
-            "flags": {},
-            "order": 10,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "samples",
-                "name": "samples",
-                "type": "LATENT",
-                "link": 142
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "LATENT",
-                "name": "LATENT",
-                "type": "LATENT",
-                "links": [
-                  198
-                ]
-              }
-            ],
-            "properties": {
-              "enableTabs": false,
-              "tabWidth": 65,
-              "tabXOffset": 10,
-              "hasSecondTab": false,
-              "secondTabText": "Send Back",
-              "secondTabOffset": 80,
-              "secondTabWidth": 65,
-              "cnr_id": "comfy-core",
-              "ver": "0.5.1",
-              "Node name for S&R": "LatentCut",
-              "ue_properties": {
-                "widget_ue_connectable": {},
-                "version": "7.7",
-                "input_ue_unconnectable": {}
-              }
-            },
-            "widgets_values": [
-              "t",
-              1,
-              16384
-            ]
-          },
-          {
             "id": 123,
             "type": "LatentCutToBatch",
             "pos": [
@@ -2396,7 +2278,7 @@
                 "localized_name": "samples",
                 "name": "samples",
                 "type": "LATENT",
-                "link": 198
+                "link": 142
               }
             ],
             "outputs": [
@@ -2862,7 +2744,7 @@
             "id": 142,
             "origin_id": 126,
             "origin_slot": 0,
-            "target_id": 141,
+            "target_id": 123,
             "target_slot": 0,
             "type": "LATENT"
           },
@@ -3001,14 +2883,6 @@
             "target_id": 120,
             "target_slot": 0,
             "type": "COMBO"
-          },
-          {
-            "id": 198,
-            "origin_id": 141,
-            "origin_slot": 0,
-            "target_id": 123,
-            "target_slot": 0,
-            "type": "LATENT"
           }
         ],
         "extra": {

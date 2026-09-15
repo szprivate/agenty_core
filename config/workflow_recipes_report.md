@@ -1,28 +1,25 @@
 # Workflow recipe database  (task -> model -> node clusters)
 
-- Tasks: 29 | task+model recipes: 161
+- Tasks: 29 | task+model recipes: 156
 - Self-contained: every recipe has user_intent + description + node clusters. No human annotation step.
 
-# API / Partner Nodes - Image Edit  (`api_partner_nodes_image_edit`)  -  82 workflow(s), 13 model(s)
+# API / Partner Nodes - Image Edit  (`api_partner_nodes_image_edit`)  -  76 workflow(s), 12 model(s)
 
-## API / Partner Nodes - Image Edit / Generic  (`api_partner_nodes_image_edit__generic`)  -  48 workflow(s)  -  source: mixed
-- execution: api (API nodes: BeebleSwitchXImageEdit, BriaExpandImage, BriaGenFill, BriaImageEditNode, BriaRemoveImageBackground, ByteDanceSeedNode, ByteDanceSeedreamNodeV2, ClaudeNode, GeminiImage2Node, GeminiNanoBanana2, GeminiNanoBanana2V2, GrokImageEditNode, GrokImageEditNodeV2, GrokImageNode, LumaImageEditNode2, LumaImageModifyNode, LumaImageNode, LumaImageNode2, LumaReferenceNode, OpenAIChatConfig, OpenAIChatNode, OpenAIGPTImage1, OpenAIGPTImageNodeV2, OpenRouterLLMNode, QuiverImageToSVGNode, RecraftCreateStyleNode, RecraftStyleV3InfiniteStyleLibrary, RecraftTextToImageNode, RunwayTextToImageNode, WavespeedImageUpscaleNode)
+## API / Partner Nodes - Image Edit / Generic  (`api_partner_nodes_image_edit__generic`)  -  45 workflow(s)  -  source: mixed
+- execution: api (API nodes: BeebleSwitchXImageEdit, BriaImageEditNode, BriaRemoveImageBackground, ByteDanceSeedNode, ByteDanceSeedreamNodeV2, ClaudeNode, GeminiImage2Node, GeminiNanoBanana2, GeminiNanoBanana2V2, GrokImageEditNode, GrokImageNode, LumaImageEditNode2, LumaImageModifyNode, LumaImageNode, LumaImageNode2, LumaReferenceNode, OpenAIChatConfig, OpenAIChatNode, OpenAIGPTImage1, OpenAIGPTImageNodeV2, OpenRouterLLMNode, QuiverImageToSVGNode, RecraftCreateStyleNode, RecraftStyleV3InfiniteStyleLibrary, RecraftTextToImageNode, RunwayTextToImageNode, WavespeedImageUpscaleNode)
 - when to use: Use to generate an image.
 - example request: "build an image workflow"
-- description: API / cloud image editing via OpenAI GPT2. 1 image input -> 1 image output. Processes and generates content using ComfyUI workflows. | Claude Fable 5, Anthropic's first public Mythos-class frontier model, powers end-to-end creative workflows in ComfyUI. It takes 1 text prompt and generates 1 structured output including storyboard breakdowns, precise prompts for SD models and ControlNet, and custom node scripts. Ideal for concept artists refining visual narratives, AI filmmakers maintaining style consistency across series, and digital creators automating their entire rendering pipeline. | Converts an image input into an SVG output. | Create static ads for your product in the style of a reference advertisement | Describe a scene or world using GPT-5.6 Terra, a balanced multimodal model that interprets one uploaded image to guide visual storytelling and style consistency. Ideal for worldbuilding, mood board creation, and maintaining cohesive aesthetics across a series of works. | Edit existing images with Uni-1's Image Edit mode, preserving composition and core elements. Supports targeted adjustments like lighting and color using prompts and reference images. | Engage with OpenAI's advanced language models for intelligent conversations. | Enhance image quality with advanced text rendering and creative control using Grok Imagine Image Quality. Input images or prompts for improved detail and fidelity. | Expand an image beyond its original borders using Bria's outpainting API, generating new surrounding content that matches the original lighting, perspective, and texture while leaving the source untouched. Choose from preset aspect ratios, custom dimensions, or manual canvas placement, with optional text prompts to guide the expansion direction or an auto-generated prompt when left blank. Ideal for extending compositions for print layouts, creating panoramic versions of existing photos, and adapting artwork to new formats or social media dimensions. | FIBO enables precise, predictable image editing through structured JSON control over lighting, composition, and camera settings | GPT-5.6 Luna streamlines visual pre-production by analyzing a single reference image and generating structured creative text from a user prompt. It takes 1 input image and produces no explicit visual outputs, focusing instead on rapid, standardized copywriting. Ideal for batch scene description expansion, shot list organization, and high-volume creative ideation. | GPT-5.6 Sol is a multimodal model workflow for visual storytelling, taking 1 input image and a user prompt to generate detailed scene descriptions and narrative sequences. Ideal for world-building, multi-shot storyboarding, and maintaining consistent art style across long-form illustration or video projects. | Generate brand-new original images using the Luma UNI-1 node with up to 9 reference images for style, character, color, lighting, and composition. Create unique compositions with detailed prompts, adjustable aspect ratios, and seed control. | Generate detailed image descriptions and creative briefs using Kimi K3, a multimodal model with million-token context windows for unified text and image understanding. Input one image and a text prompt to produce nuanced visual analyses or batch descriptions. Ideal for streamlining multi-shot visual series, generating automated script prompts for node-based workflows, and iteratively refining creative concepts through image feedback. | Generate high-contrast, clickable YouTube thumbnails using Nano Banana Pro. Creates dramatic compositions with exaggerated subjects and bold color strategies for maximum engagement. | Generate high-quality images from text prompts using Runway's AI model. | Generate images by blending style references with precise control using Luma Photon. | Generate images from input images using OpenAI GPT Image 1 API. | Generate images from multiple inputs using OpenAI GPT Image 1 API. | Generate images from text prompts using OpenAI GPT Image 1 API. | Generate new images based on reference styles and compositions with Runway's AI. | Grok 4.5 is a flagship multimodal model designed for complex engineering and creative tasks, with native visual parsing and high-speed inference. It takes creative briefs and generated images as inputs, producing standardized scene descriptions and iterative visual analysis. Ideal for multi-shot storyboarding, batch image description generation, and feedback-driven creative refinement. | Grok Imagine Image 2.0 performs precise image editing and text rendering using xAI's Aurora engine, letting you modify specific elements, swap backgrounds, or restyle scenes through natural language with crisp short-text output. It takes up to 3 reference images and generates at 1K or 2K resolution across 14 aspect ratios, with strong character consistency across scenes. Ideal for poster and cover design, product and brand visuals, or multi-scene character workflows. | Guide image generation using a combination of images and prompt. | Input a black and white illustration and generate a colored output. | Input an image or video for analysis. Receive detailed text output describing visual content, reasoning, and structured information extraction. | Input your query or image for analysis. Generate a natural language response powered by Anthropic Claude, supporting both text conversation and image understanding. | Leverage Claude Sonnet 5 for high-value autonomous task execution, bridging the gap to flagship performance at a lower cost. Input any text prompt or script to generate precise image descriptions, automated workflow scripts, shot sequence logs, or node logic corrections. Ideal for batch production tasks, debugging ComfyUI node logic, and maintaining consistent output quality across repetitive generation workflows. | Load an image and enter a prompt to interact with Claude Opus 5, a highly capable and cost-efficient AI model that excels at coding, knowledge work, and problem-solving. Ideal for software engineering tasks, scientific research requiring visual analysis, and everyday productivity with a thoughtful, proactive assistant. | Transform clothing photos into professional mall billboard advertisements featuring realistic fashion models. | Transform real building photos into architectural blueprints and then into detailed physical scale models. A complete architectural visualization pipeline from photo to miniature. | Transform uploaded images into realistic poster designs. Change character poses, faces, and clothing while maintaining artistic style and color schemes. Outputs a visually impactful poster with artistic typography. | Upload 1-5 style references and create a style ID to generate consistent, on brand images. | Upload a dieline of your product and assemble into a 3D package. | Upload a graphic design and select your desired aspect ratio. Generates and recomposes the graphic to fit the new aspect ratio. | Upload a photo of a character holding a product and your brands product. Generate an image with the products swapped. | Upload a photo of your character and your product. Generate an image of that character holding the product. | Upload a product image and a cinematic style reference. Generate a sequence of stylized product advertisements with consistent composition and lighting. | Upload a reference image and write a prompt to create campaign-ready posters, product shots, and multilingual signage. The model renders clean text and photorealistic outputs suitable for commercial work. | Upload an AI-generated image to restore details and upscale. The workflow preserves colors and sharpness while minimizing artifacts. Output is a high-quality, enlarged version of your input. | Upload an image and generate 12 stylized variations in under 15 seconds. | Upload an image to automatically remove its background using the Bria API. The workflow processes the request asynchronously and returns the edited image with a transparent background. | Upload an image to edit with the Grok model. Generate a modified version with expressive, cinematic visuals | Upload multiple images to create a consistent style reference. Generate new images using this reference to maintain visual coherence across outputs. | Upload your character image and a reference style/lighting image. Generate an edited output with the reference lighting and style applied to your original image. | Upload your character portrait and outfit reference. Generate a new portrait with the specific outfit applied for consistent wardrobe control. Affordable alternative to Nano Banana Pro and Nano Banana 2. | Upload your character, scene and product. Integrates all images into a fashion editorial style photograph. | Use Bria's Generative Fill API to regenerate a specific region of an image while keeping everything outside the mask pixel-perfect unchanged. Paint a mask over the target area, write a detailed prompt for the replacement content, and compare the before/after side-by-side before exporting. Ideal for product photography corrections, object removal or replacement, and creative compositing where precise control over the edited region matters.
+- description: API / cloud image editing via OpenAI GPT2. 1 image input -> 1 image output. Processes and generates content using ComfyUI workflows. | Claude Fable 5, Anthropic's first public Mythos-class frontier model, powers end-to-end creative workflows in ComfyUI. It takes 1 text prompt and generates 1 structured output including storyboard breakdowns, precise prompts for SD models and ControlNet, and custom node scripts. Ideal for concept artists refining visual narratives, AI filmmakers maintaining style consistency across series, and digital creators automating their entire rendering pipeline. | Converts an image input into an SVG output. | Create static ads for your product in the style of a reference advertisement | Describe a scene or world using GPT-5.6 Terra, a balanced multimodal model that interprets one uploaded image to guide visual storytelling and style consistency. Ideal for worldbuilding, mood board creation, and maintaining cohesive aesthetics across a series of works. | Edit existing images with Uni-1's Image Edit mode, preserving composition and core elements. Supports targeted adjustments like lighting and color using prompts and reference images. | Engage with OpenAI's advanced language models for intelligent conversations. | Enhance image quality with advanced text rendering and creative control using Grok Imagine Image Quality. Input images or prompts for improved detail and fidelity. | FIBO enables precise, predictable image editing through structured JSON control over lighting, composition, and camera settings | GPT-5.6 Luna streamlines visual pre-production by analyzing a single reference image and generating structured creative text from a user prompt. It takes 1 input image and produces no explicit visual outputs, focusing instead on rapid, standardized copywriting. Ideal for batch scene description expansion, shot list organization, and high-volume creative ideation. | GPT-5.6 Sol is a multimodal model workflow for visual storytelling, taking 1 input image and a user prompt to generate detailed scene descriptions and narrative sequences. Ideal for world-building, multi-shot storyboarding, and maintaining consistent art style across long-form illustration or video projects. | Generate brand-new original images using the Luma UNI-1 node with up to 9 reference images for style, character, color, lighting, and composition. Create unique compositions with detailed prompts, adjustable aspect ratios, and seed control. | Generate detailed image descriptions and creative briefs using Kimi K3, a multimodal model with million-token context windows for unified text and image understanding. Input one image and a text prompt to produce nuanced visual analyses or batch descriptions. Ideal for streamlining multi-shot visual series, generating automated script prompts for node-based workflows, and iteratively refining creative concepts through image feedback. | Generate high-contrast, clickable YouTube thumbnails using Nano Banana Pro. Creates dramatic compositions with exaggerated subjects and bold color strategies for maximum engagement. | Generate high-quality images from text prompts using Runway's AI model. | Generate images by blending style references with precise control using Luma Photon. | Generate images from input images using OpenAI GPT Image 1 API. | Generate images from multiple inputs using OpenAI GPT Image 1 API. | Generate images from text prompts using OpenAI GPT Image 1 API. | Generate new images based on reference styles and compositions with Runway's AI. | Grok 4.5 is a flagship multimodal model designed for complex engineering and creative tasks, with native visual parsing and high-speed inference. It takes creative briefs and generated images as inputs, producing standardized scene descriptions and iterative visual analysis. Ideal for multi-shot storyboarding, batch image description generation, and feedback-driven creative refinement. | Guide image generation using a combination of images and prompt. | Input a black and white illustration and generate a colored output. | Input an image or video for analysis. Receive detailed text output describing visual content, reasoning, and structured information extraction. | Input your query or image for analysis. Generate a natural language response powered by Anthropic Claude, supporting both text conversation and image understanding. | Leverage Claude Sonnet 5 for high-value autonomous task execution, bridging the gap to flagship performance at a lower cost. Input any text prompt or script to generate precise image descriptions, automated workflow scripts, shot sequence logs, or node logic corrections. Ideal for batch production tasks, debugging ComfyUI node logic, and maintaining consistent output quality across repetitive generation workflows. | Load an image and enter a prompt to interact with Claude Opus 5, a highly capable and cost-efficient AI model that excels at coding, knowledge work, and problem-solving. Ideal for software engineering tasks, scientific research requiring visual analysis, and everyday productivity with a thoughtful, proactive assistant. | Transform clothing photos into professional mall billboard advertisements featuring realistic fashion models. | Transform real building photos into architectural blueprints and then into detailed physical scale models. A complete architectural visualization pipeline from photo to miniature. | Transform uploaded images into realistic poster designs. Change character poses, faces, and clothing while maintaining artistic style and color schemes. Outputs a visually impactful poster with artistic typography. | Upload 1-5 style references and create a style ID to generate consistent, on brand images. | Upload a dieline of your product and assemble into a 3D package. | Upload a graphic design and select your desired aspect ratio. Generates and recomposes the graphic to fit the new aspect ratio. | Upload a photo of a character holding a product and your brands product. Generate an image with the products swapped. | Upload a photo of your character and your product. Generate an image of that character holding the product. | Upload a product image and a cinematic style reference. Generate a sequence of stylized product advertisements with consistent composition and lighting. | Upload a reference image and write a prompt to create campaign-ready posters, product shots, and multilingual signage. The model renders clean text and photorealistic outputs suitable for commercial work. | Upload an AI-generated image to restore details and upscale. The workflow preserves colors and sharpness while minimizing artifacts. Output is a high-quality, enlarged version of your input. | Upload an image and generate 12 stylized variations in under 15 seconds. | Upload an image to automatically remove its background using the Bria API. The workflow processes the request asynchronously and returns the edited image with a transparent background. | Upload an image to edit with the Grok model. Generate a modified version with expressive, cinematic visuals | Upload multiple images to create a consistent style reference. Generate new images using this reference to maintain visual coherence across outputs. | Upload your character image and a reference style/lighting image. Generate an edited output with the reference lighting and style applied to your original image. | Upload your character portrait and outfit reference. Generate a new portrait with the specific outfit applied for consistent wardrobe control. Affordable alternative to Nano Banana Pro and Nano Banana 2. | Upload your character, scene and product. Integrates all images into a fashion editorial style photograph.
 - member workflows:
     - api_anthropic_claude
     - api_anthropic_claude_fable5
     - api_anthropic_claude_opus_5
     - api_anthropic_claude_sonnet5
     - api_beeble_switchx_image_edit
-    - api_bria_expand_image
-    - api_bria_genfill
     - api_bria_image_edit
     - api_bytedance_seed
     - api_from_photo_2_miniature
     - api_grok_image_edit
-    - api_grok_imagine_image_2_image_edit
     - api_grok_imagine_image_quality_image_edit
     - api_i2i_imageEdit_OpenAi_GPT2
     - api_luma_photon_i2i
@@ -115,22 +112,8 @@
     - templates-product_scene_relight
 - node clusters (required structure):
     - inputs: LoadImage
-- optional roles: BatchImagesNode, BatchMasksNode, ByteDanceSeedreamLayerSeparationNode, ByteDanceSeedreamNode, ByteDanceSeedreamNodeV2, ImageCompositor, JoinImageWithAlpha, MarkdownNote, Note, Painter, PreviewImage, RegexReplace
+- optional roles: ImageCompositor, BatchImagesNode, BatchMasksNode, ByteDanceSeedreamLayerSeparationNode, ByteDanceSeedreamNode, ByteDanceSeedreamNodeV2, LayersFromBoundingBoxes, MarkdownNote, Note, Painter, PreviewImage, RegexReplace
 - unresolved nodes: MarkdownNote, Note
-
-## API / Partner Nodes - Image Edit / WAN  (`api_partner_nodes_image_edit__wan`)  -  3 workflow(s)  -  source: official
-- execution: api (API nodes: BriaEraser, GeminiNanoBanana2V2, GrokImageNode)
-- when to use: Use to generate an image using WAN, Nano-Banana, Z-Image.
-- example request: "build an image workflow using WAN"
-- description: Remove unwanted objects or regions from images with Bria's Eraser, which fills the masked area with surrounding context while leaving the rest of the image pixel-perfect. Upload 1 image, paint over the target object with a brush mask, and receive 1 cleaned output alongside a before-and-after comparison. Ideal for cleaning up photobombs, removing watermarks or text, and decluttering product or real-estate photos. | Start with an image and an empty prompt, then describe the edit you want. Nano Banana 2 generates a modified image while preserving subject consistency and high visual fidelity. | Upload an image that you want a variation of. The workflow captions the input image, generates with Grok Image, and upscales with Z-image to add realistic textures.
-- member workflows:
-    - api_bria_eraser
-    - api_google_nano_banana2_image_edit_continuation
-    - template_rob_realistic_2k_images_quick_variations
-- node clusters (required structure):
-    - inputs: LoadImage
-- optional roles: CLIPTextEncode, SaveImage, AILab_QwenVL, BriaEraser, CLIPLoader, GeminiNanoBanana2V2, GrokImageNode, ImageCompare, ImageRemoveAlpha+, ImageScaleBy, ImageScaleToTotalPixels, ImageUpscaleWithModel
-- unresolved nodes: AILab_QwenVL, ImageRemoveAlpha+, MarkdownNote, Note
 
 ## API / Partner Nodes - Image Edit / Flux 2  (`api_partner_nodes_image_edit__flux_2`)  -  2 workflow(s)  -  source: official
 - execution: api (API nodes: Flux2MaxImageNode, Flux2ProImageNode)
@@ -220,17 +203,24 @@
     - other operations: ImageBatchMulti, KlingOmniProImageNode
 - paired/multiple required: LoadImage x2
 
-## API / Partner Nodes - Image Edit / Qwen Image  (`api_partner_nodes_image_edit__qwen_image`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: QwenImageEditApi)
-- when to use: Use to edit an existing image using Qwen Image.
-- example request: "build an image workflow using Qwen Image"
-- description: Qwen Image 3.0 Pro performs advanced image editing with rich multi-image input, generating complex layouts like newspapers, storyboards, menus, and exam papers in a single pass while preserving fine details down to 10px text, micro-expressions, and individual hairs. Supports native rendering across 12 languages with realistic simulation of web pages, games, and live streams. Ideal for professional content production, interface mockups, and high-fidelity commercial imagery requiring authentic detail.
+## API / Partner Nodes - Image Edit / WAN  (`api_partner_nodes_image_edit__wan`)  -  1 workflow(s)  -  source: official
+- execution: api (API nodes: GrokImageNode)
+- when to use: Use to generate an image using WAN, Z-Image.
+- example request: "build an image workflow using WAN"
+- description: Upload an image that you want a variation of. The workflow captions the input image, generates with Grok Image, and upscales with Z-image to add realistic textures.
 - member workflows:
-    - api_qwen3_image_edit
+    - template_rob_realistic_2k_images_quick_variations
 - node clusters (required structure):
     - inputs: LoadImage
-    - output: SaveImage
-    - other operations: QwenImageEditApi
+    - model loading: CLIPLoader, UNETLoader, UpscaleModelLoader, VAELoader
+    - conditioning: CLIPTextEncode (x2)
+    - latent / canvas: VAEEncode
+    - sampling: KSampler
+    - decoding: VAEDecode
+    - output: SaveImage (x2)
+    - other operations: AILab_QwenVL, GrokImageNode, ImageCompare, ImageRemoveAlpha+, ImageScaleBy, ImageScaleToTotalPixels, ImageUpscaleWithModel, ModelSamplingAuraFlow, Note, PreviewAny, StringConcatenate (x2)
+- paired/multiple required: CLIPTextEncode x2, SaveImage x2
+- unresolved nodes: AILab_QwenVL, ImageRemoveAlpha+, Note
 
 ## API / Partner Nodes - Image Edit / Z-Image  (`api_partner_nodes_image_edit__z_image`)  -  1 workflow(s)  -  source: official
 - execution: api (API nodes: GrokImageNode)
@@ -252,13 +242,13 @@
 - unresolved nodes: AILab_QwenVL, ImageRemoveAlpha+, Note
 
 
-# Text to Image  (`text_to_image`)  -  67 workflow(s), 12 model(s)
+# Text to Image  (`text_to_image`)  -  66 workflow(s), 12 model(s)
 
-## Text to Image / Generic  (`text_to_image__generic`)  -  22 workflow(s)  -  source: mixed
+## Text to Image / Generic  (`text_to_image__generic`)  -  21 workflow(s)  -  source: mixed
 - execution: local
 - when to use: Use to generate an image from a text prompt.
 - example request: "build an image workflow"
-- description: A lightweight 2B model that generates images from English and Russian prompts with high visual quality. | Chroma1-Radiance works directly with image pixels instead of compressed latents, delivering higher quality images with reduced artifacts and distortion. | Demonstrate how to convert between various built-in data types within a workflow. Input any data value and output its converted form. | Enhance SDXL images using refiner models. | Generate detailed anime-style images with NewBie Exp0.1's Next-DiT architecture. Supports XML structured prompts for better multi-character scenes and attribute control. | Generate high-quality images from text prompts using OmniGen2's unified 7B multimodal model with dual-path architecture. | Generate high-quality images from text prompts using the Boogu Turbo model, a distilled 10B-parameter text-to-image pipeline that produces photorealistic outputs in just 4 steps. The workflow accepts one text prompt and outputs a single 1024x1024 image. Ideal for rapid prototyping of photorealistic concepts, generating marketing visuals, and creating bilingual text-rendered images with strong prompt adherence. | Generate high-quality images from text prompts using the SDXL 1.0 model, offering a straightforward text-to-image generation workflow. Ideal for quick concept visualization, creative brainstorming, and rapid prototyping of visual ideas. | Generate high-quality images from text prompts using the compact 4B-parameter Mage-Flow Turbo model, producing a single image output without any file inputs. This workflow supports native-resolution generation from 512 to 2048 pixels per side at any aspect ratio, including extreme 4:1 dimensions. Ideal for rapid concept visualization, creative asset generation, and low-latency image prototyping on modest hardware. | Generate high-quality images using SDXL. | Generate high-resolution images from text prompts using Mage-Flow, a compact 4B-parameter diffusion model that outputs a single image at native resolutions from 512 to 2048 pixels per side. Ideal for rapid concept visualization, creative asset generation, and research in controlled image synthesis under limited compute budgets. | Generate images in a single step using SDXL Turbo. | Generate images quickly with HiDream I1 Fast - Lightweight version with 16 inference steps, ideal for rapid previews on lower-end hardware. | Generate images using SD 3.5. | Generate images with HiDream I1 Dev - Balanced version with 28 inference steps, suitable for medium-range hardware. | Generate images with HiDream I1 Full - Complete version with 50 inference steps for highest quality output. | Input a text prompt and optional negative prompt. Generate a 1024px image using PixelDiT's VAE-free pixel diffusion transformer. | Input a text prompt and select resolution and aspect ratio. Generate a high-quality image using the efficient Lens text-to-image model. | Input a text prompt and select resolution, aspect ratio, and inference steps. Generate a high-quality image using the Lens text-to-image model. | Input a text prompt to generate an image. This workflow uses the Capybara unified model for text-to-image synthesis. | Ovis-Image is a 7B text-to-image model specifically optimized for high-quality text rendering in generated images. Designed to operate efficiently under computational constraints, it excels at accurately generating images containing text content. | [Local] OCIO color convert. 1 EXR (or PNG) in -> 1 PNG out. Loads via bepic_imageLoad (OIIO), applies bepic_colorTransform input ACES - ACEScg to output Output - sRGB with clamp on, saves 16-bit PNG via bEpic_imageSave (OIIO). For batches of non-contiguous frames, run one job per file and patch image_path + first_frame; keep auto_version false so saves go straight into the target folder.
+- description: A lightweight 2B model that generates images from English and Russian prompts with high visual quality. | Chroma1-Radiance works directly with image pixels instead of compressed latents, delivering higher quality images with reduced artifacts and distortion. | Demonstrate how to convert between various built-in data types within a workflow. Input any data value and output its converted form. | Enhance SDXL images using refiner models. | Generate detailed anime-style images with NewBie Exp0.1's Next-DiT architecture. Supports XML structured prompts for better multi-character scenes and attribute control. | Generate high-quality images from text prompts using OmniGen2's unified 7B multimodal model with dual-path architecture. | Generate high-quality images from text prompts using the Boogu Turbo model, a distilled 10B-parameter text-to-image pipeline that produces photorealistic outputs in just 4 steps. The workflow accepts one text prompt and outputs a single 1024x1024 image. Ideal for rapid prototyping of photorealistic concepts, generating marketing visuals, and creating bilingual text-rendered images with strong prompt adherence. | Generate high-quality images from text prompts using the compact 4B-parameter Mage-Flow Turbo model, producing a single image output without any file inputs. This workflow supports native-resolution generation from 512 to 2048 pixels per side at any aspect ratio, including extreme 4:1 dimensions. Ideal for rapid concept visualization, creative asset generation, and low-latency image prototyping on modest hardware. | Generate high-quality images using SDXL. | Generate high-resolution images from text prompts using Mage-Flow, a compact 4B-parameter diffusion model that outputs a single image at native resolutions from 512 to 2048 pixels per side. Ideal for rapid concept visualization, creative asset generation, and research in controlled image synthesis under limited compute budgets. | Generate images in a single step using SDXL Turbo. | Generate images quickly with HiDream I1 Fast - Lightweight version with 16 inference steps, ideal for rapid previews on lower-end hardware. | Generate images using SD 3.5. | Generate images with HiDream I1 Dev - Balanced version with 28 inference steps, suitable for medium-range hardware. | Generate images with HiDream I1 Full - Complete version with 50 inference steps for highest quality output. | Input a text prompt and optional negative prompt. Generate a 1024px image using PixelDiT's VAE-free pixel diffusion transformer. | Input a text prompt and select resolution and aspect ratio. Generate a high-quality image using the efficient Lens text-to-image model. | Input a text prompt and select resolution, aspect ratio, and inference steps. Generate a high-quality image using the Lens text-to-image model. | Input a text prompt to generate an image. This workflow uses the Capybara unified model for text-to-image synthesis. | Ovis-Image is a 7B text-to-image model specifically optimized for high-quality text rendering in generated images. Designed to operate efficiently under computational constraints, it excels at accurately generating images containing text content. | [Local] OCIO color convert. 1 EXR (or PNG) in -> 1 PNG out. Loads via bepic_imageLoad (OIIO), applies bepic_colorTransform input ACES - ACEScg to output Output - sRGB with clamp on, saves 16-bit PNG via bEpic_imageSave (OIIO). For batches of non-contiguous frames, run one job per file and patch image_path + first_frame; keep auto_version false so saves go straight into the target folder.
 - member workflows:
     - Image_capybara_v0_1_text_to_image
     - acescg_to_srgb
@@ -277,7 +267,6 @@
     - image_omnigen2_t2i
     - image_ovis_text_to_image
     - image_pixeldit_t2i
-    - image_sdxl_simple
     - sd3.5_simple_example
     - sdxl_refiner_prompt_example
     - sdxl_simple_example
@@ -533,7 +522,7 @@
     - sampling: KSampler
     - decoding: VAEDecode
     - other operations: ModelSamplingAuraFlow
-- optional roles: TextEncodeQwenImageEditPlus, CFGNorm, ImageScaleToTotalPixels, PreviewImage, SaveImage, VAEEncode, CLIPTextEncode, MarkdownNote, EmptyQwenImageLayeredLatentImage, FluxKontextMultiReferenceLatentMethod, LatentCut, LatentCutToBatch
+- optional roles: TextEncodeQwenImageEditPlus, CFGNorm, ImageScaleToTotalPixels, PreviewImage, SaveImage, VAEEncode, CLIPTextEncode, MarkdownNote, EmptyQwenImageLayeredLatentImage, FluxKontextMultiReferenceLatentMethod, LatentCutToBatch, LoadImage
 - unresolved nodes: Image Load, MarkdownNote, Note, Reroute
 
 ## Image Edit / Generic  (`image_edit__generic`)  -  12 workflow(s)  -  source: official
@@ -783,13 +772,13 @@
     - other operations: GetImageSize, ModelSamplingAuraFlow
 
 
-# API / Partner Nodes - Text to Video  (`api_partner_nodes_text_to_video`)  -  53 workflow(s), 9 model(s)
+# API / Partner Nodes - Text to Video  (`api_partner_nodes_text_to_video`)  -  50 workflow(s), 9 model(s)
 
-## API / Partner Nodes - Text to Video / Generic  (`api_partner_nodes_text_to_video__generic`)  -  36 workflow(s)  -  source: mixed
-- execution: api (API nodes: ByteDance2ReferenceNode, ByteDance2ReferenceNodeV2, ByteDance2TextToVideoNode, ByteDanceCreateImageAsset, ByteDanceCreateVideoAsset, ByteDanceSeedreamNode, ByteDanceTextToVideoNode, GeminiNanoBanana2V2, GeminiNode, GrokVideoNode, GrokVideoReferenceNode, HappyHorseReferenceVideoApi, HappyHorseTextToVideoApi, HeyGenAvatarVideoNode, HeyGenCreateAvatarNode, KlingStartEndFrameNode, KlingVideoNode, LumaConceptsNode, LumaRay32ExtendVideoNode, LumaRay32TextToVideoNode, LumaVideoNode, MinimaxHailuo03ReferenceNode, MinimaxHailuo03TextToVideoNode, OpenAIGPTImageNodeV2, PixverseTemplateNode, PixverseTextToVideoNode, SyncTalkingImageNode, Vidu2ReferenceVideoNode, Vidu2TextToVideoNode, Vidu3TextToVideoNode, ViduReferenceVideoNode, ViduStartEndToVideoNode, ViduTextToVideoNode)
+## API / Partner Nodes - Text to Video / Generic  (`api_partner_nodes_text_to_video__generic`)  -  35 workflow(s)  -  source: mixed
+- execution: api (API nodes: ByteDance2ReferenceNode, ByteDance2TextToVideoNode, ByteDanceCreateImageAsset, ByteDanceCreateVideoAsset, ByteDanceSeedreamNode, ByteDanceTextToVideoNode, GeminiNanoBanana2V2, GeminiNode, GrokVideoNode, GrokVideoReferenceNode, HappyHorseReferenceVideoApi, HappyHorseTextToVideoApi, HeyGenAvatarVideoNode, HeyGenCreateAvatarNode, KlingStartEndFrameNode, KlingVideoNode, LumaConceptsNode, LumaRay32ExtendVideoNode, LumaRay32TextToVideoNode, LumaVideoNode, MinimaxHailuo03ReferenceNode, MinimaxHailuo03TextToVideoNode, OpenAIGPTImageNodeV2, PixverseTemplateNode, PixverseTextToVideoNode, SyncTalkingImageNode, Vidu2ReferenceVideoNode, Vidu2TextToVideoNode, Vidu3TextToVideoNode, ViduReferenceVideoNode, ViduStartEndToVideoNode, ViduTextToVideoNode)
 - when to use: Use to generate a video.
 - example request: "build a video workflow"
-- description: API text-to-video via Seedance 2.0 (ByteDance). Text prompt only -> 1 video output. Generates high-quality video from a text description using the Seedance 2.0 model. | Create an AI avatar video from a text prompt or uploaded image using HeyGen's avatar generation technology, outputting a single talking-head video. You can save the avatar ID for reuse in future videos. Ideal for personalized digital presenters, social media content creation, and multilingual video production without recording talent. | Create complete audio-visual stories from text with synchronized voices, music, and sound effects. | Create smooth video transitions between defined start and end frames with natural motion interpolation and consistent visual quality. | Generate 30-second cinematic videos from text prompts with Seedance 2.5, producing synchronized sound and music alongside the footage. Input a single text prompt to create one video with precise camera control and multi-shot storytelling. Ideal for brand films, episodic series, and e-commerce content where quality matters more than budget. | Generate a reference-based video from a single input image using Seedance 2.0, producing native 4K output with 10-bit color depth and clean fine detail retention. The workflow takes 1 image and outputs 1 video. Ideal for high-resolution motion graphics, cinematic VFX shots requiring downstream grading, and professional video production where 4K finishing is essential. | Generate a talking-head video from a single face photo and an audio clip, with lips and lower-face motion precisely synchronized to the speech. This process outputs one video from one image and one audio input, keeping hands, products, and background completely unchanged. Ideal for product demos, e-commerce introductions, and marketing videos where a static product-holding photo is paired with a voiceover. | Generate a video with synchronized audio from a text prompt using HappyHorse 1.1, producing a single video output with dialogue, sound effects, and music baked in. Ideal for short episodic series, e-commerce commercials, and game cutscenes. | Generate an 8-panel storyboard from a simple text prompt, then use that storyboard as the foundation for Seedance 2.0. The storyboard provides a visual blueprint for the sequence, allowing you to guide the video with more control over the action, camera angles, composition, and overall storytelling. | Generate cinematic 1080P video clips from text descriptions using Seedance 2.5, supporting clips up to 30 seconds with synchronized sound, music, and dialogue across any aspect ratio. Ideal for short comedy scenes, product showcases, and creative storytelling. | Generate cinematic video from two reference images using Seedance 2.0 Mini, producing a single video output with AI-driven camera motion and consistent character generation. Ideal for storytelling, branded content, and short film creation where shot composition and visual continuity are essential. | Generate cinematic videos from reference images and text prompts. Preserve subject identity and composition while adding expressive motion with synchronized audio. Control camera movement and lighting through detailed prompts. | Generate cinematic videos from text prompts with Dreamina's Seedance 2.0 Mini, supporting AI camera controls and consistent character generation across scenes. This workflow takes only prompt input and produces 1 video output. Ideal for AI filmmaking, branded content creation, and multi-shot storytelling projects. | Generate cinematic videos from text prompts with synchronized audio, controlled camera motion, and stable visuals. Input text descriptions to output high-quality video sequences. | Generate cinematic-quality videos from text prompts using Luma Ray 3.2, with optional video extension by providing a generation ID from a previous run. Ideal for creating short film sequences, marketing content, and iterative video refinement. | Generate high-quality 1080p videos from text prompts with Vidu Q2 model | Generate high-quality 1080p videos from text prompts with adjustable movement amplitude and duration control using Vidu's advanced AI model. | Generate high-quality videos directly from text prompts using ByteDance's Seedance model. Supports multiple resolutions and aspect ratios with natural motion and cinematic quality. | Generate high-quality, realistic videos from text prompts with fluid motion and rich detail. Input text descriptions to produce dynamic videos with accurate semantic comprehension. | Generate reference-driven videos with Seedance 2.5 by supplying up to 20 images, 6 video clips, and 6 audio clips to control character consistency, visual style, and motion rhythm in a single 4-30 second output with synchronized sound and lip-synced dialogue. Ideal for e-commerce product showcases, brand advertising, and character-driven short series. | Generate video directly from text using the MiniMax H3 model, producing a 5-15 second clip with native stereo audio. Ideal for rapid concept visualization, short-form social media content, and pre-visualization for film or advertising projects. | Generate video from a reference image or set of multimodal inputs using MiniMax H3, which interprets text, images, video, and audio together to produce coherent 5-15 second clips with native stereo audio. Input up to 2 images for first/last frame control, or up to 9 images, 3 video clips, and 3 audio clips in Omni Reference mode, and output a single video in your chosen aspect ratio. Ideal for commercial content creation, character-driven storytelling, and rapid visual concept validation. | Generate video from reference images using HappyHorse 1.1, locking character and scene appearance while following a text prompt for motion. This workflow takes 2 input images (character reference and scene reference) and produces 1 video output. Ideal for short films, advertising, and game cutscenes requiring consistent character design and controllable narrative. | Generate videos that preserve subject characters from multiple reference images using text prompts. Input up to 9 reference images and a scene description to produce a 3-15 second video output. | Generate videos with accurate prompt interpretation and stunning video dynamics. | Generate videos with consistent subjects using multiple reference images (up to 7) for character and style continuity across the video sequence. | Generate videos with reference-based consistency for up to 3 subjects, maintaining character and style continuity across the video sequence with cinematic camera movements. | High-quality videos can be generated using simple prompts. | Input a text prompt or upload an image to generate a 1-16 second video with synchronized audio and automatic scene transitions. | Input text prompts or an initial image frame to generate up to 15-second videos with synchronized audio using the Grok model. | Swap products into a reference scene while preserving composition and lighting. Generates a final product image and an automatic video prompt for creating polished product videos. | Upload a photo of your vehicle and generate a studio quality video of the vehicle from multiple angles. | Upload a reference image and generate a video using the Grok API, supporting up to 6 reference images for enhanced consistency. | Upload a reference video of a real person for identity verification. Use your own photo to validate and generate a personalized video output. | Upload an image and optional text prompt to generate a video with native audio, realistic motion, and high-quality output up to 720p resolution. | Upload two reference images and input a short text description. Generate a detailed Seedance 2.0-style prompt automatically with an LLM helper.
+- description: API text-to-video via Seedance 2.0 (ByteDance). Text prompt only -> 1 video output. Generates high-quality video from a text description using the Seedance 2.0 model. | Create an AI avatar video from a text prompt or uploaded image using HeyGen's avatar generation technology, outputting a single talking-head video. You can save the avatar ID for reuse in future videos. Ideal for personalized digital presenters, social media content creation, and multilingual video production without recording talent. | Create complete audio-visual stories from text with synchronized voices, music, and sound effects. | Create smooth video transitions between defined start and end frames with natural motion interpolation and consistent visual quality. | Generate 30-second cinematic videos from text prompts with Seedance 2.5, producing synchronized sound and music alongside the footage. Input a single text prompt to create one video with precise camera control and multi-shot storytelling. Ideal for brand films, episodic series, and e-commerce content where quality matters more than budget. | Generate a reference-based video from a single input image using Seedance 2.0, producing native 4K output with 10-bit color depth and clean fine detail retention. The workflow takes 1 image and outputs 1 video. Ideal for high-resolution motion graphics, cinematic VFX shots requiring downstream grading, and professional video production where 4K finishing is essential. | Generate a talking-head video from a single face photo and an audio clip, with lips and lower-face motion precisely synchronized to the speech. This process outputs one video from one image and one audio input, keeping hands, products, and background completely unchanged. Ideal for product demos, e-commerce introductions, and marketing videos where a static product-holding photo is paired with a voiceover. | Generate a video with synchronized audio from a text prompt using HappyHorse 1.1, producing a single video output with dialogue, sound effects, and music baked in. Ideal for short episodic series, e-commerce commercials, and game cutscenes. | Generate an 8-panel storyboard from a simple text prompt, then use that storyboard as the foundation for Seedance 2.0. The storyboard provides a visual blueprint for the sequence, allowing you to guide the video with more control over the action, camera angles, composition, and overall storytelling. | Generate cinematic video from two reference images using Seedance 2.0 Mini, producing a single video output with AI-driven camera motion and consistent character generation. Ideal for storytelling, branded content, and short film creation where shot composition and visual continuity are essential. | Generate cinematic videos from reference images and text prompts. Preserve subject identity and composition while adding expressive motion with synchronized audio. Control camera movement and lighting through detailed prompts. | Generate cinematic videos from text prompts with Dreamina's Seedance 2.0 Mini, supporting AI camera controls and consistent character generation across scenes. This workflow takes only prompt input and produces 1 video output. Ideal for AI filmmaking, branded content creation, and multi-shot storytelling projects. | Generate cinematic videos from text prompts with synchronized audio, controlled camera motion, and stable visuals. Input text descriptions to output high-quality video sequences. | Generate cinematic-quality videos from text prompts using Luma Ray 3.2, with optional video extension by providing a generation ID from a previous run. Ideal for creating short film sequences, marketing content, and iterative video refinement. | Generate high-quality 1080p videos from text prompts with Vidu Q2 model | Generate high-quality 1080p videos from text prompts with adjustable movement amplitude and duration control using Vidu's advanced AI model. | Generate high-quality videos directly from text prompts using ByteDance's Seedance model. Supports multiple resolutions and aspect ratios with natural motion and cinematic quality. | Generate high-quality, realistic videos from text prompts with fluid motion and rich detail. Input text descriptions to produce dynamic videos with accurate semantic comprehension. | Generate reference-driven videos with Seedance 2.5 by supplying up to 20 images, 6 video clips, and 6 audio clips to control character consistency, visual style, and motion rhythm in a single 4-30 second output with synchronized sound and lip-synced dialogue. Ideal for e-commerce product showcases, brand advertising, and character-driven short series. | Generate video directly from text using the MiniMax H3 model, producing a 5-15 second clip with native stereo audio. Ideal for rapid concept visualization, short-form social media content, and pre-visualization for film or advertising projects. | Generate video from a reference image or set of multimodal inputs using MiniMax H3, which interprets text, images, video, and audio together to produce coherent 5-15 second clips with native stereo audio. Input up to 2 images for first/last frame control, or up to 9 images, 3 video clips, and 3 audio clips in Omni Reference mode, and output a single video in your chosen aspect ratio. Ideal for commercial content creation, character-driven storytelling, and rapid visual concept validation. | Generate video from reference images using HappyHorse 1.1, locking character and scene appearance while following a text prompt for motion. This workflow takes 2 input images (character reference and scene reference) and produces 1 video output. Ideal for short films, advertising, and game cutscenes requiring consistent character design and controllable narrative. | Generate videos that preserve subject characters from multiple reference images using text prompts. Input up to 9 reference images and a scene description to produce a 3-15 second video output. | Generate videos with accurate prompt interpretation and stunning video dynamics. | Generate videos with consistent subjects using multiple reference images (up to 7) for character and style continuity across the video sequence. | Generate videos with reference-based consistency for up to 3 subjects, maintaining character and style continuity across the video sequence with cinematic camera movements. | High-quality videos can be generated using simple prompts. | Input a text prompt or upload an image to generate a 1-16 second video with synchronized audio and automatic scene transitions. | Input text prompts or an initial image frame to generate up to 15-second videos with synchronized audio using the Grok model. | Swap products into a reference scene while preserving composition and lighting. Generates a final product image and an automatic video prompt for creating polished product videos. | Upload a photo of your vehicle and generate a studio quality video of the vehicle from multiple angles. | Upload a reference image and generate a video using the Grok API, supporting up to 6 reference images for enhanced consistency. | Upload a reference video of a real person for identity verification. Use your own photo to validate and generate a personalized video output. | Upload an image and optional text prompt to generate a video with native audio, realistic motion, and high-quality output up to 720p resolution. | Upload two reference images and input a short text description. Generate a detailed Seedance 2.0-style prompt automatically with an LLM helper.
 - member workflows:
     - api_bytedance_seedance1_5_text_to_video
     - api_bytedance_text_to_video
@@ -814,7 +803,6 @@
     - api_seedance2_0_t2v
     - api_seedance2_5_r2v
     - api_seedance2_5_t2v
-    - api_seedance2_5_t2v_1080p
     - api_seedance2_t2v
     - api_sync_so_talking_image
     - api_vidu_q2_r2v
@@ -832,49 +820,36 @@
 - optional roles: RegexExtract, BatchImagesNode, ByteDanceSeedreamNode, LoadImage, SaveImage, SaveVideo, GeminiNode, GetVideoComponents, KlingStartEndFrameNode, MarkdownNote, LumaConceptsNode, ByteDance2ReferenceNode
 - unresolved nodes: MarkdownNote, Reroute
 
-## API / Partner Nodes - Text to Video / Kling  (`api_partner_nodes_text_to_video__kling`)  -  5 workflow(s)  -  source: mixed
-- execution: api (API nodes: KlingOmniProTextToVideoNode, KlingTextToVideoWithAudio, KlingVideoNode)
+## API / Partner Nodes - Text to Video / Kling  (`api_partner_nodes_text_to_video__kling`)  -  6 workflow(s)  -  source: mixed
+- execution: api (API nodes: KlingAvatarNode, KlingOmniProTextToVideoNode, KlingTextToVideoWithAudio, KlingVideoNode)
 - when to use: Use to generate a video from a text prompt using Kling.
 - example request: "build a video workflow using Kling"
-- description: API multi-shot storyboard video via Kling 3.0 (kling-v3). 1 input image (start frame, LoadImage node) -> 1 video output (VHS_VideoCombine). Generates 1-6 sequential shots in a single generation: each shot has its own text prompt (max 512 chars) and duration set directly on the KlingVideoNode. Use for storyboards, scene sequences, and narrative clips with multiple camera cuts. Prompts go into multi_shot.storyboard_N_prompt inputs; multi_shot must match shot count exactly (e.g. '3 storyboards'). Aspect ratio defaults to 16:9, resolution to 720p - override only on explicit user request. | Bring your stories to life with videos featuring synchronized dialogue, music, sound effects, and ambient audio from text prompts. | Generate videos from text descriptions using Kling O1. Create dynamic video content with natural language prompts. | Input text or image prompts to generate 15-second video sequences with multi-shot compositions, complex camera movements, and consistent subjects. | Upload text, audio, or images to generate a 15-second video with synchronized audio, character consistency, and storyboard control.
+- description: API multi-shot storyboard video via Kling 3.0 (kling-v3). 1 input image (start frame, LoadImage node) -> 1 video output (VHS_VideoCombine). Generates 1-6 sequential shots in a single generation: each shot has its own text prompt (max 512 chars) and duration set directly on the KlingVideoNode. Use for storyboards, scene sequences, and narrative clips with multiple camera cuts. Prompts go into multi_shot.storyboard_N_prompt inputs; multi_shot must match shot count exactly (e.g. '3 storyboards'). Aspect ratio defaults to 16:9, resolution to 720p - override only on explicit user request. | Bring your stories to life with videos featuring synchronized dialogue, music, sound effects, and ambient audio from text prompts. | Generate videos from text descriptions using Kling O1. Create dynamic video content with natural language prompts. | Input text or image prompts to generate 15-second video sequences with multi-shot compositions, complex camera movements, and consistent subjects. | Upload a portrait and an audio file to generate a talking avatar video with synchronized lip movements and natural facial expressions. | Upload text, audio, or images to generate a 15-second video with synchronized audio, character consistency, and storyboard control.
 - member workflows:
     - Kling3_multiShot
     - api_king_o3_t2v
     - api_kling2_6_t2v
+    - api_kling_avatar2
     - api_kling_omni_t2v
     - api_kling_v3_video
 - node clusters (required structure):
     - (none resolved)
-- optional roles: GetVideoComponents, KlingOmniProTextToVideoNode, KlingTextToVideoWithAudio, KlingVideoNode, LoadImage, MarkdownNote, SaveVideo, VHS_VideoCombine
+- optional roles: GetVideoComponents, KlingAvatarNode, KlingOmniProTextToVideoNode, KlingTextToVideoWithAudio, KlingVideoNode, LoadAudio, LoadImage, MarkdownNote, SaveVideo, VHS_VideoCombine
 - unresolved nodes: MarkdownNote
 
-## API / Partner Nodes - Text to Video / WAN  (`api_partner_nodes_text_to_video__wan`)  -  5 workflow(s)  -  source: official
-- execution: api (API nodes: Wan2ReferenceVideoApi, Wan2TextToVideoApi, Wan3ReferenceToVideoApi, WanTextToVideoApi)
-- when to use: Use to generate a video from a text prompt using WAN, Anima.
+## API / Partner Nodes - Text to Video / WAN  (`api_partner_nodes_text_to_video__wan`)  -  3 workflow(s)  -  source: official
+- execution: api (API nodes: Wan2ReferenceVideoApi, Wan2TextToVideoApi, WanTextToVideoApi)
+- when to use: Use to generate a video from a text prompt using WAN.
 - example request: "build a video workflow using WAN"
-- description: Generate a video from two reference images using Wan3.0's reference-to-video capability, which produces up to 30 seconds of footage with character consistency and lifelike visuals. Ideal for creating consistent character animations, scene replication from visual references, and producing audiovisual content from static imagery. | Generate videos from text prompts using Wan 2.7. Supports audio reference to create lip-synced video | Generate videos up to 30 seconds directly from text prompts using Wan3.0-Video, producing a single video output with lifelike visuals and synchronized sound. This workflow transforms written descriptions into immersive, production-ready footage with strong character consistency and cinematic quality. Ideal for cinematic storytelling, character-driven animations, and quick multimedia content creation. | Generate videos with synchronized audio, enhanced motion, and superior quality. | Upload a reference video and character image to generate a video with consistent character features.
+- description: Generate videos from text prompts using Wan 2.7. Supports audio reference to create lip-synced video | Generate videos with synchronized audio, enhanced motion, and superior quality. | Upload a reference video and character image to generate a video with consistent character features.
 - member workflows:
     - api_wan2_7_r2v
     - api_wan2_7_t2v
-    - api_wan3_0_r2v
-    - api_wan3_0_t2v
     - api_wan_text_to_video
 - node clusters (required structure):
     - output: SaveVideo
-- optional roles: LoadImage, MarkdownNote, LoadAudio, RecordAudio, Wan2ReferenceVideoApi, Wan2TextToVideoApi, Wan3ReferenceToVideoApi, WanTextToVideoApi
+- optional roles: LoadImage, MarkdownNote, LoadAudio, RecordAudio, Wan2ReferenceVideoApi, Wan2TextToVideoApi, WanTextToVideoApi
 - unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - Text to Video / LTX-2  (`api_partner_nodes_text_to_video__ltx_2`)  -  2 workflow(s)  -  source: mixed
-- execution: api (API nodes: LtxApi25TextToVideo, LtxvApiTextToVideo)
-- when to use: Use to generate a video from a text prompt using LTX-2.
-- example request: "build a video workflow using LTX-2"
-- description: Generate video from text with LTX 2.5, a video model built for fast, high-quality production work. Type a prompt and get a cinematic clip with sharp detail, accurate motion, and support for native multishot scenes that hold character and style across cuts.
-- member workflows:
-    - api_ltx2_5_t2v
-    - api_ltxv_text_to_video
-- node clusters (required structure):
-    - (none resolved)
-- optional roles: GetVideoComponents, LtxApi25TextToVideo, LtxvApiTextToVideo, SaveVideo, VHS_VideoCombine
 
 ## API / Partner Nodes - Text to Video / Anima  (`api_partner_nodes_text_to_video__anima`)  -  1 workflow(s)  -  source: official
 - execution: api (API nodes: HeyGenTalkingPhotoNode)
@@ -912,6 +887,17 @@
 - paired/multiple required: CustomCombo x2
 - unresolved nodes: MarkdownNote
 
+## API / Partner Nodes - Text to Video / LTX-2  (`api_partner_nodes_text_to_video__ltx_2`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: LtxvApiTextToVideo)
+- when to use: Use to generate a video from a text prompt using LTX-2.
+- example request: "build a video workflow using LTX-2"
+- description: Generate a video from a text prompt using LTX-2. Structurally it applies a sequence of node operations. Boundary inputs: VIDEO; outputs: AUDIO, IMAGE.
+- member workflows:
+    - api_ltxv_text_to_video
+- node clusters (required structure):
+    - output: VHS_VideoCombine
+    - other operations: GetVideoComponents, LtxvApiTextToVideo
+
 ## API / Partner Nodes - Text to Video / Veo  (`api_partner_nodes_text_to_video__veo`)  -  1 workflow(s)  -  source: custom
 - execution: api (API nodes: Veo3VideoGenerationNode)
 - when to use: Use to produce a video using Veo.
@@ -936,13 +922,13 @@
     - other operations: GetVideoComponents, WanTextToVideoApi
 
 
-# Image to Video  (`image_to_video`)  -  38 workflow(s), 7 model(s)
+# Image to Video  (`image_to_video`)  -  36 workflow(s), 7 model(s)
 
-## Image to Video / LTX-2  (`image_to_video__ltx_2`)  -  13 workflow(s)  -  source: mixed
+## Image to Video / LTX-2  (`image_to_video__ltx_2`)  -  12 workflow(s)  -  source: mixed
 - execution: local
 - when to use: Use to generate a video from an input image using LTX-2, Anima.
 - example request: "build a video workflow using LTX-2"
-- description: Apply the ltx2.3-transition LoRA to create smooth style and scene transitions. This workflow uses a specialized model to blend visual elements. | Generate personalized videos with synchronized audio from a text prompt, reference image, and short audio clip. Use ID-LoRA to adapt a person's appearance and voice in a single generative model. | Generate short video clips that stay visually consistent with a reference sheet inventorying characters, props, and locations. Input a composite reference image and a split prompt describing the action, outputting a single video clip. Ideal for character-driven animation, consistent prop visualization, and location-specific scene generation. | Generate video from a single image using LTX-2.5, producing a high-fidelity clip with industry-leading pixel quality and native multishot capability that holds character, environment, and lighting across connected scenes. Ideal for cinematic production, VFX shot creation, and content pipelines requiring fast, locally deployable video generation. | Generate videos from still images. | Generates video from Canny edge maps using LTX-2, with optional synchronized audio. | Generates video from a single input image using LTX-2.3. | Generates video from pose reference frames using LTX-2, with optional synchronized audio. | Transform static images into dynamic videos with synchronized audio-video generation using LTX-2 distilled model. Optimized for faster generation while maintaining quality. Features expressive lip sync, natural motion, and improved speed. | Transform static images into dynamic videos with synchronized audio-video generation using LTX-2. Features expressive lip sync, natural motion, and efficient performance. | Upload an image and an audio file to generate a high-quality video with synchronized lip movements using LTX-2.3. | Upload any image to apply the Squish It LoRA effect. Generate a squished animation using the LTX-2 I2V model.
+- description: Apply the ltx2.3-transition LoRA to create smooth style and scene transitions. This workflow uses a specialized model to blend visual elements. | Generate personalized videos with synchronized audio from a text prompt, reference image, and short audio clip. Use ID-LoRA to adapt a person's appearance and voice in a single generative model. | Generate short video clips that stay visually consistent with a reference sheet inventorying characters, props, and locations. Input a composite reference image and a split prompt describing the action, outputting a single video clip. Ideal for character-driven animation, consistent prop visualization, and location-specific scene generation. | Generate videos from still images. | Generates video from Canny edge maps using LTX-2, with optional synchronized audio. | Generates video from a single input image using LTX-2.3. | Generates video from pose reference frames using LTX-2, with optional synchronized audio. | Transform static images into dynamic videos with synchronized audio-video generation using LTX-2 distilled model. Optimized for faster generation while maintaining quality. Features expressive lip sync, natural motion, and improved speed. | Transform static images into dynamic videos with synchronized audio-video generation using LTX-2. Features expressive lip sync, natural motion, and efficient performance. | Upload an image and an audio file to generate a high-quality video with synchronized lip movements using LTX-2.3. | Upload any image to apply the Squish It LoRA effect. Generate a squished animation using the LTX-2 I2V model.
 - member workflows:
     - canny_to_video_ltx_2_0
     - image_to_video_ltx_2_3
@@ -953,24 +939,23 @@
     - video_ltx2_3_i2v
     - video_ltx2_3_ia2v
     - video_ltx2_3_id_lora
-    - video_ltx2_5_i2v
     - video_ltx2_i2v
     - video_ltx2_i2v_distilled
     - video_ltx2_i2v_lora
 - node clusters (required structure):
+    - model loading: CheckpointLoaderSimple
     - conditioning: CLIPTextEncode, LTXVConditioning
     - other operations: CreateVideo
-- optional roles: LoraLoaderModelOnly, MarkdownNote, CFGGuider, CLIPLoader, KSamplerSelect, LTXVAddGuide, LTXVConcatAVLatent, LTXVDualCFGGuider, LTXVImgToVideoInplace, LTXVPreprocess, LTXVSeparateAVLatent, LoadImage
+- optional roles: LoraLoaderModelOnly, MarkdownNote, CFGGuider, KSamplerSelect, LTXVAddGuide, LTXVConcatAVLatent, LTXVImgToVideoInplace, LTXVPreprocess, LTXVSeparateAVLatent, LoadImage, ManualSigmas, RandomNoise
 - unresolved nodes: MarkdownNote, Note, Reroute
 
-## Image to Video / WAN  (`image_to_video__wan`)  -  9 workflow(s)  -  source: official
+## Image to Video / WAN  (`image_to_video__wan`)  -  8 workflow(s)  -  source: official
 - execution: local
 - when to use: Use to generate a video using WAN.
 - example request: "build a video workflow using WAN"
-- description: Generate dynamic videos with cinematic camera movements using Wan 2.1 Fun Camera 1.3B model. | Generate high-quality videos with advanced camera control using the full 14B model | Generate minute-scale coherent dance videos from music using a hierarchical Wan Dancer framework. Input a music file and reference image to produce high-resolution dance videos with global structure and temporal continuity. | Generate videos from a single image using Wan-Move, with fine-grained point-level motion control via trajectory guidance. | Generate videos from images using Wan 2.1. | Generate videos from start and end frames using Wan 2.1 inpainting. | Start with an image and an empty prompt, then describe the motion, shots, and audio you want MiniMax H3 to generate. The workflow produces one video with synchronized audio and remains fully editable before execution. | Trajectory-controlled Video Generation. | Upload a source Image and target audio. Generate a full-body dubbed video with synchronized motion while preserving the original identity, background, and camera movement.
+- description: Generate dynamic videos with cinematic camera movements using Wan 2.1 Fun Camera 1.3B model. | Generate high-quality videos with advanced camera control using the full 14B model | Generate minute-scale coherent dance videos from music using a hierarchical Wan Dancer framework. Input a music file and reference image to produce high-resolution dance videos with global structure and temporal continuity. | Generate videos from a single image using Wan-Move, with fine-grained point-level motion control via trajectory guidance. | Generate videos from images using Wan 2.1. | Generate videos from start and end frames using Wan 2.1 inpainting. | Trajectory-controlled Video Generation. | Upload a source Image and target audio. Generate a full-body dubbed video with synchronized motion while preserving the original identity, background, and camera movement.
 - member workflows:
     - image_to_video_wan
-    - video_minimax_h3_i2v_continuation
     - video_wan2.1_fun_camera_v1.1_1.3B
     - video_wan2.1_fun_camera_v1.1_14B
     - video_wan2_1_infinitetalk
@@ -981,10 +966,12 @@
 - node clusters (required structure):
     - inputs: LoadImage
     - model loading: CLIPLoader, UNETLoader, VAELoader
+    - conditioning: CLIPTextEncode (x2)
     - decoding: VAEDecode
     - output: SaveVideo
     - other operations: CreateVideo, MarkdownNote
-- optional roles: AudioEncoderEncode, CLIPTextEncode, CustomCombo, GenerateTracks, AudioEncoderLoader, BasicScheduler, CFGGuider, CLIPVisionEncode, ConditioningZeroOut, KSamplerSelect, LoadAudio, LoraLoaderModelOnly
+- paired/multiple required: CLIPTextEncode x2
+- optional roles: AudioEncoderEncode, CustomCombo, GenerateTracks, AudioEncoderLoader, BasicScheduler, CFGGuider, CLIPVisionEncode, ConditioningZeroOut, KSamplerSelect, LoadAudio, LoraLoaderModelOnly, ModelPatchLoader
 - unresolved nodes: MarkdownNote, Reroute
 
 ## Image to Video / Generic  (`image_to_video__generic`)  -  6 workflow(s)  -  source: official
@@ -1039,12 +1026,12 @@
     - video_minimax_h3_r2v
 - node clusters (required structure):
     - inputs: LoadImage
-    - model loading: CLIPLoader, LoraLoaderModelOnly, UNETLoader, VAELoader (x2)
+    - model loading: CLIPLoader, UNETLoader, VAELoader (x2)
     - conditioning: BasicGuider, BasicScheduler
     - sampling: KSamplerSelect, SamplerCustomAdvanced
     - decoding: VAEDecode, VAEDecodeAudio
     - output: SaveVideo
-    - other operations: ComfyMathExpression, ComfySwitchNode (x2), CreateVideo, MarkdownNote (x3), PrimitiveBoolean, PrimitiveFloat, PrimitiveInt (x2), RandomNoise, ResolutionSelector
+    - other operations: ComfyMathExpression, CreateVideo, MarkdownNote (x3), PrimitiveFloat, RandomNoise, ResolutionSelector
 - paired/multiple required: MarkdownNote x3, VAELoader x2
 - optional roles: ImageScaleToTotalPixels, MiniMaxH3ImageToVideo, MiniMaxH3ReferenceToVideo
 - unresolved nodes: MarkdownNote
@@ -1086,13 +1073,13 @@
 - unresolved nodes: MarkdownNote, Note
 
 
-# API / Partner Nodes - Video to Video  (`api_partner_nodes_video_to_video`)  -  31 workflow(s), 7 model(s)
+# API / Partner Nodes - Video to Video  (`api_partner_nodes_video_to_video`)  -  30 workflow(s), 7 model(s)
 
-## API / Partner Nodes - Video to Video / Generic  (`api_partner_nodes_video_to_video__generic`)  -  19 workflow(s)  -  source: mixed
-- execution: api (API nodes: BeebleSwitchXVideoEdit, BriaRemoveVideoBackground, BriaTransparentVideoBackground, BriaVideoGreenScreen, BriaVideoReplaceBackground, ByteDance2ReferenceNode, ByteDance2ReferenceNodeV2, ByteDanceSeedreamNode, GrokVideoEditNode, GrokVideoExtendNode, HappyHorseVideoEditApi, HeyGenVideoTranslateNode, LumaRay32ExtendVideoNode, LumaRay32VideoEditNode, MinimaxHailuoVideoNode, RunwayAleph2KeyframeNode, RunwayAleph2PromptImageNode, RunwayAleph2VideoToVideoNode, ViduExtendVideoNode)
+## API / Partner Nodes - Video to Video / Generic  (`api_partner_nodes_video_to_video__generic`)  -  18 workflow(s)  -  source: mixed
+- execution: api (API nodes: BeebleSwitchXVideoEdit, BriaRemoveVideoBackground, BriaTransparentVideoBackground, BriaVideoGreenScreen, BriaVideoReplaceBackground, ByteDance2ReferenceNode, ByteDanceSeedreamNode, GrokVideoEditNode, GrokVideoExtendNode, HappyHorseVideoEditApi, HeyGenVideoTranslateNode, LumaRay32ExtendVideoNode, LumaRay32VideoEditNode, MinimaxHailuoVideoNode, RunwayAleph2KeyframeNode, RunwayAleph2PromptImageNode, RunwayAleph2VideoToVideoNode, ViduExtendVideoNode)
 - when to use: Use to generate a video.
 - example request: "build a video workflow"
-- description: API reference-to-video via Seedance 2.0 (ByteDance). 1 reference image + 1 reference video -> 1 video output. Generates, edits, or extends video using multimodal references for subject consistency, video editing, and video extension. | Edit a video using text instructions and optional reference images for style transfer or local replacement. Takes a video and up to 5 reference images as input, outputs an edited video. | Edit existing video clips with Seedance 2.5 by describing changes in natural language, enabling local object removal, background swaps, scene replacements, and style transfers while preserving the original composition and motion. Feed in 1 video and receive 1 edited video output with temporally consistent results across frames. Ideal for e-commerce background replacement, stylized remakes of footage, and ad re-editing with targeted retouching. | Edit videos using natural language commands with Luma Ray 3.2, processing one input video and generating an edited output based on your textual instructions.  | Extend an existing video forward or backward by generating new segments that seamlessly preserve the original characters, scenes, and aspect ratio. The source video must be 1.9-30 seconds long, and you specify the duration of the new clip (4-30 seconds, default 5), with output delivered as MP4 or MOV. Ideal for continuing unfinished footage, creating extended narrative sequences, and building longer edit chains. | Generate a single edited video that preserves original motion and timing while applying your chosen changes. Ideal for portrait and product relighting, consistent lighting across photo sets, and e-commerce apparel presentation. | Take a picture with your phone, upload it and generate a studio grade product video. | Translate video content into another language with full lip-sync using HeyGen Translate, which automatically transcribes speech, translates it, generates a cloned voice, and re-syncs mouth movements. Takes 1 input video and produces 1 output video. Ideal for localizing talking-head videos, dubbing multilingual presentations, and creating lip-synced content for global audiences. | Upload a short video and a text prompt describing the next scene. Generate a seamless video extension using Grok extend. | Upload a source video and a reference image, then provide a prompt describing the desired environment and lighting. Generate an edited video where masked regions follow your prompt and reference, while unmasked regions preserve the original pixels and motion, plus an alpha matte for compositing. | Upload a video and a background image. Detect the main subject and replace the original background with the provided image. Ideal for content creation, virtual production, and background cleanup in video projects. | Upload a video and generate its frames with a transparent background, outputting image and mask sequences along with a WebM video supporting an alpha channel. | Upload a video and use the Vidu Q2 model to extend it up to 7 seconds and enhance the resolution to 1080p. | Upload a video to edit. Input your desired modifications. Generate an edited video using the Grok API. | Upload a video to generate a green screen version with a transparent or solid background. | Upload a video to remove its background and replace it with your chosen color. Generate a video with the subject isolated and a new solid background. | Upload a video to remove the background. Generate a new video with a transparent or solid color background.
+- description: API reference-to-video via Seedance 2.0 (ByteDance). 1 reference image + 1 reference video -> 1 video output. Generates, edits, or extends video using multimodal references for subject consistency, video editing, and video extension. | Edit a video using text instructions and optional reference images for style transfer or local replacement. Takes a video and up to 5 reference images as input, outputs an edited video. | Edit existing video clips with Seedance 2.5 by describing changes in natural language, enabling local object removal, background swaps, scene replacements, and style transfers while preserving the original composition and motion. Feed in 1 video and receive 1 edited video output with temporally consistent results across frames. Ideal for e-commerce background replacement, stylized remakes of footage, and ad re-editing with targeted retouching. | Edit videos using natural language commands with Luma Ray 3.2, processing one input video and generating an edited output based on your textual instructions.  | Generate a single edited video that preserves original motion and timing while applying your chosen changes. Ideal for portrait and product relighting, consistent lighting across photo sets, and e-commerce apparel presentation. | Take a picture with your phone, upload it and generate a studio grade product video. | Translate video content into another language with full lip-sync using HeyGen Translate, which automatically transcribes speech, translates it, generates a cloned voice, and re-syncs mouth movements. Takes 1 input video and produces 1 output video. Ideal for localizing talking-head videos, dubbing multilingual presentations, and creating lip-synced content for global audiences. | Upload a short video and a text prompt describing the next scene. Generate a seamless video extension using Grok extend. | Upload a source video and a reference image, then provide a prompt describing the desired environment and lighting. Generate an edited video where masked regions follow your prompt and reference, while unmasked regions preserve the original pixels and motion, plus an alpha matte for compositing. | Upload a video and a background image. Detect the main subject and replace the original background with the provided image. Ideal for content creation, virtual production, and background cleanup in video projects. | Upload a video and generate its frames with a transparent background, outputting image and mask sequences along with a WebM video supporting an alpha channel. | Upload a video and use the Vidu Q2 model to extend it up to 7 seconds and enhance the resolution to 1080p. | Upload a video to edit. Input your desired modifications. Generate an edited video using the Grok API. | Upload a video to generate a green screen version with a transparent or solid background. | Upload a video to remove its background and replace it with your chosen color. Generate a video with the subject isolated and a new solid background. | Upload a video to remove the background. Generate a new video with a transparent or solid color background.
 - member workflows:
     - 0193-spec-0160-renderLightChar-v006
     - api_beeble_switchx_video_edit
@@ -1107,7 +1094,6 @@
     - api_luma_ray3_2_video_edit
     - api_runway_aleph2_video_edit
     - api_seedance2_5_video_editing
-    - api_seedance2_5_video_extend
     - api_seedance2_reference2v
     - api_vidu_video_extension
     - templates-photo_to_product_vid
@@ -1115,7 +1101,7 @@
     - v2v_api_switchx_videoStyleTransfer
 - node clusters (required structure):
     - (none resolved)
-- optional roles: SaveVideo, GetVideoComponents, MinimaxHailuoVideoNode, ImageBatch, LoadImage, AudioConcat, BatchImagesNode, BeebleSwitchXVideoEdit, BriaRemoveVideoBackground, BriaTransparentVideoBackground, BriaVideoGreenScreen, BriaVideoReplaceBackground
+- optional roles: SaveVideo, GetVideoComponents, MinimaxHailuoVideoNode, ImageBatch, LoadImage, BeebleSwitchXVideoEdit, BriaRemoveVideoBackground, BriaTransparentVideoBackground, BriaVideoGreenScreen, BriaVideoReplaceBackground, ByteDance2ReferenceNode, ByteDanceSeedreamNode
 - unresolved nodes: MarkdownNote, Note
 
 ## API / Partner Nodes - Video to Video / Kling  (`api_partner_nodes_video_to_video__kling`)  -  5 workflow(s)  -  source: mixed
@@ -1201,10 +1187,10 @@
 - paired/multiple required: LoadVideo x2
 
 
-# API / Partner Nodes - 3D  (`api_partner_nodes_3d`)  -  29 workflow(s), 3 model(s)
+# API / Partner Nodes - 3D  (`api_partner_nodes_3d`)  -  27 workflow(s), 3 model(s)
 
 ## API / Partner Nodes - 3D / Generic  (`api_partner_nodes_3d__generic`)  -  17 workflow(s)  -  source: official
-- execution: api (API nodes: GeminiImage2Node, RecraftRemoveBackgroundNode, Rodin3D_Detail, Rodin3D_Gen2, Rodin3D_Gen25_Image, Rodin3D_Gen25_Text, Rodin3D_Regular, Rodin3D_Sketch, Rodin3D_Smooth, TripoConversionNode, TripoImageToModelNode, TripoMultiviewToModelNode, TripoP1ImageToModelNode, TripoP1MultiviewToModelNode, TripoP1TextToModelNode, TripoRetargetNode, TripoRigNode, TripoTextToModelNode, TripoTextureNode)
+- execution: api (API nodes: GeminiImage2Node, RecraftRemoveBackgroundNode, Rodin3D_Detail, Rodin3D_Gen2, Rodin3D_Gen25_Image, Rodin3D_Gen25_Text, Rodin3D_Regular, Rodin3D_Sketch, Rodin3D_Smooth, TripoConversionNode, TripoImageToModelNode, TripoMultiviewToModelNode, TripoP1ImageToModelNode, TripoP1MultiviewToModelNode, TripoP1TextToModelNode, TripoRefineNode, TripoRetargetNode, TripoRigNode, TripoTextToModelNode, TripoTextureNode)
 - when to use: Use to generate a 3D model.
 - example request: "build a 3d workflow"
 - description:  Use an outline reference, and a style reference as input to generate 2D sprite as model textures. Useful for background set dressing in 2D/2.5D game. | Build 3D models from multiple angles with Tripo's advanced scanner. | Craft 3D objects from descriptions with Tripo's text-driven modeling. | Generate detailed 3D models from single photos using Rodin AI. | Generate detailed 4X mesh quality 3D models from photos using Rodin Gen2 | Generate precise 3D models from text with Tripo 3.0's ultra-high resolution geometry and realistic PBR materials. | Generate production-ready 3D hero assets with high-density geometry and PBR materials. Takes text prompts or reference images as input and outputs detailed 3D meshes suitable for close-up renders and game assets. | Generate professional 3D assets from 2D images using Tripo engine. | Input a text description of a 3D model. Generate a game-ready 3D model with clean topology and optimized polygon counts | Input a text description or upload reference images. Generate a detailed 3D model with textures, exportable in multiple formats. | Sculpt comprehensive 3D models using Rodin's multi-angle reconstruction. | Transform images or sketches into 3D models with Tripo 3.0's sharp geometry and production-ready PBR textures. | Upload a reference image of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload a reference image of your subject. Generate a game-ready 3D model with clean topology and optimized polygon budgets | Upload an image or multi-view references to generate a clean low-poly 3D model with controlled polygon count and organized topology, ready for export to game engines. | Upload multiview images of your object. Generate a high-detail 3D model with dense geometry and PBR-ready materials. | Upload single or multi-view images to create a 3D model with adjustable quality and enhanced texture
@@ -1229,7 +1215,7 @@
 - node clusters (required structure):
     - (none resolved)
 - optional roles: LoadImage, Preview3D, MarkdownNote, SaveImage, BatchImagesNode, GeminiImage2Node, ImageCompare, Note, RecraftRemoveBackgroundNode, Rodin3D_Detail, Rodin3D_Gen2, Rodin3D_Gen25_Image
-- unresolved nodes: MarkdownNote, Note, TripoRefineNode
+- unresolved nodes: MarkdownNote, Note
 
 ## API / Partner Nodes - 3D / Hunyuan3D  (`api_partner_nodes_3d__hunyuan3d`)  -  6 workflow(s)  -  source: official
 - execution: api (API nodes: Tencent3DPartNode, TencentImageToModelNode, TencentModelTo3DUVNode, TencentSmartTopologyNode, TencentTextToModelNode)
@@ -1248,170 +1234,31 @@
 - optional roles: SaveImage, LoadImage, Load3D, MarkdownNote, Preview3D, Tencent3DPartNode, TencentImageToModelNode, TencentModelTo3DUVNode, TencentSmartTopologyNode, TencentTextToModelNode
 - unresolved nodes: MarkdownNote
 
-## API / Partner Nodes - 3D / Meshy  (`api_partner_nodes_3d__meshy`)  -  6 workflow(s)  -  source: mixed
-- execution: api (API nodes: GeminiNanoBanana2, MeshyAnimateModelNode, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyRefineNode, MeshyRigModelNode, MeshyTextToModelNode, MeshyTextureNode, TripoImageToModelNode)
+## API / Partner Nodes - 3D / Meshy  (`api_partner_nodes_3d__meshy`)  -  4 workflow(s)  -  source: mixed
+- execution: api (API nodes: GeminiNanoBanana2, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyTextToModelNode, TripoImageToModelNode)
 - when to use: Use to generate a 3D model using Meshy.
 - example request: "build a 3d workflow using Meshy"
-- description: API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology. | API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure. | API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry. | Generate production-ready 3D models from a single reference image with Meshy 7, an image-to-3D model that sets a new standard for geometry alignment, faithfully matching the input's proportions, part placement, and surface details. Ideal for concept art turnarounds, character and prop modeling from sketches, and any workflow where preserving the original design's intent is critical. | Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model. | Turn a single image into a production-ready 3D model with Meshy 7, generating a textured mesh that faithfully mirrors your reference's geometry, proportions, and surface details. Ideal for character busts that preserve facial expression, complex mechanical assemblies with correctly placed parts, and dense surface relief like engraved coins or ornate props.
+- description: API image-to-3D via Meshy 6. 1 image -> 1 3D model output. Generates characters, objects, or mechanical parts with production-quality geometry and clean topology. | API multi-image-to-3D via Meshy 6. 3+ images -> 1 3D model output. More input views yield better detail capture, accurate proportions, and cleaner mesh structure. | API text-to-3D via Meshy 6. Text prompt only -> 1 3D model output. Creates characters, mechanical objects, or game-ready low-poly assets with refined geometry. | Input a single image to automatically generate three orthographic views. Use these multiviews with Meshy to create a textured 3D model.
 - member workflows:
-    - api_meshy7_image_to_model
-    - api_meshy7_text_to_model
     - api_meshy_image_to_model
     - api_meshy_multi_image_to_model
     - api_meshy_text_to_model
     - templates_mjm_image_to_3d
 - node clusters (required structure):
     - other operations: SaveGLB
-- optional roles: GeminiNanoBanana2, LoadImage, SaveImage, BatchImagesNode, MarkdownNote, MeshyAnimateModelNode, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyRefineNode, MeshyRigModelNode, MeshyTextToModelNode, MeshyTextureNode
+- optional roles: GeminiNanoBanana2, LoadImage, SaveImage, BatchImagesNode, MarkdownNote, MeshyImageToModelNode, MeshyMultiImageToModelNode, MeshyTextToModelNode, Preview3D, TripoImageToModelNode
 - unresolved nodes: MarkdownNote
 
 
-# API / Partner Nodes - Image to Video  (`api_partner_nodes_image_to_video`)  -  29 workflow(s), 9 model(s)
+# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  27 workflow(s), 8 model(s)
 
-## API / Partner Nodes - Image to Video / Generic  (`api_partner_nodes_image_to_video__generic`)  -  11 workflow(s)  -  source: official
-- execution: api (API nodes: ByteDanceImageToVideoNode, GeminiImage2Node, HappyHorseImageToVideoApi, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, PixverseImageToVideoNode, PixverseTemplateNode, RunwayImageToVideoNodeGen4, Vidu2ImageToVideoNode, Vidu3ImageToVideoNode, ViduImageToVideoNode)
-- when to use: Use to generate a video from an input image.
-- example request: "build a video workflow"
-- description: Generate cinematic-quality videos from text prompts using Luma Ray 3.2, with support for extending previous generations by providing a generation ID. The workflow accepts 1 input image and produces 1 video output, enabling seamless iterative refinement. Ideal for creating short film sequences, marketing content, and professional video production. | Generate dynamic videos from images using Runway Gen4 Turbo. | Generate dynamic videos from static images with motion and effects using PixVerse. | Generate high-quality, fluid videos from images using HappyHorse-1.0-I2V with realistic dynamic rendering and accurate text and image semantic comprehension. | Transform images into living characters with speech, motion, and synchronized sound effects. | Transform static images into dynamic 1080p videos with cinematic camera control, multi-subject consistency | Transform static images into dynamic 1080p videos with precise motion control and customizable movement amplitude using Vidu. | Transform static images into dynamic videos using ByteDance's Seedance model. Analyzes image structure and generates natural motion with consistent visual style and coherent video sequences. | Upload an image and provide a text prompt to generate a 1-16 second video with synchronized audio and intelligent scene transitions. | Upload your logo, texture and elements. Generate a video of the textured logo for an on brand asset.
-- member workflows:
-    - api_bytedance_image_to_video
-    - api_bytedance_seedance1_5_image_to_video
-    - api_happyhorse1_0_i2v
-    - api_luma_ray3_3_i2v
-    - api_pixverse_i2v
-    - api_pixverse_template_i2v
-    - api_runway_gen4_turo_image_to_video
-    - api_vidu_image_to_video
-    - api_vidu_q2_i2v
-    - api_vidu_q3_image_to_video
-    - templates-textured_logo_elements
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: SaveVideo
-- optional roles: ResizeAndPadImage, BatchImagesNode, ByteDanceImageToVideoNode, GeminiImage2Node, HappyHorseImageToVideoApi, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, MarkdownNote, PixverseImageToVideoNode, PixverseTemplateNode, RunwayImageToVideoNodeGen4, SaveImage
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - Image to Video / Kling  (`api_partner_nodes_image_to_video__kling`)  -  6 workflow(s)  -  source: mixed
-- execution: api (API nodes: ByteDanceSeedreamNodeV2, GeminiImage2Node, GeminiNanoBanana2, GeminiNode, KlingImageToVideoWithAudio, KlingOmniProImageToVideoNode, OpenAIChatConfig, OpenAIChatNode)
-- when to use: Use to generate a video from an input image using Kling, Anima, Nano-Banana.
-- example request: "build a video workflow using Kling"
-- description: API image-to-video via Kling O3 (Kling 3.0). 1 reference image (+ optional audio/text prompt) -> 1 video output. Generates character-consistent video with native audio output and precise storyboard control. | Local image editing via Kling. 6 image inputs -> 1 video output. Processes and generates content using ComfyUI workflows. | This is the base workflow behind my viral Wes Anderson-style reel on Instagram.  It shows how to go from a simple prompt to a Wes Anderson-style image using a cinematic image model, then enhance it with Nanobanana to improve textures and details, and finally turn it into a video using the current best video model, Kling 3.0. | Transform static images into dynamic videos with Kling O1. Add motion, camera movements, and life to your images using text prompts. | Transform static images into dynamic videos with synchronized dialogue, singing, sound effects, and ambient audio. | Upload an image to automatically generate a descriptive script. This script is then used to create a video with the Kling 3.0 Omni model.
-- member workflows:
-    - akagane-video-batch1
-    - api_kling2_6_i2v
-    - api_kling_o3_i2v
-    - api_kling_omni_i2v
-    - template_sirolim_image_script_video
-    - templates_ohneis_i2v
-- node clusters (required structure):
-    - (none resolved)
-- optional roles: LoadImage, AgentYRefNote, OpenAIChatConfig, OpenAIChatNode, AgentYImageCollector, SaveImage, bEpicSendToViewer, BatchImagesNode, ByteDanceSeedreamNodeV2, CLIPLoader, CLIPTextEncode, ConditioningZeroOut
-- unresolved nodes: MarkdownNote, PrimitiveNode
-
-## API / Partner Nodes - Image to Video / Anima  (`api_partner_nodes_image_to_video__anima`)  -  3 workflow(s)  -  source: official
-- execution: api (API nodes: ByteDance2ReferenceNodeV2, HappyHorseImageToVideoApi, LumaConceptsNode, LumaImageToVideoNode)
-- when to use: Use to generate a video from an input image using Anima.
-- example request: "build a video workflow using Anima"
-- description: Animate a static first frame into a short video with synchronized audio using HappyHorse 1.1, taking 1 input image and producing 1 video output. Ideal for e-commerce product demos, brand marketing content, and short episodic series. | Generate cinematic 1080P video clips from a single image using Seedance 2.5, animating the still into a moving scene with synchronized sound, music, and dialogue for clips up to 30 seconds across any aspect ratio. Ideal for breathing life into product shots, extending concept art into motion, and creating engaging social media content from photographs. | Take static images and instantly create magical high quality animations.
-- member workflows:
-    - api_happyhorse1_1_i2v
-    - api_luma_i2v
-    - api_seedance2_5_i2v_1080p
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: SaveVideo
-- optional roles: LumaConceptsNode, ByteDance2ReferenceNodeV2, HappyHorseImageToVideoApi, LumaImageToVideoNode, MarkdownNote
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - Image to Video / WAN  (`api_partner_nodes_image_to_video__wan`)  -  3 workflow(s)  -  source: official
-- execution: api (API nodes: Wan2ImageToVideoApi, Wan3ImageToVideoApi, WanImageToVideoApi)
-- when to use: Use to generate a video from an input image using WAN.
-- example request: "build a video workflow using WAN"
-- description: Create up to 30 seconds of high-fidelity video from a single image using Wan 3.0, which supports text, image, audio, and document inputs for versatile scene generation. Produces authentic, realistic footage with unique facial details and believable motion in one pass. Ideal for cinematic storytelling, product visualization, and documentary-style scene recreation. | Transform images into videos with synchronized audio, enhanced motion, and superior quality. | Upload an image and audio file to generate a video with synchronized sound, using the first and last frames for control.
-- member workflows:
-    - api_wan2_7_i2v
-    - api_wan3_0_i2v
-    - api_wan_image_to_video
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: SaveVideo
-- optional roles: MarkdownNote, LoadAudio, RecordAudio, Wan2ImageToVideoApi, Wan3ImageToVideoApi, WanImageToVideoApi
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - Image to Video / LTX-2  (`api_partner_nodes_image_to_video__ltx_2`)  -  2 workflow(s)  -  source: mixed
-- execution: api (API nodes: LtxApi25ImageToVideo, LtxvApiImageToVideo)
-- when to use: Use to generate a video from an input image using LTX-2.
-- example request: "build a video workflow using LTX-2"
-- description: Generate video from a single image using LTX-2.5's fast distilled model, delivering cinematic multi-shot sequences with consistent characters, lighting, and style across cuts. The workflow outputs a video file with native multishot support and automatic duration prediction. Ideal for rapid storyboarding, social media content creation, and pre-visualization in commercial production pipelines.
-- member workflows:
-    - api_ltx2_5_i2v
-    - api_ltxv_image_to_video
-- node clusters (required structure):
-    - inputs: LoadImage
-- optional roles: GetVideoComponents, LtxApi25ImageToVideo, LtxvApiImageToVideo, SaveVideo, VHS_VideoCombine
-
-## API / Partner Nodes - Image to Video / Flux  (`api_partner_nodes_image_to_video__flux`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: Flux3ImageToVideoNode)
-- when to use: Use to generate a video from an input image using Flux.
-- example request: "build a video workflow using Flux"
-- description: Generate full videos from a single text prompt using FLUX 3, which automatically expands your description into a cohesive scene with synchronized audio, motion, and physics. Outputs one 720p, 24fps MP4 video (5-20 seconds) with support for multi-shot structures and aspect ratios from 9:16 to 21:9. Ideal for product photography, filmic ad campaigns, and dynamic motion graphics.
-- member workflows:
-    - api_bfl_flux3_i2v
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: SaveVideo
-    - other operations: Flux3ImageToVideoNode
-
-## API / Partner Nodes - Image to Video / Gemini  (`api_partner_nodes_image_to_video__gemini`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: GeminiVideoOmni)
-- when to use: Use to generate a video from an input image using Gemini.
-- example request: "build a video workflow using Gemini"
-- description: Generate a video from two images using Gemini Omni Flash, which interprets natural language prompts to control duration and aspect ratio. The workflow accepts 2 input images and produces 1 video output. Ideal for creating short brand clips, dynamic social media content, and iterative video edits through conversational prompting.
-- member workflows:
-    - api_google_gemini_omni_flash_i2v
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveVideo
-    - other operations: CustomCombo (x2), GeminiVideoOmni, MarkdownNote, PreviewAny, PrimitiveStringMultiline, StringConcatenate (x4)
-- paired/multiple required: CustomCombo x2, LoadImage x2
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - Image to Video / Veo  (`api_partner_nodes_image_to_video__veo`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: VeoVideoGenerationNode)
-- when to use: Use to generate a video from an input image using Veo.
-- example request: "build a video workflow using Veo"
-- description: Generate videos from images using Google Veo2 API.
-- member workflows:
-    - api_veo2_i2v
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: SaveVideo
-    - other operations: MarkdownNote, VeoVideoGenerationNode
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - Image to Video / WAN 2.6  (`api_partner_nodes_image_to_video__wan_2_6`)  -  1 workflow(s)  -  source: custom
-- execution: api (API nodes: WanImageToVideoApi)
-- when to use: Use to generate a video from an input image using WAN 2.6.
-- example request: "build a video workflow using WAN 2.6"
-- description: API image-to-video via Wan 2.6. 1 image -> 1 video output. Generates 1080P video with enhanced image quality, smoother motion, and natural movement.
-- member workflows:
-    - api_wan2_6_i2v
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: VHS_VideoCombine
-    - other operations: GetVideoComponents, WanImageToVideoApi
-
-
-# API / Partner Nodes - Text to Image  (`api_partner_nodes_text_to_image`)  -  29 workflow(s), 9 model(s)
-
-## API / Partner Nodes - Text to Image / Generic  (`api_partner_nodes_text_to_image__generic`)  -  14 workflow(s)  -  source: mixed
+## API / Partner Nodes - Text to Image / Generic  (`api_partner_nodes_text_to_image__generic`)  -  13 workflow(s)  -  source: mixed
 - execution: api (API nodes: ElevenLabsSpeechToText, GrokImageNode, OpenAIDalle2, OpenAIDalle3, OpenAIGPTImageNodeV2, QuiverTextToSVGNode, RecraftColorRGB, RecraftControls, RecraftTextToVectorNode, RecraftV4TextToImageNode, RecraftV4TextToVectorNode)
 - when to use: Use to generate an image from a text prompt.
 - example request: "build an image workflow"
-- description: Create campaign-ready posters, product shots, and multilingual signage using OpenAI's latest model. Upload an optional reference image, write a detailed prompt, and generate high-quality, photorealistic outputs. | Generate a clean, flat vector logo from a text prompt using Recraft V4.1, producing one scalable SVG output with no file input required. Ideal for branding and logo design, vector illustration projects, and creating consistent flat-color graphics for presentations or merchandise. | Generate enhanced images with improved details, text rendering, and creative control using the advanced quality mode in Grok Imagine. | Generate high-quality vector images from text prompts using Recraft's AI vector generator. | Generate images from text prompts using Grok Imagine Image 2.0, an Aurora-engine model that excels at crisp short-text rendering and 1K or 2K outputs across 14 aspect ratios. Enter one text prompt and receive one generated image, with low or medium quality options to control cost. Ideal for poster and cover design, product and brand visuals, and character-driven scenes where consistency matters. | Generate images from text prompts using OpenAI Dall-E 2 API. | Generate images from text prompts using OpenAI Dall-E 3 API. | Generate photorealistic and illustrative images from text prompts using Recraft V4.1, producing one high-quality image per generation. This model excels at interpreting short prompts with creative flair, delivering natural photorealism, expressive vectors, and clean illustrations. Ideal for concept art, logo and typography design, and lifestyle product mockups. | Input a text prompt and optional reference images to generate one or more SVG vector graphics. | Input a text prompt to generate a high-resolution image. Use the Recraft V4 model for enhanced realism, text accuracy, and detailed vector graphics. Output a 1024x1024 or 2048x2048 image based on your selected version. | Input text prompts to generate clean, editable vector SVG graphics. Create logos, icons, or illustrations with structured paths suitable for design tools. | Input text prompts to generate high-quality images quickly using the Grok model. | Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows. | Upload an audio or video file to transcribe its speech into accurate, editable text.
+- description: Create campaign-ready posters, product shots, and multilingual signage using OpenAI's latest model. Upload an optional reference image, write a detailed prompt, and generate high-quality, photorealistic outputs. | Generate a clean, flat vector logo from a text prompt using Recraft V4.1, producing one scalable SVG output with no file input required. Ideal for branding and logo design, vector illustration projects, and creating consistent flat-color graphics for presentations or merchandise. | Generate enhanced images with improved details, text rendering, and creative control using the advanced quality mode in Grok Imagine. | Generate high-quality vector images from text prompts using Recraft's AI vector generator. | Generate images from text prompts using OpenAI Dall-E 2 API. | Generate images from text prompts using OpenAI Dall-E 3 API. | Generate photorealistic and illustrative images from text prompts using Recraft V4.1, producing one high-quality image per generation. This model excels at interpreting short prompts with creative flair, delivering natural photorealism, expressive vectors, and clean illustrations. Ideal for concept art, logo and typography design, and lifestyle product mockups. | Input a text prompt and optional reference images to generate one or more SVG vector graphics. | Input a text prompt to generate a high-resolution image. Use the Recraft V4 model for enhanced realism, text accuracy, and detailed vector graphics. Output a 1024x1024 or 2048x2048 image based on your selected version. | Input text prompts to generate clean, editable vector SVG graphics. Create logos, icons, or illustrations with structured paths suitable for design tools. | Input text prompts to generate high-quality images quickly using the Grok model. | Local generation via ComfyUI Model. text input -> 1 image output. Processes and generates content using ComfyUI workflows. | Upload an audio or video file to transcribe its speech into accurate, editable text.
 - member workflows:
     - api_elevenLabs_speech_to_text
-    - api_grok_imagine_image_2_t2i
     - api_grok_imagine_image_quality_image_generation
     - api_grok_text_to_image
     - api_openai_dall_e_2_t2i
@@ -1492,18 +1339,6 @@
     - output: SaveImage
     - other operations: Krea2ImageNode
 
-## API / Partner Nodes - Text to Image / Qwen Image  (`api_partner_nodes_text_to_image__qwen_image`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: QwenImageTextToImageApi)
-- when to use: Use to generate an image from a text prompt using Qwen Image.
-- example request: "build an image workflow using Qwen Image"
-- description: Generate detailed, production-ready images from text prompts using the Qwen Image 3.0 Pro model, supporting up to 4.5k tokens for complex layouts like posters, infographics, and storyboards. It renders crisp 10px text, realistic textures, and native support for 12 languages and over 100 art styles, with optional 1-3 reference images for fusion editing. Ideal for marketing materials, educational diagrams, and UI design mockups.
-- member workflows:
-    - api_qwen3_t2i
-- node clusters (required structure):
-    - output: SaveImage
-    - other operations: MarkdownNote, QwenImageTextToImageApi, ResolutionSelector
-- unresolved nodes: MarkdownNote
-
 ## API / Partner Nodes - Text to Image / WAN  (`api_partner_nodes_text_to_image__wan`)  -  1 workflow(s)  -  source: official
 - execution: api (API nodes: WanTextToImageApi)
 - when to use: Use to generate an image from a text prompt using Flux, WAN.
@@ -1531,6 +1366,140 @@
     - decoding: VAEDecode (x2)
     - other operations: AgentYPython (x2), ModelSamplingAuraFlow, OpenRouterLLMNode (x2), PrimitiveStringMultiline
 - paired/multiple required: CLIPTextEncode x3, AgentYPython x2, KSampler x2, OpenRouterLLMNode x2, VAEDecode x2
+
+
+# API / Partner Nodes - Image to Video  (`api_partner_nodes_image_to_video`)  -  26 workflow(s), 9 model(s)
+
+## API / Partner Nodes - Image to Video / Generic  (`api_partner_nodes_image_to_video__generic`)  -  11 workflow(s)  -  source: official
+- execution: api (API nodes: ByteDanceImageToVideoNode, GeminiImage2Node, HappyHorseImageToVideoApi, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, PixverseImageToVideoNode, PixverseTemplateNode, RunwayImageToVideoNodeGen4, Vidu2ImageToVideoNode, Vidu3ImageToVideoNode, ViduImageToVideoNode)
+- when to use: Use to generate a video from an input image.
+- example request: "build a video workflow"
+- description: Generate cinematic-quality videos from text prompts using Luma Ray 3.2, with support for extending previous generations by providing a generation ID. The workflow accepts 1 input image and produces 1 video output, enabling seamless iterative refinement. Ideal for creating short film sequences, marketing content, and professional video production. | Generate dynamic videos from images using Runway Gen4 Turbo. | Generate dynamic videos from static images with motion and effects using PixVerse. | Generate high-quality, fluid videos from images using HappyHorse-1.0-I2V with realistic dynamic rendering and accurate text and image semantic comprehension. | Transform images into living characters with speech, motion, and synchronized sound effects. | Transform static images into dynamic 1080p videos with cinematic camera control, multi-subject consistency | Transform static images into dynamic 1080p videos with precise motion control and customizable movement amplitude using Vidu. | Transform static images into dynamic videos using ByteDance's Seedance model. Analyzes image structure and generates natural motion with consistent visual style and coherent video sequences. | Upload an image and provide a text prompt to generate a 1-16 second video with synchronized audio and intelligent scene transitions. | Upload your logo, texture and elements. Generate a video of the textured logo for an on brand asset.
+- member workflows:
+    - api_bytedance_image_to_video
+    - api_bytedance_seedance1_5_image_to_video
+    - api_happyhorse1_0_i2v
+    - api_luma_ray3_3_i2v
+    - api_pixverse_i2v
+    - api_pixverse_template_i2v
+    - api_runway_gen4_turo_image_to_video
+    - api_vidu_image_to_video
+    - api_vidu_q2_i2v
+    - api_vidu_q3_image_to_video
+    - templates-textured_logo_elements
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: SaveVideo
+- optional roles: ResizeAndPadImage, BatchImagesNode, ByteDanceImageToVideoNode, GeminiImage2Node, HappyHorseImageToVideoApi, LumaRay32ExtendVideoNode, LumaRay32ImageToVideoNode, MarkdownNote, PixverseImageToVideoNode, PixverseTemplateNode, RunwayImageToVideoNodeGen4, SaveImage
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - Image to Video / Kling  (`api_partner_nodes_image_to_video__kling`)  -  6 workflow(s)  -  source: mixed
+- execution: api (API nodes: ByteDanceSeedreamNodeV2, GeminiImage2Node, GeminiNanoBanana2, GeminiNode, KlingImageToVideoWithAudio, KlingOmniProImageToVideoNode, OpenAIChatConfig, OpenAIChatNode)
+- when to use: Use to generate a video from an input image using Kling, Anima, Nano-Banana.
+- example request: "build a video workflow using Kling"
+- description: API image-to-video via Kling O3 (Kling 3.0). 1 reference image (+ optional audio/text prompt) -> 1 video output. Generates character-consistent video with native audio output and precise storyboard control. | Local image editing via Kling. 6 image inputs -> 1 video output. Processes and generates content using ComfyUI workflows. | This is the base workflow behind my viral Wes Anderson-style reel on Instagram.  It shows how to go from a simple prompt to a Wes Anderson-style image using a cinematic image model, then enhance it with Nanobanana to improve textures and details, and finally turn it into a video using the current best video model, Kling 3.0. | Transform static images into dynamic videos with Kling O1. Add motion, camera movements, and life to your images using text prompts. | Transform static images into dynamic videos with synchronized dialogue, singing, sound effects, and ambient audio. | Upload an image to automatically generate a descriptive script. This script is then used to create a video with the Kling 3.0 Omni model.
+- member workflows:
+    - akagane-video-batch1
+    - api_kling2_6_i2v
+    - api_kling_o3_i2v
+    - api_kling_omni_i2v
+    - template_sirolim_image_script_video
+    - templates_ohneis_i2v
+- node clusters (required structure):
+    - (none resolved)
+- optional roles: LoadImage, AgentYRefNote, OpenAIChatConfig, OpenAIChatNode, AgentYImageCollector, SaveImage, bEpicSendToViewer, BatchImagesNode, ByteDanceSeedreamNodeV2, CLIPLoader, CLIPTextEncode, ConditioningZeroOut
+- unresolved nodes: MarkdownNote, PrimitiveNode
+
+## API / Partner Nodes - Image to Video / Anima  (`api_partner_nodes_image_to_video__anima`)  -  2 workflow(s)  -  source: official
+- execution: api (API nodes: HappyHorseImageToVideoApi, LumaConceptsNode, LumaImageToVideoNode)
+- when to use: Use to generate a video from an input image using Anima.
+- example request: "build a video workflow using Anima"
+- description: Animate a static first frame into a short video with synchronized audio using HappyHorse 1.1, taking 1 input image and producing 1 video output. Ideal for e-commerce product demos, brand marketing content, and short episodic series. | Take static images and instantly create magical high quality animations.
+- member workflows:
+    - api_happyhorse1_1_i2v
+    - api_luma_i2v
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: SaveVideo
+- optional roles: LumaConceptsNode, HappyHorseImageToVideoApi, LumaImageToVideoNode, MarkdownNote
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - Image to Video / WAN  (`api_partner_nodes_image_to_video__wan`)  -  2 workflow(s)  -  source: official
+- execution: api (API nodes: Wan2ImageToVideoApi, WanImageToVideoApi)
+- when to use: Use to generate a video from an input image using WAN.
+- example request: "build a video workflow using WAN"
+- description: Transform images into videos with synchronized audio, enhanced motion, and superior quality. | Upload an image and audio file to generate a video with synchronized sound, using the first and last frames for control.
+- member workflows:
+    - api_wan2_7_i2v
+    - api_wan_image_to_video
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: SaveVideo
+- optional roles: MarkdownNote, LoadAudio, RecordAudio, Wan2ImageToVideoApi, WanImageToVideoApi
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - Image to Video / Flux  (`api_partner_nodes_image_to_video__flux`)  -  1 workflow(s)  -  source: official
+- execution: api (API nodes: Flux3ImageToVideoNode)
+- when to use: Use to generate a video from an input image using Flux.
+- example request: "build a video workflow using Flux"
+- description: Generate full videos from a single text prompt using FLUX 3, which automatically expands your description into a cohesive scene with synchronized audio, motion, and physics. Outputs one 720p, 24fps MP4 video (5-20 seconds) with support for multi-shot structures and aspect ratios from 9:16 to 21:9. Ideal for product photography, filmic ad campaigns, and dynamic motion graphics.
+- member workflows:
+    - api_bfl_flux3_i2v
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: SaveVideo
+    - other operations: Flux3ImageToVideoNode
+
+## API / Partner Nodes - Image to Video / Gemini  (`api_partner_nodes_image_to_video__gemini`)  -  1 workflow(s)  -  source: official
+- execution: api (API nodes: GeminiVideoOmni)
+- when to use: Use to generate a video from an input image using Gemini.
+- example request: "build a video workflow using Gemini"
+- description: Generate a video from two images using Gemini Omni Flash, which interprets natural language prompts to control duration and aspect ratio. The workflow accepts 2 input images and produces 1 video output. Ideal for creating short brand clips, dynamic social media content, and iterative video edits through conversational prompting.
+- member workflows:
+    - api_google_gemini_omni_flash_i2v
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+    - output: SaveVideo
+    - other operations: CustomCombo (x2), GeminiVideoOmni, MarkdownNote, PreviewAny, PrimitiveStringMultiline, StringConcatenate (x4)
+- paired/multiple required: CustomCombo x2, LoadImage x2
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - Image to Video / LTX-2  (`api_partner_nodes_image_to_video__ltx_2`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: LtxvApiImageToVideo)
+- when to use: Use to generate a video from an input image using LTX-2.
+- example request: "build a video workflow using LTX-2"
+- description: Generate a video from an input image using LTX-2. Structurally it applies a sequence of node operations. Boundary inputs: IMAGE; outputs: AUDIO, IMAGE.
+- member workflows:
+    - api_ltxv_image_to_video
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: VHS_VideoCombine
+    - other operations: GetVideoComponents, LtxvApiImageToVideo
+
+## API / Partner Nodes - Image to Video / Veo  (`api_partner_nodes_image_to_video__veo`)  -  1 workflow(s)  -  source: official
+- execution: api (API nodes: VeoVideoGenerationNode)
+- when to use: Use to generate a video from an input image using Veo.
+- example request: "build a video workflow using Veo"
+- description: Generate videos from images using Google Veo2 API.
+- member workflows:
+    - api_veo2_i2v
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: SaveVideo
+    - other operations: MarkdownNote, VeoVideoGenerationNode
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - Image to Video / WAN 2.6  (`api_partner_nodes_image_to_video__wan_2_6`)  -  1 workflow(s)  -  source: custom
+- execution: api (API nodes: WanImageToVideoApi)
+- when to use: Use to generate a video from an input image using WAN 2.6.
+- example request: "build a video workflow using WAN 2.6"
+- description: API image-to-video via Wan 2.6. 1 image -> 1 video output. Generates 1080P video with enhanced image quality, smoother motion, and natural movement.
+- member workflows:
+    - api_wan2_6_i2v
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: VHS_VideoCombine
+    - other operations: GetVideoComponents, WanImageToVideoApi
 
 
 # Image Tools  (`image_tools`)  -  24 workflow(s), 3 model(s)
@@ -1592,29 +1561,7 @@
     - other operations: InvertMask, JoinImageWithAlpha, LoadBackgroundRemovalModel, RemoveBackground
 
 
-# Video to Video  (`video_to_video`)  -  22 workflow(s), 9 model(s)
-
-## Video to Video / WAN  (`video_to_video__wan`)  -  5 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate a video using WAN, Anima, SCAIL.
-- example request: "build a video workflow using WAN"
-- description: Animate a reference character using a driving video or replace characters entirely with SCAIL-2 Int8, which delivers higher quality than fp8 while running faster. The workflow accepts one reference image and one driving video, outputting an animated character sequence with replaced identity. Ideal for cross-identity character swaps, animal-driven animation, and multi-character scenes without intermediate pose representations. | Animate a still character using a driving video with Wan Animate 2, transferring motion directly from video frames without any pose extraction or skeleton preprocessing. The output preserves the reference character's identity while generating a fresh background and camera movement from your text prompt. Ideal for motion transfer, action mimicry, and character animation replacement projects. | Animate a still character using a driving video with Wan Animate 2, transferring motion directly from video frames without any pose extraction or skeleton preprocessing. The output preserves the reference character's identity while generating a fresh background and camera movement from your text prompt. This distilled version delivers efficient, high-fidelity motion generation with strong identity preservation, ideal for motion transfer, action mimicry, and character animation replacement projects. | Generate videos guided by pose, depth, and edge controls using Wan 2.1 ControlNet. | Upload 1 reference character image and 1 driving video. Generate an animated video of the character matching the driving video's motion. Ideal for character animation, in-video character replacement, and motion transfer projects.
-- member workflows:
-    - video_wan21_scail2_character_replacement
-    - video_wan21_scail2_character_replacement_int8
-    - video_wan_animate2
-    - video_wan_animate2_distilled
-    - wan2.1_fun_control
-- node clusters (required structure):
-    - inputs: LoadImage, LoadVideo
-    - model loading: CLIPLoader, UNETLoader, VAELoader
-    - conditioning: CLIPTextEncode (x2)
-    - decoding: VAEDecode
-    - output: SaveVideo
-    - other operations: CLIPVisionEncode, CLIPVisionLoader, CreateVideo, GetVideoComponents, MarkdownNote, ModelSamplingSD3
-- paired/multiple required: CLIPTextEncode x2
-- optional roles: ImageFromBatch, ResizeImageMaskNode, LoraLoaderModelOnly, PreviewImage, SAM3_VideoTrack, BasicScheduler, CheckpointLoaderSimple, ContextWindowsManual, KSamplerSelect, SCAIL2ColoredMask, SamplerCustom, TrimVideoLatent
-- unresolved nodes: MarkdownNote
+# Video to Video  (`video_to_video`)  -  20 workflow(s), 9 model(s)
 
 ## Video to Video / LTX-2  (`video_to_video__ltx_2`)  -  4 workflow(s)  -  source: official
 - execution: local
@@ -1636,6 +1583,27 @@
 - optional roles: KSamplerSelect, SamplerCustomAdvanced, CFGGuider, RandomNoise, ManualSigmas, MoGeRender, VAEDecode, LTXVLatentUpsampler, LatentUpscaleModelLoader, ResizeImageMaskNode, SaveVideo, BasicGuider
 - unresolved nodes: MarkdownNote, Reroute
 
+## Video to Video / WAN  (`video_to_video__wan`)  -  4 workflow(s)  -  source: official
+- execution: local
+- when to use: Use to replace a character in a video using WAN, Anima, SCAIL.
+- example request: "build a video workflow using WAN"
+- description: Animate a reference character using a driving video or replace characters entirely with SCAIL-2 Int8, which delivers higher quality than fp8 while running faster. The workflow accepts one reference image and one driving video, outputting an animated character sequence with replaced identity. Ideal for cross-identity character swaps, animal-driven animation, and multi-character scenes without intermediate pose representations. | Animate a still character using a driving video with Wan Animate 2, transferring motion directly from video frames without any pose extraction or skeleton preprocessing. The output preserves the reference character's identity while generating a fresh background and camera movement from your text prompt. Ideal for motion transfer, action mimicry, and character animation replacement projects. | Generate videos guided by pose, depth, and edge controls using Wan 2.1 ControlNet. | Upload 1 reference character image and 1 driving video. Generate an animated video of the character matching the driving video's motion. Ideal for character animation, in-video character replacement, and motion transfer projects.
+- member workflows:
+    - video_wan21_scail2_character_replacement
+    - video_wan21_scail2_character_replacement_int8
+    - video_wan_animate2
+    - wan2.1_fun_control
+- node clusters (required structure):
+    - inputs: LoadImage, LoadVideo
+    - model loading: CLIPLoader, UNETLoader, VAELoader
+    - conditioning: CLIPTextEncode (x2)
+    - decoding: VAEDecode
+    - output: SaveVideo
+    - other operations: CLIPVisionEncode, CLIPVisionLoader, CreateVideo, GetVideoComponents, MarkdownNote, ModelSamplingSD3
+- paired/multiple required: CLIPTextEncode x2
+- optional roles: ImageFromBatch, ResizeImageMaskNode, LoraLoaderModelOnly, PreviewImage, SAM3_VideoTrack, BasicScheduler, CheckpointLoaderSimple, ContextWindowsManual, KSamplerSelect, SCAIL2ColoredMask, SamplerCustom, TrimVideoLatent
+- unresolved nodes: MarkdownNote
+
 ## Video to Video / WAN VACE  (`video_to_video__wan_vace`)  -  4 workflow(s)  -  source: custom
 - execution: local
 - when to use: Use to edit an existing video using WAN VACE, WAN 2.2.
@@ -1654,23 +1622,6 @@
 - paired/multiple required: CLIPTextEncode x2
 - optional roles: DiffusionModelLoaderKJ, DiffusionModelSelector, KSamplerAdvanced, LoadImage, LoraLoaderModelOnly, PreviewImage, BatchImagesNode, ImagePadForOutpaint, ImageStitch, ImageToMask, Int, KSampler
 - unresolved nodes: Int, easy mathInt
-
-## Video to Video / SAM3  (`video_to_video__sam3`)  -  2 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to segment an image using SAM3, Anima.
-- example request: "build an image workflow using SAM3"
-- description: Extract a full-body 3D human mesh from a single video frame using SAM 3D Body, guided by a text prompt to refine pose and shape estimation. The workflow loads one video and one text prompt, then outputs a reconstructed video showing the recovered human rig. Ideal for motion capture prototyping, biomechanics analysis, and character animation previsualization. | Use the SAM3 model to segment the main subject or content from a video, isolating specific objects or regions. Input an video and receive a segmented masks output.
-
-- member workflows:
-    - utility_sam3d_body
-    - utility_video_segment_sam3
-- node clusters (required structure):
-    - inputs: LoadVideo
-    - model loading: CheckpointLoaderSimple
-    - conditioning: CLIPTextEncode
-    - other operations: GetVideoComponents, MarkdownNote, Note
-- optional roles: BuildPoseFile, CreateVideo, LoadMoGeModel, MaskPreview, MoGeGeometryToFOV, MoGeInference, Preview3D, RTDETR_detect, SAM3DBody_FaceExpression, SAM3DBody_Loader, SAM3DBody_Predict, SAM3DBody_Render
-- unresolved nodes: MarkdownNote, Note
 
 ## Video to Video / SDPose  (`video_to_video__sdpose`)  -  2 workflow(s)  -  source: official
 - execution: local
@@ -1754,16 +1705,31 @@
     - other operations: ComfyMathExpression, ComfySwitchNode, CreateVideo, FrameInterpolate, GetVideoComponents, MarkdownNote, PrimitiveBoolean, PrimitiveInt
 - unresolved nodes: MarkdownNote
 
+## Video to Video / SAM3  (`video_to_video__sam3`)  -  1 workflow(s)  -  source: official
+- execution: local
+- when to use: Use to segment an image using SAM3.
+- example request: "build an image workflow using SAM3"
+- description: Use the SAM3 model to segment the main subject or content from a video, isolating specific objects or regions. Input an video and receive a segmented masks output.
 
-# API / Partner Nodes - Upscale  (`api_partner_nodes_upscale`)  -  19 workflow(s), 6 model(s)
+- member workflows:
+    - utility_video_segment_sam3
+- node clusters (required structure):
+    - inputs: LoadVideo
+    - model loading: CheckpointLoaderSimple
+    - conditioning: CLIPTextEncode
+    - other operations: GetVideoComponents, MarkdownNote (x2), MaskPreview, Note, SAM3_Detect
+- paired/multiple required: MarkdownNote x2
+- unresolved nodes: MarkdownNote, Note
 
-## API / Partner Nodes - Upscale / Generic  (`api_partner_nodes_upscale__generic`)  -  7 workflow(s)  -  source: official
-- execution: api (API nodes: ByteDanceVideoEnhanceNode, HitPawGeneralImageEnhance, HitPawVideoEnhance, RecraftCreativeUpscaleNode, RecraftCrispUpscaleNode, WavespeedFlashVSRNode, WavespeedImageUpscaleNode)
+
+# API / Partner Nodes - Upscale  (`api_partner_nodes_upscale`)  -  17 workflow(s), 5 model(s)
+
+## API / Partner Nodes - Upscale / Generic  (`api_partner_nodes_upscale__generic`)  -  6 workflow(s)  -  source: official
+- execution: api (API nodes: HitPawGeneralImageEnhance, HitPawVideoEnhance, RecraftCreativeUpscaleNode, RecraftCrispUpscaleNode, WavespeedFlashVSRNode, WavespeedImageUpscaleNode)
 - when to use: Use to upscale / enhance an image.
 - example request: "build an image workflow"
-- description: Enhance video quality with Bytedance vCube, an AI-driven tool that upscales and restores footage through shot-adaptive processing, fixing compression artifacts and color distortion while preserving original texture. Ideal for improving UGC clips, refining AIGC content, and restoring classic films with vibrant, clear results. | Upload a low-quality portrait image and adjust the upscaling factor. Generate a high-fidelity, detailed portrait with enhanced skin textures and facial features. | Upload a low-resolution or noisy image to restore and upscale. Generate a high-resolution output with enhanced details, reduced artifacts, and preserved natural look. | Upload a video to enhance and upscale. Generate a restored output with improved clarity, temporal stability, and optional portrait enhancement. | Upload a video to upscale it to 720p, 1080p, 2K, or 4K. The workflow enhances detail, reduces artifacts, and ensures consistent motion for a high-quality, natural-looking output. | Upload an image to enhance and upscale it. Recraft's AI reconstructs details and improves textures, outputting a higher-quality image with a natural appearance. | Upload an image to upscale its resolution. Generate an enhanced 2K, 4K, or 8K output that preserves details and reduces artifacts in JPEG, PNG, or WEBP format.
+- description: Upload a low-quality portrait image and adjust the upscaling factor. Generate a high-fidelity, detailed portrait with enhanced skin textures and facial features. | Upload a low-resolution or noisy image to restore and upscale. Generate a high-resolution output with enhanced details, reduced artifacts, and preserved natural look. | Upload a video to enhance and upscale. Generate a restored output with improved clarity, temporal stability, and optional portrait enhancement. | Upload a video to upscale it to 720p, 1080p, 2K, or 4K. The workflow enhances detail, reduces artifacts, and ensures consistent motion for a high-quality, natural-looking output. | Upload an image to enhance and upscale it. Recraft's AI reconstructs details and improves textures, outputting a higher-quality image with a natural appearance. | Upload an image to upscale its resolution. Generate an enhanced 2K, 4K, or 8K output that preserves details and reduces artifacts in JPEG, PNG, or WEBP format.
 - member workflows:
-    - api_bytedance_vcube_video_enhance
     - api_wavespeed_flshvsr_video_upscale
     - api_wavespeed_image_upscale
     - utility_hitpaw_general_image_enhance
@@ -1772,7 +1738,7 @@
     - utility_recraft_crisp_image_upscale
 - node clusters (required structure):
     - (none resolved)
-- optional roles: GetVideoComponents, MarkdownNote, SaveVideo, ByteDanceVideoEnhanceNode, CreateVideo, HitPawGeneralImageEnhance, HitPawVideoEnhance, ImageCompare, ImageStitch, LoadImage, LoadVideo, RecraftCreativeUpscaleNode
+- optional roles: MarkdownNote, HitPawGeneralImageEnhance, HitPawVideoEnhance, ImageCompare, LoadImage, LoadVideo, RecraftCreativeUpscaleNode, RecraftCrispUpscaleNode, SaveImage, SaveVideo, WavespeedFlashVSRNode, WavespeedImageUpscaleNode
 - unresolved nodes: MarkdownNote
 
 ## API / Partner Nodes - Upscale / Magnific  (`api_partner_nodes_upscale__magnific`)  -  3 workflow(s)  -  source: mixed
@@ -1829,19 +1795,6 @@
     - inputs: LoadImage
     - output: SaveImage
     - other operations: GeminiImage2Node
-
-## API / Partner Nodes - Upscale / Flux  (`api_partner_nodes_upscale__flux`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: FluxVideoUpscaleNode)
-- when to use: Use to upscale / enhance a video using Flux.
-- example request: "build a video workflow using Flux"
-- description: Upscale video clips to 1080p, 2K, or 4K using FLUX 3 super-resolution, with a precise mode that preserves source fidelity and a creative mode that enhances fine detail. It accepts 1 video input, up to 20 seconds long, and produces 1 upscaled mp4 output with an optional prompt to guide detail enhancement. Ideal for restoring low-resolution footage, preparing clips for large-screen delivery, and adding crispness to AI-generated video.
-- member workflows:
-    - api_bfl_flux_video_upscale
-- node clusters (required structure):
-    - inputs: LoadVideo
-    - output: SaveVideo
-    - other operations: FluxVideoUpscaleNode, MarkdownNote
-- unresolved nodes: MarkdownNote
 
 
 # Preprocessors / Estimation  (`preprocessors_estimation`)  -  17 workflow(s), 7 model(s)
@@ -1945,172 +1898,6 @@
     - inputs: LoadImage
     - output: PreviewImage
     - other operations: InvertMask, JoinImageWithAlpha, LoadBackgroundRemovalModel, MarkdownNote, MaskPreview, RemoveBackground
-- unresolved nodes: MarkdownNote
-
-
-# API / Partner Nodes - First / Last Frame to Video  (`api_partner_nodes_first_last_frame_to_video`)  -  16 workflow(s), 5 model(s)
-
-## API / Partner Nodes - First / Last Frame to Video / Generic  (`api_partner_nodes_first_last_frame_to_video__generic`)  -  8 workflow(s)  -  source: mixed
-- execution: api (API nodes: ByteDance2FirstLastFrameNode, ByteDanceCreateImageAsset, ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiImageNode, Vidu2StartEndToVideoNode)
-- when to use: Use to generate a video interpolating between a first and last frame.
-- example request: "build a video workflow"
-- description: API first-last-frame-to-video via Seedance 2.0 (ByteDance). 1 first frame image + 1 optional last frame image -> 1 video output. Generates video interpolated between keyframes with precise motion control. | Create smooth video transitions between start and end frames with cinematic camera movements, multi-subject consistency. | Generate a smooth video transition between a user-provided start frame and end frame with Seedance 2.5, which automatically interpolates the motion, camera movement, and visual evolution while locking both endpoints. Ideal for shot transitions, storyboard previz, and before-and-after scene showcases like empty-to-packed or day-to-night shifts. | Generate cinematic video transitions between start and end frames with fluid motion, scene consistency, and professional polish using ByteDance's Seedance model. | Upload a reference image of a real person for identity verification and generate a personalized video with first and last frame control using Seedance2.0 FLF2V. | Upload a start frame and end frame, and Seedance 1.5 Pro automatically generates a smooth video transition with synchronized audio between them. | Upload the first and last frames of your video. Generate a high-quality video sequence using the Seedance2.0 model. | Upload your logotype and apply a texture + elements for on brand asset
-- member workflows:
-    - api_bytedance_flf2v
-    - api_bytedance_seedance1_5_flf2v
-    - api_seedance2_0_flf2v
-    - api_seedance2_0_flf2v_real_human
-    - api_seedance2_5_flf2v
-    - api_seedance2_i2v_flf
-    - api_vidu_q2_flf2v
-    - templates-textured_logotype-v2.1
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-- paired/multiple required: LoadImage x2
-- optional roles: MarkdownNote, ByteDanceCreateImageAsset, SaveImage, ByteDance2FirstLastFrameNode, ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiImageNode, GetVideoComponents, ImageBatch, ResizeAndPadImage, SaveVideo, VHS_VideoCombine
-- unresolved nodes: MarkdownNote
-
-## API / Partner Nodes - First / Last Frame to Video / Anima  (`api_partner_nodes_first_last_frame_to_video__anima`)  -  3 workflow(s)  -  source: official
-- execution: api (API nodes: ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode, MinimaxHailuo03FirstLastFrameNode)
-- when to use: Use to generate a video interpolating between a first and last frame using Anima.
-- example request: "build a video workflow using Anima"
-- description: Generate a video from a first and last frame using MiniMax H3, producing a smooth animation between the two images. You provide 2 images, and the workflow outputs a single video clip. Ideal for creating seamless transitions in animation, visualizing before-and-after transformations, and generating consistent motion for character or scene sequences. | Upload a vector image of your logo, and prompt your desired texture. Generate a textured 3D first and last frame with automated prompting for the final animation. | Upload an image of a device or object to generate start and end frames. The workflow animates the transition to an exploded view and back, outputting a seamless video loop.
-- member workflows:
-    - api_minimax_h3_flf2v
-    - template_eric_exploded_view
-    - templates-3D_logo_texture_animation
-- node clusters (required structure):
-    - inputs: LoadImage
-    - output: SaveVideo
-- optional roles: GeminiImage2Node, SaveImage, ByteDanceFirstLastFrameNode, GeminiNanoBanana2V2, GetVideoComponents, Note, BatchImagesNode, CreateVideo, GeminiNode, MinimaxHailuo03FirstLastFrameNode
-- unresolved nodes: Note
-
-## API / Partner Nodes - First / Last Frame to Video / Kling  (`api_partner_nodes_first_last_frame_to_video__kling`)  -  3 workflow(s)  -  source: mixed
-- execution: api (API nodes: GeminiNode, KlingFirstLastFrameNode, KlingOmniProFirstLastFrameNode)
-- when to use: Use to generate a video interpolating between a first and last frame using Kling.
-- example request: "build a video workflow using Kling"
-- description: API first-last-frame-to-video via Kling O3 (Kling 3.0). Up to 4 reference/keyframe images -> 1 video output. Generates videos with precise semantic control, longer duration, and improved narrative coherence. | Input a first and last frame image to generate a continuous video sequence with multi-shot generation, precise element control, and support for multilingual prompts. | Upload 8 images (in order) to be used as keyframes for 7 Kling 3.0 FL2V videos.
-- member workflows:
-    - api_kling_o3_flf2v
-    - api_kling_v3_flf2v
-    - template_contact_sheet-step_3.app
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-- paired/multiple required: LoadImage x2
-- optional roles: ImageFromBatch, BatchImagesNode, GeminiNode, KlingFirstLastFrameNode, SaveVideo, GetVideoComponents, ImageBatchMulti, KlingOmniProFirstLastFrameNode, VHS_VideoCombine
-- unresolved nodes: PrimitiveNode, Reroute
-
-## API / Partner Nodes - First / Last Frame to Video / LTX-2  (`api_partner_nodes_first_last_frame_to_video__ltx_2`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: LtxApi25ImageToVideo)
-- when to use: Use to generate a video interpolating between a first and last frame using Anima, LTX-2.
-- example request: "build a video workflow using Anima"
-- description: Generate a video from two reference images using LTX-2.5, blending the content of both frames into a single animated sequence. Ideal for creating transition shots, morphing between two subjects or scenes, and building multi-shot narratives from still references.
-- member workflows:
-    - api_ltx2_5_flf2v
-- node clusters (required structure):
-    - inputs: LoadImage (x2)
-    - output: SaveVideo
-    - other operations: LtxApi25ImageToVideo
-- paired/multiple required: LoadImage x2
-
-## API / Partner Nodes - First / Last Frame to Video / WAN 2.2  (`api_partner_nodes_first_last_frame_to_video__wan_2_2`)  -  1 workflow(s)  -  source: official
-- execution: api (API nodes: GeminiImageNode, GeminiNode)
-- when to use: Use to generate a video using WAN 2.2.
-- example request: "build a video workflow using WAN 2.2"
-- description: Upload a starting image and its prompt to generate a looping video from the first to the last frame.
-- member workflows:
-    - templates_mjm_looped_restyler
-- node clusters (required structure):
-    - inputs: LoadImage
-    - model loading: CLIPLoader (x2), LoraLoaderModelOnly (x4), UNETLoader (x4), VAELoader (x2)
-    - conditioning: CLIPTextEncode (x4)
-    - sampling: KSamplerAdvanced (x4)
-    - decoding: VAEDecode (x2)
-    - output: PreviewImage (x3), SaveVideo
-    - other operations: CreateVideo (x3), GeminiImageNode, GeminiNode (x2), GetImageSizeAndCount, GetVideoComponents (x2), ImageBatch, ImageScaleToTotalPixels (x2), ImageStitch, ModelSamplingSD3 (x4), SplitImageWithAlpha, WanFirstLastFrameToVideo (x2)
-- paired/multiple required: CLIPTextEncode x4, KSamplerAdvanced x4, LoraLoaderModelOnly x4, ModelSamplingSD3 x4, UNETLoader x4, CreateVideo x3, PreviewImage x3, CLIPLoader x2, GeminiNode x2, GetVideoComponents x2, ImageScaleToTotalPixels x2, VAEDecode x2, VAELoader x2, WanFirstLastFrameToVideo x2
-
-
-# Audio  (`audio`)  -  16 workflow(s), 4 model(s)
-
-## Audio / ACE-Step  (`audio__ace_step`)  -  10 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate audio from a text prompt using ACE-Step.
-- example request: "build an audio workflow using ACE-Step"
-- description: Edit existing songs to change style and lyrics using ACE-Step v1 M2M. | Generate high-quality audio from text prompts using the 4B parameter ACE-Step 1.5 XL model.  | Generate high-quality music from text prompts using a 4B parameter SFT model. Control output with CFG for precise prompt adherence.  | Generate high-quality music from text prompts using the distilled 4B ACE-Step model. Produces commercial-ready audio in just 8 inference steps without CFG. | Generate instrumental music from text prompts using ACE-Step v1. | Generate songs with vocals from text prompts using ACE-Step v1, supporting multilingual and style customization. | Generates audio/music from text prompts using ACE-Step 1.5, a diffusion-based audio generation model. | Input a text prompt describing the music style and optional lyrics. Generate a full, high-quality audio song in under 10 seconds on consumer hardware. | Input a text prompt to generate music. This 4B model version offers stronger audio understanding and composition capabilities compared to smaller variants. | Input style tags and lyrics to generate a full song. The workflow uses the ACE-Step 1.5 model to produce commercial-grade music in under 10 seconds on consumer hardware.
-- member workflows:
-    - audio_ace_step1_5_xl_base
-    - audio_ace_step1_5_xl_sft
-    - audio_ace_step1_5_xl_turbo
-    - audio_ace_step_1_5_checkpoint
-    - audio_ace_step_1_5_split
-    - audio_ace_step_1_5_split_4b
-    - audio_ace_step_1_m2m_editing
-    - audio_ace_step_1_t2a_instrumentals
-    - audio_ace_step_1_t2a_song
-    - text_to_audio_ace_step_1_5
-- node clusters (required structure):
-    - conditioning: ConditioningZeroOut
-    - sampling: KSampler
-    - decoding: VAEDecodeAudio
-- optional roles: CheckpointLoaderSimple, DualCLIPLoader, EmptyAceStep1.5LatentAudio, EmptyAceStepLatentAudio, LatentApplyOperationCFG, LatentOperationTonemapReinhard, LoadAudio, MarkdownNote, ModelSamplingAuraFlow, ModelSamplingSD3, Note, SaveAudioMP3
-- unresolved nodes: MarkdownNote, Note, PrimitiveNode
-
-## Audio / Qwen Image  (`audio__qwen_image`)  -  3 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate audio from a text prompt using Qwen Image, Stable Audio.
-- example request: "build an audio workflow using Qwen Image"
-- description: Generates music, instrument loops, sound effects, and one-shots from text using Stable Audio 3 Medium, with optional Qwen 3.5 category-based prompt expansion (Music, Instrument, SFX, One-shot). | Generates music, instrument loops, sound effects, and one-shots from text using the Stable Audio 3 Medium base checkpoint, with optional Qwen 3.5 category-based prompt expansion (Music, Instrument, SFX, One-shot). | Input a short text description of a sound, music, or effect. The workflow expands your prompt with Qwen and generates a stereo audio clip from Stable Audio 3.
-- member workflows:
-    - audio_generation_stable_audio_3_medium
-    - audio_generation_stable_audio_3_medium_base
-    - audio_stable_audio_3_medium_base
-- node clusters (required structure):
-    - model loading: CLIPLoader (x2), CheckpointLoaderSimple
-    - conditioning: CLIPTextEncode (x2)
-    - latent / canvas: EmptyLatentAudio
-    - sampling: KSampler
-    - decoding: VAEDecodeAudio
-    - other operations: ComfyMathExpression, ComfySwitchNode, CustomCombo, JsonExtractString, PreviewAny (x2), PrimitiveBoolean, PrimitiveFloat, PrimitiveStringMultiline, StringReplace (x3), TextGenerate
-- paired/multiple required: CLIPLoader x2, CLIPTextEncode x2
-- optional roles: MarkdownNote, SaveAudioMP3
-- unresolved nodes: MarkdownNote
-
-## Audio / Stable Audio  (`audio__stable_audio`)  -  2 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate audio from a text prompt using Stable Audio.
-- example request: "build an audio workflow using Stable Audio"
-- description: Generate audio from text prompts using Stable Audio. | Input a short text idea, optional duration, seed, and category. Generate stereo audio (music, SFX, or instruments) using Stable Audio 3 with optional AI-driven text expansion.
-- member workflows:
-    - audio_stable_audio_3_medium
-    - audio_stable_audio_example
-- node clusters (required structure):
-    - model loading: CLIPLoader, CheckpointLoaderSimple
-    - conditioning: CLIPTextEncode (x2)
-    - latent / canvas: EmptyLatentAudio
-    - sampling: KSampler
-    - decoding: VAEDecodeAudio
-    - output: SaveAudioMP3
-    - other operations: MarkdownNote
-- paired/multiple required: CLIPTextEncode x2
-- optional roles: CustomCombo, TextGenerate
-- unresolved nodes: MarkdownNote
-
-## Audio / Generic  (`audio__generic`)  -  1 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate audio from a text prompt.
-- example request: "build an audio workflow"
-- description: Create full-length songs from text prompts with MiniMax Music 3, generating complete 5-minute tracks with stable structure and high-fidelity audio. Input a structured caption describing lyrics, style, mood, and arrangement, and receive a finished song as output. Ideal for music producers prototyping demos, and content creators needing original background tracks.
-- member workflows:
-    - audio_minimax_music_3
-- node clusters (required structure):
-    - model loading: CLIPLoader, UNETLoader, VAELoader
-    - conditioning: ConditioningZeroOut, MiniMaxMusic3TextEncode
-    - sampling: KSampler
-    - decoding: VAEDecodeAudio, VAEDecodeAudioTiled
-    - output: SaveAudioAdvanced
-    - other operations: ComfySwitchNode, EmptyMiniMaxMusic3LatentAudio, MarkdownNote (x2), SeedNode
-- paired/multiple required: MarkdownNote x2
 - unresolved nodes: MarkdownNote
 
 
@@ -2250,30 +2037,166 @@
     - sampling: KSampler
     - decoding: VAEDecode
     - output: SaveImage
-    - other operations: EmptyQwenImageLayeredLatentImage, GetImageSize, ImageScaleToMaxDimension, LatentCut, LatentCutToBatch, MarkdownNote (x2), ModelSamplingAuraFlow, ReferenceLatent (x2)
+    - other operations: EmptyQwenImageLayeredLatentImage, GetImageSize, ImageScaleToMaxDimension, LatentCutToBatch, MarkdownNote (x2), ModelSamplingAuraFlow, ReferenceLatent (x2)
 - paired/multiple required: CLIPTextEncode x2, MarkdownNote x2, ReferenceLatent x2
 - unresolved nodes: MarkdownNote
 
 
-# Text to Video  (`text_to_video`)  -  15 workflow(s), 6 model(s)
+# API / Partner Nodes - First / Last Frame to Video  (`api_partner_nodes_first_last_frame_to_video`)  -  15 workflow(s), 4 model(s)
 
-## Text to Video / LTX-2  (`text_to_video__ltx_2`)  -  6 workflow(s)  -  source: official
+## API / Partner Nodes - First / Last Frame to Video / Generic  (`api_partner_nodes_first_last_frame_to_video__generic`)  -  8 workflow(s)  -  source: mixed
+- execution: api (API nodes: ByteDance2FirstLastFrameNode, ByteDanceCreateImageAsset, ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiImageNode, Vidu2StartEndToVideoNode)
+- when to use: Use to generate a video interpolating between a first and last frame.
+- example request: "build a video workflow"
+- description: API first-last-frame-to-video via Seedance 2.0 (ByteDance). 1 first frame image + 1 optional last frame image -> 1 video output. Generates video interpolated between keyframes with precise motion control. | Create smooth video transitions between start and end frames with cinematic camera movements, multi-subject consistency. | Generate a smooth video transition between a user-provided start frame and end frame with Seedance 2.5, which automatically interpolates the motion, camera movement, and visual evolution while locking both endpoints. Ideal for shot transitions, storyboard previz, and before-and-after scene showcases like empty-to-packed or day-to-night shifts. | Generate cinematic video transitions between start and end frames with fluid motion, scene consistency, and professional polish using ByteDance's Seedance model. | Upload a reference image of a real person for identity verification and generate a personalized video with first and last frame control using Seedance2.0 FLF2V. | Upload a start frame and end frame, and Seedance 1.5 Pro automatically generates a smooth video transition with synchronized audio between them. | Upload the first and last frames of your video. Generate a high-quality video sequence using the Seedance2.0 model. | Upload your logotype and apply a texture + elements for on brand asset
+- member workflows:
+    - api_bytedance_flf2v
+    - api_bytedance_seedance1_5_flf2v
+    - api_seedance2_0_flf2v
+    - api_seedance2_0_flf2v_real_human
+    - api_seedance2_5_flf2v
+    - api_seedance2_i2v_flf
+    - api_vidu_q2_flf2v
+    - templates-textured_logotype-v2.1
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+- paired/multiple required: LoadImage x2
+- optional roles: MarkdownNote, ByteDanceCreateImageAsset, SaveImage, ByteDance2FirstLastFrameNode, ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiImageNode, GetVideoComponents, ImageBatch, ResizeAndPadImage, SaveVideo, VHS_VideoCombine
+- unresolved nodes: MarkdownNote
+
+## API / Partner Nodes - First / Last Frame to Video / Anima  (`api_partner_nodes_first_last_frame_to_video__anima`)  -  3 workflow(s)  -  source: official
+- execution: api (API nodes: ByteDanceFirstLastFrameNode, GeminiImage2Node, GeminiNanoBanana2V2, GeminiNode, MinimaxHailuo03FirstLastFrameNode)
+- when to use: Use to generate a video interpolating between a first and last frame using Anima.
+- example request: "build a video workflow using Anima"
+- description: Generate a video from a first and last frame using MiniMax H3, producing a smooth animation between the two images. You provide 2 images, and the workflow outputs a single video clip. Ideal for creating seamless transitions in animation, visualizing before-and-after transformations, and generating consistent motion for character or scene sequences. | Upload a vector image of your logo, and prompt your desired texture. Generate a textured 3D first and last frame with automated prompting for the final animation. | Upload an image of a device or object to generate start and end frames. The workflow animates the transition to an exploded view and back, outputting a seamless video loop.
+- member workflows:
+    - api_minimax_h3_flf2v
+    - template_eric_exploded_view
+    - templates-3D_logo_texture_animation
+- node clusters (required structure):
+    - inputs: LoadImage
+    - output: SaveVideo
+- optional roles: GeminiImage2Node, SaveImage, ByteDanceFirstLastFrameNode, GeminiNanoBanana2V2, GetVideoComponents, Note, BatchImagesNode, CreateVideo, GeminiNode, MinimaxHailuo03FirstLastFrameNode
+- unresolved nodes: Note
+
+## API / Partner Nodes - First / Last Frame to Video / Kling  (`api_partner_nodes_first_last_frame_to_video__kling`)  -  3 workflow(s)  -  source: mixed
+- execution: api (API nodes: GeminiNode, KlingFirstLastFrameNode, KlingOmniProFirstLastFrameNode)
+- when to use: Use to generate a video interpolating between a first and last frame using Kling.
+- example request: "build a video workflow using Kling"
+- description: API first-last-frame-to-video via Kling O3 (Kling 3.0). Up to 4 reference/keyframe images -> 1 video output. Generates videos with precise semantic control, longer duration, and improved narrative coherence. | Input a first and last frame image to generate a continuous video sequence with multi-shot generation, precise element control, and support for multilingual prompts. | Upload 8 images (in order) to be used as keyframes for 7 Kling 3.0 FL2V videos.
+- member workflows:
+    - api_kling_o3_flf2v
+    - api_kling_v3_flf2v
+    - template_contact_sheet-step_3.app
+- node clusters (required structure):
+    - inputs: LoadImage (x2)
+- paired/multiple required: LoadImage x2
+- optional roles: ImageFromBatch, BatchImagesNode, GeminiNode, KlingFirstLastFrameNode, SaveVideo, GetVideoComponents, ImageBatchMulti, KlingOmniProFirstLastFrameNode, VHS_VideoCombine
+- unresolved nodes: PrimitiveNode, Reroute
+
+## API / Partner Nodes - First / Last Frame to Video / WAN 2.2  (`api_partner_nodes_first_last_frame_to_video__wan_2_2`)  -  1 workflow(s)  -  source: official
+- execution: api (API nodes: GeminiImageNode, GeminiNode)
+- when to use: Use to generate a video using WAN 2.2.
+- example request: "build a video workflow using WAN 2.2"
+- description: Upload a starting image and its prompt to generate a looping video from the first to the last frame.
+- member workflows:
+    - templates_mjm_looped_restyler
+- node clusters (required structure):
+    - inputs: LoadImage
+    - model loading: CLIPLoader (x2), LoraLoaderModelOnly (x4), UNETLoader (x4), VAELoader (x2)
+    - conditioning: CLIPTextEncode (x4)
+    - sampling: KSamplerAdvanced (x4)
+    - decoding: VAEDecode (x2)
+    - output: PreviewImage (x3), SaveVideo
+    - other operations: CreateVideo (x3), GeminiImageNode, GeminiNode (x2), GetImageSizeAndCount, GetVideoComponents (x2), ImageBatch, ImageScaleToTotalPixels (x2), ImageStitch, ModelSamplingSD3 (x4), SplitImageWithAlpha, WanFirstLastFrameToVideo (x2)
+- paired/multiple required: CLIPTextEncode x4, KSamplerAdvanced x4, LoraLoaderModelOnly x4, ModelSamplingSD3 x4, UNETLoader x4, CreateVideo x3, PreviewImage x3, CLIPLoader x2, GeminiNode x2, GetVideoComponents x2, ImageScaleToTotalPixels x2, VAEDecode x2, VAELoader x2, WanFirstLastFrameToVideo x2
+
+
+# Audio  (`audio`)  -  15 workflow(s), 3 model(s)
+
+## Audio / ACE-Step  (`audio__ace_step`)  -  10 workflow(s)  -  source: official
+- execution: local
+- when to use: Use to generate audio from a text prompt using ACE-Step.
+- example request: "build an audio workflow using ACE-Step"
+- description: Edit existing songs to change style and lyrics using ACE-Step v1 M2M. | Generate high-quality audio from text prompts using the 4B parameter ACE-Step 1.5 XL model.  | Generate high-quality music from text prompts using a 4B parameter SFT model. Control output with CFG for precise prompt adherence.  | Generate high-quality music from text prompts using the distilled 4B ACE-Step model. Produces commercial-ready audio in just 8 inference steps without CFG. | Generate instrumental music from text prompts using ACE-Step v1. | Generate songs with vocals from text prompts using ACE-Step v1, supporting multilingual and style customization. | Generates audio/music from text prompts using ACE-Step 1.5, a diffusion-based audio generation model. | Input a text prompt describing the music style and optional lyrics. Generate a full, high-quality audio song in under 10 seconds on consumer hardware. | Input a text prompt to generate music. This 4B model version offers stronger audio understanding and composition capabilities compared to smaller variants. | Input style tags and lyrics to generate a full song. The workflow uses the ACE-Step 1.5 model to produce commercial-grade music in under 10 seconds on consumer hardware.
+- member workflows:
+    - audio_ace_step1_5_xl_base
+    - audio_ace_step1_5_xl_sft
+    - audio_ace_step1_5_xl_turbo
+    - audio_ace_step_1_5_checkpoint
+    - audio_ace_step_1_5_split
+    - audio_ace_step_1_5_split_4b
+    - audio_ace_step_1_m2m_editing
+    - audio_ace_step_1_t2a_instrumentals
+    - audio_ace_step_1_t2a_song
+    - text_to_audio_ace_step_1_5
+- node clusters (required structure):
+    - conditioning: ConditioningZeroOut
+    - sampling: KSampler
+    - decoding: VAEDecodeAudio
+- optional roles: CheckpointLoaderSimple, DualCLIPLoader, EmptyAceStep1.5LatentAudio, EmptyAceStepLatentAudio, LatentApplyOperationCFG, LatentOperationTonemapReinhard, LoadAudio, MarkdownNote, ModelSamplingAuraFlow, ModelSamplingSD3, Note, SaveAudioMP3
+- unresolved nodes: MarkdownNote, Note, PrimitiveNode
+
+## Audio / Qwen Image  (`audio__qwen_image`)  -  3 workflow(s)  -  source: official
+- execution: local
+- when to use: Use to generate audio from a text prompt using Qwen Image, Stable Audio.
+- example request: "build an audio workflow using Qwen Image"
+- description: Generates music, instrument loops, sound effects, and one-shots from text using Stable Audio 3 Medium, with optional Qwen 3.5 category-based prompt expansion (Music, Instrument, SFX, One-shot). | Generates music, instrument loops, sound effects, and one-shots from text using the Stable Audio 3 Medium base checkpoint, with optional Qwen 3.5 category-based prompt expansion (Music, Instrument, SFX, One-shot). | Input a short text description of a sound, music, or effect. The workflow expands your prompt with Qwen and generates a stereo audio clip from Stable Audio 3.
+- member workflows:
+    - audio_generation_stable_audio_3_medium
+    - audio_generation_stable_audio_3_medium_base
+    - audio_stable_audio_3_medium_base
+- node clusters (required structure):
+    - model loading: CLIPLoader (x2), CheckpointLoaderSimple
+    - conditioning: CLIPTextEncode (x2)
+    - latent / canvas: EmptyLatentAudio
+    - sampling: KSampler
+    - decoding: VAEDecodeAudio
+    - other operations: ComfyMathExpression, ComfySwitchNode, CustomCombo, JsonExtractString, PreviewAny (x2), PrimitiveBoolean, PrimitiveFloat, PrimitiveStringMultiline, StringReplace (x3), TextGenerate
+- paired/multiple required: CLIPLoader x2, CLIPTextEncode x2
+- optional roles: MarkdownNote, SaveAudioMP3
+- unresolved nodes: MarkdownNote
+
+## Audio / Stable Audio  (`audio__stable_audio`)  -  2 workflow(s)  -  source: official
+- execution: local
+- when to use: Use to generate audio from a text prompt using Stable Audio.
+- example request: "build an audio workflow using Stable Audio"
+- description: Generate audio from text prompts using Stable Audio. | Input a short text idea, optional duration, seed, and category. Generate stereo audio (music, SFX, or instruments) using Stable Audio 3 with optional AI-driven text expansion.
+- member workflows:
+    - audio_stable_audio_3_medium
+    - audio_stable_audio_example
+- node clusters (required structure):
+    - model loading: CLIPLoader, CheckpointLoaderSimple
+    - conditioning: CLIPTextEncode (x2)
+    - latent / canvas: EmptyLatentAudio
+    - sampling: KSampler
+    - decoding: VAEDecodeAudio
+    - output: SaveAudioMP3
+    - other operations: MarkdownNote
+- paired/multiple required: CLIPTextEncode x2
+- optional roles: CustomCombo, TextGenerate
+- unresolved nodes: MarkdownNote
+
+
+# Text to Video  (`text_to_video`)  -  14 workflow(s), 6 model(s)
+
+## Text to Video / LTX-2  (`text_to_video__ltx_2`)  -  5 workflow(s)  -  source: official
 - execution: local
 - when to use: Use to generate a video from a text prompt using LTX-2.
 - example request: "build a video workflow using LTX-2"
-- description: Generate a video from a text prompt, optionally using an image for reference. Receive a high-quality video with improved motion, audio, and detail, optimized for portrait or landscape formats. | Generate cinematic video from a text prompt using LTX-2.5, a production-ready diffusion model that outputs a single video file with optional spatial upscaling for enhanced resolution. Ideal for film previsualization, commercial storyboards, and high-volume content creation pipelines. | Generate high-quality videos from text prompts with synchronized audio-video generation using LTX-2 distilled model. Optimized for faster generation while maintaining quality. Features expressive lip sync, dynamic motion generation, and improved speed. | Generate high-quality videos from text prompts with synchronized audio-video generation using LTX-2. Features expressive lip sync, dynamic motion generation, and efficient performance. | Generate videos from text prompts. | Generates video from text prompts using LTX-2.3, Lightricks' video diffusion model.
+- description: Generate a video from a text prompt, optionally using an image for reference. Receive a high-quality video with improved motion, audio, and detail, optimized for portrait or landscape formats. | Generate high-quality videos from text prompts with synchronized audio-video generation using LTX-2 distilled model. Optimized for faster generation while maintaining quality. Features expressive lip sync, dynamic motion generation, and improved speed. | Generate high-quality videos from text prompts with synchronized audio-video generation using LTX-2. Features expressive lip sync, dynamic motion generation, and efficient performance. | Generate videos from text prompts. | Generates video from text prompts using LTX-2.3, Lightricks' video diffusion model.
 - member workflows:
     - ltxv_text_to_video
     - text_to_video_ltx_2_3
     - video_ltx2_3_t2v
-    - video_ltx2_5_t2v
     - video_ltx2_t2v
     - video_ltx2_t2v_distilled
 - node clusters (required structure):
+    - model loading: CheckpointLoaderSimple
     - conditioning: CLIPTextEncode, LTXVConditioning
     - sampling: KSamplerSelect
     - other operations: CreateVideo, EmptyLTXVLatentVideo
-- optional roles: MarkdownNote, LoraLoaderModelOnly, CFGGuider, CLIPLoader, LTXVConcatAVLatent, LTXVDualCFGGuider, LTXVImgToVideoInplace, LTXVSeparateAVLatent, ManualSigmas, RandomNoise, SamplerCustomAdvanced, VAELoader
+- optional roles: MarkdownNote, LoraLoaderModelOnly, CFGGuider, LTXVConcatAVLatent, LTXVImgToVideoInplace, LTXVSeparateAVLatent, ManualSigmas, RandomNoise, SamplerCustomAdvanced, CLIPLoader, EmptyImage, ImageScaleBy
 - unresolved nodes: MarkdownNote, Note, Reroute
 
 ## Text to Video / Generic  (`text_to_video__generic`)  -  2 workflow(s)  -  source: official
@@ -2290,7 +2213,7 @@
     - output: SaveVideo
     - other operations: CreateVideo, MarkdownNote (x2)
 - paired/multiple required: MarkdownNote x2
-- optional roles: CLIPTextEncode, BasicGuider, BasicScheduler, CLIPLoader, DualCLIPLoader, KSampler, KSamplerSelect, Kandinsky5ImageToVideo, LoraLoaderModelOnly, MiniMaxH3ImageToVideo, ModelSamplingSD3, RandomNoise
+- optional roles: CLIPTextEncode, BasicGuider, BasicScheduler, CLIPLoader, DualCLIPLoader, KSampler, KSamplerSelect, Kandinsky5ImageToVideo, MiniMaxH3ImageToVideo, ModelSamplingSD3, RandomNoise, ResolutionSelector
 - unresolved nodes: MarkdownNote
 
 ## Text to Video / Hunyuan3D  (`text_to_video__hunyuan3d`)  -  2 workflow(s)  -  source: official
@@ -2427,63 +2350,6 @@
 - unresolved nodes: MarkdownNote, Reroute
 
 
-# 3D  (`3d`)  -  11 workflow(s), 3 model(s)
-
-## 3D / Hunyuan3D  (`3d__hunyuan3d`)  -  5 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate a 3D model using Hunyuan3D.
-- example request: "build a 3d workflow using Hunyuan3D"
-- description: Generate 3D models from multiple views using Hunyuan3D 2.0 MV Turbo. | Generate 3D models from multiple views using Hunyuan3D 2.0 MV. | Generate 3D models from single images using Hunyuan3D 2.0. | Generate 3D models from single images using Hunyuan3D 2.1. | Generates 3D mesh models from a single input image using Hunyuan3D 2.0/2.1.
-- member workflows:
-    - 3d_hunyuan3d-v2.1
-    - 3d_hunyuan3d_image_to_model
-    - 3d_hunyuan3d_multiview_to_model
-    - 3d_hunyuan3d_multiview_to_model_turbo
-    - image_to_model_hunyuan3d_2_1
-- node clusters (required structure):
-    - model loading: ImageOnlyCheckpointLoader
-    - latent / canvas: EmptyLatentHunyuan3Dv2
-    - sampling: KSampler
-    - decoding: VAEDecodeHunyuan3D
-    - other operations: CLIPVisionEncode, ModelSamplingAuraFlow, VoxelToMesh
-- optional roles: LoadImage, MarkdownNote, FluxGuidance, Hunyuan3Dv2Conditioning, Hunyuan3Dv2ConditioningMultiView, SaveGLB
-- unresolved nodes: MarkdownNote
-
-## 3D / MoGe  (`3d__moge`)  -  4 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate an image using MoGe.
-- example request: "build a 3d workflow using MoGe"
-- description: Estimates 3D scene geometry from an input image using MoGe, outputting a mesh plus OpenGL and DirectX normal maps. | Upload a single image. Generate a high-fidelity 3D model with PBR textures using either Pixal3D or TRELLIS.2, toggled by a single switch. Both pipelines share the same DINOv3 encoder and shape/texture VAEs; Pixal3D adds MoGe camera estimation for pixel-aligned geometry. Includes background removal and a complete mesh post-processing pipeline: remesh, decimate, UV unwrap, and texture baking. | Upload an equirectangular 360° panorama image and generate a textured GLB mesh with vertex colors. | Upload an image to estimate its perspective geometry. Generate a 3D depth map and surface normals from the input.
-- member workflows:
-    - 3d_moge_panorama_to_mesh
-    - 3d_moge_perspective_to_mesh
-    - 3d_pixal3d_trellis2_image_to_model
-    - geometry_estimation_moge
-- node clusters (required structure):
-    - other operations: ComfySwitchNode (x2), LoadMoGeModel
-- optional roles: PreviewImage, KSampler, MeshToFile3D, CFGOverride, MarkdownNote, MeshSmoothNormals, MoGeRender, Preview3DAdvanced, RescaleCFG, UNETLoader, VAELoader, ApplyTextureToMesh
-- unresolved nodes: MarkdownNote, Note
-
-## 3D / TripoSplat  (`3d__triposplat`)  -  2 workflow(s)  -  source: official
-- execution: local
-- when to use: Use to generate a 3D model using TripoSplat.
-- example request: "build a 3d workflow using TripoSplat"
-- description: This subgraph takes a single 2D image as input and generates a variable number of 3D Gaussians (up to 262,144) as output, enabling high-quality 3D reconstruction. It is ideal for asset creation, AR/VR, game development, and simulation environments, handling diverse image styles from photos to illustrations. | Upload a single 2D image. Generate a high-quality 3D Gaussian splat representation with controllable density and budget for rendering.
-- member workflows:
-    - 3d_triposplat_image_to_gaussian_splat
-    - image_to_gaussian_splat_triposplat
-- node clusters (required structure):
-    - model loading: UNETLoader, VAELoader (x2)
-    - conditioning: TripoSplatConditioning
-    - sampling: KSampler
-    - decoding: VAEDecodeTripoSplat
-    - output: PreviewImage
-    - other operations: CLIPVisionLoader, ComfySwitchNode (x2), InvertMask (x2), JoinImageWithAlpha, LoadBackgroundRemovalModel, RemoveBackground, TripoSplatPreprocessImage, TripoSplatSamplingPreview
-- paired/multiple required: InvertMask x2, VAELoader x2
-- optional roles: MarkdownNote, SaveGLB, CreateCameraInfo, CreateVideo, LoadImage, RenderSplat, SaveVideo, SplatToFile3D, SplatToMesh
-- unresolved nodes: MarkdownNote
-
-
 # Upscale  (`upscale`)  -  11 workflow(s), 3 model(s)
 
 ## Upscale / Generic  (`upscale__generic`)  -  7 workflow(s)  -  source: mixed
@@ -2539,27 +2405,82 @@
 - unresolved nodes: MarkdownNote
 
 
-# First / Last Frame to Video  (`first_last_frame_to_video`)  -  8 workflow(s), 4 model(s)
+# 3D  (`3d`)  -  10 workflow(s), 3 model(s)
 
-## First / Last Frame to Video / LTX-2  (`first_last_frame_to_video__ltx_2`)  -  4 workflow(s)  -  source: mixed
+## 3D / Hunyuan3D  (`3d__hunyuan3d`)  -  5 workflow(s)  -  source: official
 - execution: local
-- when to use: Use to generate a video interpolating between a first and last frame using LTX-2, Anima.
+- when to use: Use to generate a 3D model using Hunyuan3D.
+- example request: "build a 3d workflow using Hunyuan3D"
+- description: Generate 3D models from multiple views using Hunyuan3D 2.0 MV Turbo. | Generate 3D models from multiple views using Hunyuan3D 2.0 MV. | Generate 3D models from single images using Hunyuan3D 2.0. | Generate 3D models from single images using Hunyuan3D 2.1. | Generates 3D mesh models from a single input image using Hunyuan3D 2.0/2.1.
+- member workflows:
+    - 3d_hunyuan3d-v2.1
+    - 3d_hunyuan3d_image_to_model
+    - 3d_hunyuan3d_multiview_to_model
+    - 3d_hunyuan3d_multiview_to_model_turbo
+    - image_to_model_hunyuan3d_2_1
+- node clusters (required structure):
+    - model loading: ImageOnlyCheckpointLoader
+    - latent / canvas: EmptyLatentHunyuan3Dv2
+    - sampling: KSampler
+    - decoding: VAEDecodeHunyuan3D
+    - other operations: CLIPVisionEncode, ModelSamplingAuraFlow, VoxelToMesh
+- optional roles: LoadImage, MarkdownNote, FluxGuidance, Hunyuan3Dv2Conditioning, Hunyuan3Dv2ConditioningMultiView, SaveGLB
+- unresolved nodes: MarkdownNote
+
+## 3D / MoGe  (`3d__moge`)  -  3 workflow(s)  -  source: official
+- execution: local
+- when to use: Use to generate an image using MoGe.
+- example request: "build a 3d workflow using MoGe"
+- description: Estimates 3D scene geometry from an input image using MoGe, outputting a mesh plus OpenGL and DirectX normal maps. | Upload an equirectangular 360° panorama image and generate a textured GLB mesh with vertex colors. | Upload an image to estimate its perspective geometry. Generate a 3D depth map and surface normals from the input.
+- member workflows:
+    - 3d_moge_panorama_to_mesh
+    - 3d_moge_perspective_to_mesh
+    - geometry_estimation_moge
+- node clusters (required structure):
+    - other operations: ComfyMathExpression, ComfySwitchNode (x2), GetImageSize, LoadMoGeModel, MoGePointMapToMesh, ResizeImagesByLongerEdge
+- optional roles: MarkdownNote, MoGeRender, PreviewImage, LoadImage, MoGeInference, MoGePanoramaInference, SaveGLB
+- unresolved nodes: MarkdownNote
+
+## 3D / TripoSplat  (`3d__triposplat`)  -  2 workflow(s)  -  source: official
+- execution: local
+- when to use: Use to generate a 3D model using TripoSplat.
+- example request: "build a 3d workflow using TripoSplat"
+- description: This subgraph takes a single 2D image as input and generates a variable number of 3D Gaussians (up to 262,144) as output, enabling high-quality 3D reconstruction. It is ideal for asset creation, AR/VR, game development, and simulation environments, handling diverse image styles from photos to illustrations. | Upload a single 2D image. Generate a high-quality 3D Gaussian splat representation with controllable density and budget for rendering.
+- member workflows:
+    - 3d_triposplat_image_to_gaussian_splat
+    - image_to_gaussian_splat_triposplat
+- node clusters (required structure):
+    - model loading: UNETLoader, VAELoader (x2)
+    - conditioning: TripoSplatConditioning
+    - sampling: KSampler
+    - decoding: VAEDecodeTripoSplat
+    - output: PreviewImage
+    - other operations: CLIPVisionLoader, ComfySwitchNode (x2), InvertMask (x2), JoinImageWithAlpha, LoadBackgroundRemovalModel, RemoveBackground, TripoSplatPreprocessImage, TripoSplatSamplingPreview
+- paired/multiple required: InvertMask x2, VAELoader x2
+- optional roles: MarkdownNote, SaveGLB, CreateCameraInfo, CreateVideo, LoadImage, RenderSplat, SaveVideo, SplatToFile3D, SplatToMesh
+- unresolved nodes: MarkdownNote
+
+
+# First / Last Frame to Video  (`first_last_frame_to_video`)  -  7 workflow(s), 4 model(s)
+
+## First / Last Frame to Video / LTX-2  (`first_last_frame_to_video__ltx_2`)  -  3 workflow(s)  -  source: mixed
+- execution: local
+- when to use: Use to generate a video interpolating between a first and last frame using LTX-2.
 - example request: "build a video workflow using LTX-2"
-- description: Generate a video from first and last frame reference images using LTX-2.5, blending both frames into a single animated sequence. Ideal for creating transition shots, morphing between two subjects or scenes, and building multi-shot narratives from still references. | Generates a video interpolating between first and last keyframes using LTX-2.3. | Generates a video that interpolates between the first and last keyframes using LTX-2.3, including optional audio.
+- description: Generates a video interpolating between first and last keyframes using LTX-2.3. | Generates a video that interpolates between the first and last keyframes using LTX-2.3, including optional audio.
 - member workflows:
     - first_last_frame_to_video
     - first_last_frame_to_video_ltx_2_3
     - video_ltx2_3_flf2v
-    - video_ltx2_5_flf2v
 - node clusters (required structure):
-    - conditioning: CLIPTextEncode (x2), LTXVConditioning, ManualSigmas
+    - model loading: CheckpointLoaderSimple, LTXVAudioVAELoader
+    - conditioning: CFGGuider, CLIPTextEncode (x2), LTXAVTextEncoderLoader, LTXVConditioning, ManualSigmas
     - latent / canvas: LTXVEmptyLatentAudio
     - sampling: SamplerCustomAdvanced, SamplerEulerAncestral
     - decoding: LTXVAudioVAEDecode, VAEDecodeTiled
     - other operations: ComfyMathExpression, CreateVideo, EmptyLTXVLatentVideo, GetImageSize, LTXVAddGuide (x2), LTXVConcatAVLatent, LTXVCropGuides, LTXVPreprocess (x2), LTXVSeparateAVLatent, PrimitiveInt (x4), RandomNoise, ResizeImageMaskNode (x2)
 - paired/multiple required: CLIPTextEncode x2, LTXVAddGuide x2, LTXVPreprocess x2, ResizeImageMaskNode x2
-- optional roles: MarkdownNote, CLIPLoader, LoadImage, VAELoader, CFGGuider, CheckpointLoaderSimple, GetVideoComponents, LTXAVTextEncoderLoader, LTXVAudioVAELoader, LTXVDualCFGGuider, SaveVideo, TextGenerateLTX2Prompt
-- unresolved nodes: MarkdownNote
+- optional roles: LoadImage, GetVideoComponents, VHS_VideoCombine
 
 ## First / Last Frame to Video / WAN 2.2  (`first_last_frame_to_video__wan_2_2`)  -  2 workflow(s)  -  source: mixed
 - execution: local
